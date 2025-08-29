@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Building2, CheckCircle, Plus } from 'lucide-react';
+import { X, CheckCircle, Plus } from 'lucide-react';
 
 interface Survey {
   id: string;
