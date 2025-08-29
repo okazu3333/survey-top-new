@@ -16,9 +16,10 @@ COPY . .
 
 # Setup database and build
 RUN cd packages/database && bun run db:generate
+RUN cd packages/database && DATABASE_URL="file:./dev.db" bun run db:push
 
-# Copy existing database with data instead of creating empty one
-COPY packages/database/prisma/dev.db packages/database/dev.db
+# Copy existing database with seed data to overwrite empty database
+COPY packages/database/prisma/dev.db ./packages/database/dev.db
 
 # Set environment variables before build
 ENV NODE_ENV=production
