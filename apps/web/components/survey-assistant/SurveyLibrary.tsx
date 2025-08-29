@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { FileText, Calendar, Building2, Target, Eye, MoreHorizontal, X } from 'lucide-react';
+import { FileText, Calendar, Eye, MoreHorizontal, X } from 'lucide-react';
 
 interface Survey {
   id: string;
@@ -333,7 +333,7 @@ export default function SurveyLibrary({ onSelectSurvey, searchKeywords = [], onC
 
             <div className="space-y-2 mb-3">
               <div className="flex items-center gap-2 text-xs text-[#9E9E9E]">
-                <Building2 className="h-3 w-3" />
+                <FileText className="h-3 w-3" />
                 <span>{survey.client}</span>
               </div>
               <div className="flex items-center gap-2 text-xs text-[#9E9E9E]">
