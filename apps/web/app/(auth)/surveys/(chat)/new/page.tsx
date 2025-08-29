@@ -38,7 +38,6 @@ const Page = () => {
   // アシスタント画面からの参考調査票情報を取得
   const referenceSurveyId = searchParams.get('referenceSurveyId');
   const referenceSurveyTitle = searchParams.get('referenceSurveyTitle');
-  const ruleModel = searchParams.get('ruleModel');
   const ruleModelName = searchParams.get('ruleModelName');
 
   // 参考調査票に基づいてダミーデータを生成する関数
