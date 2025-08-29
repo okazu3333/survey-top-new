@@ -21,6 +21,8 @@ function initializeDatabase() {
       console.log("Cloud Run environment detected, initializing database...");
       console.log("Source DB path:", sourceDbPath);
       console.log("Target DB path:", tmpDbPath);
+      console.log("Current working directory:", process.cwd());
+      console.log("Directory contents:", require('fs').readdirSync(process.cwd()));
 
       if (!existsSync(tmpDbPath)) {
         if (existsSync(sourceDbPath)) {
@@ -30,6 +32,23 @@ function initializeDatabase() {
           console.log("Database copied successfully to /tmp");
         } else {
           console.error("Source database file not found at:", sourceDbPath);
+          // 代替パスを試行
+          const altPaths = [
+            join(process.cwd(), "dev.db"),
+            join(process.cwd(), "packages", "database", "dev.db"),
+            "/usr/src/app/packages/database/dev.db"
+          ];
+          
+          for (const altPath of altPaths) {
+            console.log("Trying alternative path:", altPath);
+            if (existsSync(altPath)) {
+              console.log("Found database at alternative path:", altPath);
+              const dbContent = readFileSync(altPath);
+              writeFileSync(tmpDbPath, dbContent);
+              console.log("Database copied successfully to /tmp from alternative path");
+              break;
+            }
+          }
         }
       } else {
         console.log("Database already exists in /tmp");
