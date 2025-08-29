@@ -10,6 +10,36 @@ const globalForPrisma = globalThis as unknown as {
 function initializeDatabase() {
   const isProduction = process.env.NODE_ENV === "production";
   const isVercel = process.env.VERCEL === "1";
+  const isCloudRun = process.env.K_SERVICE !== undefined; // Cloud Run detection
+
+  // Cloud Run環境でのデータベース初期化
+  if (isProduction && isCloudRun && !globalForPrisma.dbInitialized) {
+    const tmpDbPath = "/tmp/dev.db";
+    const sourceDbPath = join(process.cwd(), "packages", "database", "dev.db");
+
+    try {
+      console.log("Cloud Run environment detected, initializing database...");
+      console.log("Source DB path:", sourceDbPath);
+      console.log("Target DB path:", tmpDbPath);
+
+      if (!existsSync(tmpDbPath)) {
+        if (existsSync(sourceDbPath)) {
+          console.log("Copying database from source to /tmp...");
+          const dbContent = readFileSync(sourceDbPath);
+          writeFileSync(tmpDbPath, dbContent);
+          console.log("Database copied successfully to /tmp");
+        } else {
+          console.error("Source database file not found at:", sourceDbPath);
+        }
+      } else {
+        console.log("Database already exists in /tmp");
+      }
+
+      globalForPrisma.dbInitialized = true;
+    } catch (error) {
+      console.error("Cloud Run database initialization error:", error);
+    }
+  }
 
   // Vercel環境でのデータベース初期化（一度だけ実行）
   if (isProduction && isVercel && !globalForPrisma.dbInitialized) {
@@ -40,7 +70,9 @@ function initializeDatabase() {
   // Determine database URL
   let databaseUrl: string;
   
-  if (isProduction && isVercel) {
+  if (isProduction && isCloudRun) {
+    databaseUrl = "file:/tmp/dev.db";
+  } else if (isProduction && isVercel) {
     databaseUrl = "file:/tmp/deploy.db";
   } else if (process.env.DATABASE_URL) {
     databaseUrl = process.env.DATABASE_URL;
