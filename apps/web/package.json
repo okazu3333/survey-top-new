@@ -6,7 +6,6 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "vercel-build": "cd ../../packages/database && bun x prisma generate && bun run db:deploy && cp prisma/deploy.db ../../apps/web/public/deploy.db && cd ../../apps/web && next build --turbopack",
-    "postinstall": "cd ../../packages/database && bun x prisma generate",
     "start": "next start",
     "lint": "biome check --write",
     "format": "biome format --write",

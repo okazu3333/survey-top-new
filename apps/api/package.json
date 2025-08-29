@@ -21,7 +21,7 @@
     "@survey-poc/database": "workspace:*",
     "cors": "^2.8.5",
     "express": "^4.21.2",
-    "zod": "^3.24.0"
+    "zod": "^4.0.13"
   },
   "devDependencies": {
     "@types/cors": "^2.8.18",

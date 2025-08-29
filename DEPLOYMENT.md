@@ -1,43 +1,69 @@
 # Cloud Run Deployment Guide
 
-## 前提条件
+## 🚀 デプロイ方法
 
+### 方法1: GitHub Actions (推奨)
+
+GitHubにプッシュするだけで自動デプロイされます。
+
+#### 前提条件
+1. GCPプロジェクトが作成されていること
+2. Google Cloud SDKがインストールされていること
+
+#### セットアップ手順
+
+1. **GCP環境のセットアップ**
+```bash
+# プロジェクトIDを指定してセットアップスクリプトを実行
+./setup-gcp.sh YOUR_PROJECT_ID
+```
+
+2. **GitHub Secretsの設定**
+GitHubリポジトリの Settings > Secrets and variables > Actions で以下を追加：
+- `GCP_PROJECT_ID`: あなたのGCPプロジェクトID
+- `GCP_SA_KEY`: `github-actions-key.json`の内容をコピー
+
+3. **自動デプロイ**
+```bash
+git push origin main
+```
+mainブランチにプッシュすると自動的にCloud Runにデプロイされます。
+
+### 方法2: 手動デプロイ
+
+#### 前提条件
 1. Google Cloud SDKがインストールされていること
 2. Dockerがインストールされていること
 3. GCPプロジェクトが作成されていること
 
-## セットアップ手順
+#### セットアップ手順
 
-### 1. Google Cloud SDKの認証
-
+1. **Google Cloud SDKの認証**
 ```bash
 gcloud auth login
 gcloud config set project YOUR_PROJECT_ID
 ```
 
-### 2. 必要なAPIの有効化
-
+2. **必要なAPIの有効化**
 ```bash
 gcloud services enable run.googleapis.com
-gcloud services enable containerregistry.googleapis.com
+gcloud services enable artifactregistry.googleapis.com
+gcloud services enable cloudbuild.googleapis.com
 ```
 
-### 3. Docker認証の設定
-
+3. **Docker認証の設定**
 ```bash
-gcloud auth configure-docker
+gcloud auth configure-docker asia-northeast1-docker.pkg.dev
 ```
 
-### 4. デプロイスクリプトの設定
-
-`deploy-cloudrun.sh`ファイルの`PROJECT_ID`を実際のGCPプロジェクトIDに変更してください：
+4. **デプロイスクリプトの設定**
+`deploy-cloudrun.sh`ファイルの`PROJECT_ID`を実際のGCPプロジェクトIDに変更：
 
 ```bash
 PROJECT_ID="your-actual-project-id"  # ここを変更
 ```
 
-### 5. デプロイの実行
-
+5. **デプロイの実行**
 ```bash
 ./deploy-cloudrun.sh
 ```
