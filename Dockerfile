@@ -8,6 +8,7 @@ COPY package.json bun.lockb ./
 COPY apps/web/package.json ./apps/web/
 COPY apps/api/package.json ./apps/api/
 COPY packages/database/package.json ./packages/database/
+COPY packages/database/prisma ./packages/database/prisma
 RUN bun install --frozen-lockfile
 
 # Copy source code
