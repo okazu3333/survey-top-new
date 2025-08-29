@@ -16,7 +16,9 @@ COPY . .
 
 # Setup database and build
 RUN cd packages/database && bun run db:generate
-RUN cd packages/database && DATABASE_URL="file:./dev.db" bun run db:push
+
+# Copy existing database with data instead of creating empty one
+COPY packages/database/prisma/dev.db packages/database/dev.db
 
 # Set environment variables before build
 ENV NODE_ENV=production
@@ -27,6 +29,11 @@ RUN bun run build
 # Create non-root user for security
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
+
+# Ensure database file has correct permissions
+RUN chown -R nextjs:nodejs packages/database/
+RUN chmod 664 packages/database/dev.db
+
 USER nextjs
 
 # Expose port and start the application
