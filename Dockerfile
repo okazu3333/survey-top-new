@@ -16,7 +16,7 @@ COPY . .
 
 # Setup database and build
 RUN cd packages/database && bun run db:generate
-RUN cd packages/database && DATABASE_URL="file:./dev.db" bun run db:reset
+RUN cd packages/database && DATABASE_URL="file:./dev.db" bun run db:push
 RUN bun run build
 
 # Create non-root user for security
