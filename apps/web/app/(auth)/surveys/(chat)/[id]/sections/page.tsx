@@ -1,13 +1,13 @@
 "use client";
 
-import { ChevronRight, HelpCircle } from "lucide-react";
+import { ChevronRight, HelpCircle, Plus, Minus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { SurveyCardHeader } from "@/components/survey-card-header";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { api } from "@/lib/trpc/react";
 
 type SectionFormData = {
@@ -42,6 +42,11 @@ const Page = ({ params }: Props) => {
   // 調査情報を取得
   const { data: survey } = api.survey.getById.useQuery({
     id: surveyId,
+  });
+
+  // 各セクションの質問を取得
+  const { data: questionsData } = api.question.list.useQuery({
+    surveyId,
   });
 
   // セクション同期のmutation
@@ -83,6 +88,17 @@ const Page = ({ params }: Props) => {
     });
   };
 
+  // 質問タイプの日本語表示
+  const getQuestionTypeLabel = (type: string) => {
+    switch (type) {
+      case 'SA': return '単一選択';
+      case 'MA': return '複数選択';
+      case 'FA': return '自由記述';
+      case 'NU': return '数値入力';
+      default: return type;
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex flex-col w-full">
@@ -120,6 +136,7 @@ const Page = ({ params }: Props) => {
             </div>
           </div>
         </header>
+        
         <div className="flex flex-col items-start gap-2 px-6 py-0 w-full rounded overflow-hidden">
           <div className="w-full">
             <p className="text-sm font-medium text-[#333333]">
@@ -137,6 +154,87 @@ const Page = ({ params }: Props) => {
             </p>
           </div>
         </div>
+
+        {/* 既存のセクションと質問の表示 */}
+        {sections && sections.length > 0 && (
+          <Card className="w-full">
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold text-gray-800">
+                現在のセクション構成
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {sections
+                .sort((a, b) => {
+                  // SCREENINGを先に、MAINを後に表示
+                  if (a.phase === 'SCREENING' && b.phase === 'MAIN') return -1;
+                  if (a.phase === 'MAIN' && b.phase === 'SCREENING') return 1;
+                  return a.order - b.order;
+                })
+                .map((section) => {
+                  const sectionQuestions = questionsData?.filter(q => q.sectionId === section.id) || [];
+                  
+                  return (
+                    <div key={section.id} className="border rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          section.phase === 'SCREENING' 
+                            ? 'bg-blue-100 text-blue-800' 
+                            : 'bg-green-100 text-green-800'
+                        }`}>
+                          {section.phase === 'SCREENING' ? 'スクリーニング' : '本調査'}
+                        </span>
+                        <h3 className="font-semibold text-gray-800">{section.title}</h3>
+                      </div>
+                      
+                      {sectionQuestions.length > 0 ? (
+                        <div className="space-y-3">
+                          {sectionQuestions
+                            .sort((a, b) => a.order - b.order)
+                            .map((question) => (
+                              <div key={question.id} className="ml-4 p-3 bg-gray-50 rounded border-l-4 border-blue-200">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <span className="text-sm font-medium text-gray-600">
+                                    {question.code}
+                                  </span>
+                                  <span className={`px-2 py-1 rounded text-xs ${
+                                    question.isRequired 
+                                      ? 'bg-red-100 text-red-700' 
+                                      : 'bg-gray-100 text-gray-600'
+                                  }`}>
+                                    {question.isRequired ? '必須' : '任意'}
+                                  </span>
+                                  <span className="px-2 py-1 rounded bg-blue-100 text-blue-700 text-xs">
+                                    {getQuestionTypeLabel(question.type)}
+                                  </span>
+                                </div>
+                                <p className="text-sm text-gray-800 mb-2">{question.title}</p>
+                                
+                                {/* 選択肢の表示（SA, MAの場合） */}
+                                {['SA', 'MA'].includes(question.type) && (
+                                  <div className="ml-4">
+                                    <p className="text-xs text-gray-500 mb-1">選択肢:</p>
+                                    <div className="space-y-1">
+                                      {/* 実際の選択肢データがあれば表示、なければプレースホルダー */}
+                                      <div className="text-xs text-gray-600">
+                                        {question.type === 'SA' ? '単一選択' : '複数選択'}の選択肢が表示されます
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-gray-500 ml-4">このセクションには質問が設定されていません</p>
+                      )}
+                    </div>
+                  );
+                })}
+            </CardContent>
+          </Card>
+        )}
+
         <Card className="w-full">
           <CardContent className="p-6">
             <div className="flex items-center gap-2 mb-4">
