@@ -17,6 +17,11 @@ COPY . .
 # Setup database and build
 RUN cd packages/database && bun run db:generate
 RUN cd packages/database && DATABASE_URL="file:./dev.db" bun run db:push
+
+# Set environment variables before build
+ENV NODE_ENV=production
+ENV DATABASE_URL="file:./packages/database/dev.db"
+
 RUN bun run build
 
 # Create non-root user for security
@@ -26,9 +31,7 @@ USER nextjs
 
 # Expose port and start the application
 EXPOSE 3000
-ENV NODE_ENV=production
 ENV PORT=3000
-ENV DATABASE_URL="file:./packages/database/dev.db"
 ENV HOSTNAME="0.0.0.0"
 
 CMD ["bun", "run", "start"] 

@@ -8,7 +8,7 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { SurveyCardHeader } from "@/components/survey-card-header";
@@ -23,7 +23,7 @@ import {
 import { useChatContext } from "../chat-context";
 import { PublishAvailableConfirmDialog } from "./_components/publish-available-confirm-dialog";
 
-const Page = () => {
+const SurveyNewContent = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -426,6 +426,14 @@ const Page = () => {
         onProceedAnyway={handleProceedAnyway}
       />
     </>
+  );
+};
+
+const Page = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SurveyNewContent />
+    </Suspense>
   );
 };
 

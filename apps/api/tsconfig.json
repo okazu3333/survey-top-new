@@ -6,7 +6,7 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "outDir": "./dist",
-    "noEmit": true,
+    "noEmit": false,
     "paths": {
       "@survey-poc/database": ["../../packages/database/src"]
     }

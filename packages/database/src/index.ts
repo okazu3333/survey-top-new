@@ -37,6 +37,18 @@ function initializeDatabase() {
     }
   }
 
+  // Determine database URL
+  let databaseUrl: string;
+  
+  if (isProduction && isVercel) {
+    databaseUrl = "file:/tmp/deploy.db";
+  } else if (process.env.DATABASE_URL) {
+    databaseUrl = process.env.DATABASE_URL;
+  } else {
+    // Fallback for build time when DATABASE_URL might not be set
+    databaseUrl = "file:./packages/database/dev.db";
+  }
+
   return new PrismaClient({
     log:
       process.env.NODE_ENV === "development"
@@ -44,10 +56,7 @@ function initializeDatabase() {
         : ["error"],
     datasources: {
       db: {
-        url:
-          isProduction && isVercel
-            ? "file:/tmp/deploy.db"
-            : process.env.DATABASE_URL,
+        url: databaseUrl,
       },
     },
   });
