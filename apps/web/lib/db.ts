@@ -14,12 +14,16 @@ function resolveDatabaseUrl(): string {
     if (!existsSync(tmpPath)) {
       if (existsSync(bundledPrismaPath)) {
         copyFileSync(bundledPrismaPath, tmpPath);
+        if (process.env.NODE_ENV === "production") console.error("DB init: copied prisma/deploy.db -> /tmp/deploy.db");
       } else if (existsSync(bundledPublicPath)) {
         copyFileSync(bundledPublicPath, tmpPath);
+        if (process.env.NODE_ENV === "production") console.error("DB init: copied public/deploy.db -> /tmp/deploy.db");
+      } else {
+        if (process.env.NODE_ENV === "production") console.error("DB init: bundled DB not found");
       }
     }
-  } catch {
-    // ignore
+  } catch (e) {
+    if (process.env.NODE_ENV === "production") console.error("DB init error:", e);
   }
 
   return `file:${tmpPath}`;
