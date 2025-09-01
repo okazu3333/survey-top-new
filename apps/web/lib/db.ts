@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 function resolveDatabaseUrl(): string {
   const envUrl = process.env.DATABASE_URL;
-  if (envUrl && !envUrl.includes("/tmp/deploy.db")) return envUrl;
+  if (envUrl) return envUrl;
 
   const tmpPath = "/tmp/deploy.db";
   const bundledPrismaPath = join(process.cwd(), "prisma", "deploy.db");
