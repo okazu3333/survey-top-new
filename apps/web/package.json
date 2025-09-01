@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "vercel-build": "prisma generate && prisma db push && tsx prisma/seed.ts && next build",
+    "vercel-build": "prisma generate && rm -f prisma/deploy.db prisma/deploy.db-journal && DATABASE_URL=\"file:./prisma/deploy.db\" prisma db push && DATABASE_URL=\"file:./prisma/deploy.db\" tsx prisma/seed.ts && mkdir -p public && cp prisma/deploy.db public/deploy.db && next build",
     "start": "next start",
     "lint": "biome check --write",
     "format": "biome format --write",
