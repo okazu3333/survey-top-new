@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight, HelpCircle, Plus, Minus } from "lucide-react";
+import { ChevronRight, HelpCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -45,7 +45,7 @@ const Page = ({ params }: Props) => {
   });
 
   // 各セクションの質問を取得
-  const { data: questionsData } = api.question.list.useQuery({
+  const { data: questionsData } = api.question.listBySurvey.useQuery({
     surveyId,
   });
 
@@ -64,11 +64,11 @@ const Page = ({ params }: Props) => {
   useEffect(() => {
     if (sections) {
       const screeningSections = sections
-        .filter((s) => s.phase === "SCREENING")
-        .map((s) => s.title);
+        .filter((s: any) => s.phase === "SCREENING")
+        .map((s: any) => s.title);
       const mainSections = sections
-        .filter((s) => s.phase === "MAIN")
-        .map((s) => s.title);
+        .filter((s: any) => s.phase === "MAIN")
+        .map((s: any) => s.title);
 
       // 既存のセクションがある場合はそれを使用、なければデフォルト値を設定
       if (screeningSections.length > 0) {
@@ -165,14 +165,14 @@ const Page = ({ params }: Props) => {
             </CardHeader>
             <CardContent className="space-y-6">
               {sections
-                .sort((a, b) => {
+                .sort((a: any, b: any) => {
                   // SCREENINGを先に、MAINを後に表示
                   if (a.phase === 'SCREENING' && b.phase === 'MAIN') return -1;
                   if (a.phase === 'MAIN' && b.phase === 'SCREENING') return 1;
                   return a.order - b.order;
                 })
-                .map((section) => {
-                  const sectionQuestions = questionsData?.filter(q => q.sectionId === section.id) || [];
+                .map((section: any) => {
+                  const sectionQuestions = questionsData?.filter((q: any) => q.sectionId === section.id) || [];
                   
                   return (
                     <div key={section.id} className="border rounded-lg p-4">
@@ -190,8 +190,8 @@ const Page = ({ params }: Props) => {
                       {sectionQuestions.length > 0 ? (
                         <div className="space-y-3">
                           {sectionQuestions
-                            .sort((a, b) => a.order - b.order)
-                            .map((question) => (
+                            .sort((a: any, b: any) => a.order - b.order)
+                            .map((question: any) => (
                               <div key={question.id} className="ml-4 p-3 bg-gray-50 rounded border-l-4 border-blue-200">
                                 <div className="flex items-center gap-2 mb-2">
                                   <span className="text-sm font-medium text-gray-600">
