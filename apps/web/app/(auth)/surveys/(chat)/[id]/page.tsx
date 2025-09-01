@@ -73,14 +73,11 @@ const Page = () => {
   const isDistributionOptimal = hasResidenceCondition && hasAgeCondition;
 
   const onSubmit = async (data: SurveyFormData) => {
-    if (!isDistributionOptimal) {
-      setIsDialogOpen(true);
-    } else {
-      await updateSurvey.mutateAsync({
-        id: surveyId,
-        ...data,
-      });
-    }
+    // PoCではワンクリックで次へ進めるように常に更新→遷移
+    await updateSurvey.mutateAsync({
+      id: surveyId,
+      ...data,
+    });
   };
 
   const handleEditSurvey = () => {
