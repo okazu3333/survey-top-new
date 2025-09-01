@@ -206,16 +206,7 @@ const Page = ({ params }: Props) => {
     }
   };
 
-  // 質問タイプの日本語表示
-  const getQuestionTypeLabel = (type: string) => {
-    switch (type) {
-      case 'SA': return '単一選択';
-      case 'MA': return '複数選択';
-      case 'FA': return '自由記述';
-      case 'NU': return '数値入力';
-      default: return type;
-    }
-  };
+  // 質問タイプ表示は未使用のため削除
 
   if (isLoading) {
     return (
