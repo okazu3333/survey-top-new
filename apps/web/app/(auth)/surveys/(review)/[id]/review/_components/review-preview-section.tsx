@@ -32,7 +32,7 @@ type ReviewItem = {
 
 type QuestionFormData = Record<string, string | string[] | undefined>;
 
-type TabType = "title" | "screening" | "main";
+type TabType = "share" | "design" | "all" | "screening" | "main";
 
 // Tab Selection Component
 const TabSelectionSection = ({
@@ -43,7 +43,9 @@ const TabSelectionSection = ({
   onTabChange: (tab: TabType) => void;
 }) => {
   const tabItems = [
-    { id: "title" as TabType, label: "タイトル全体" },
+    { id: "share" as TabType, label: "レビュー共有" },
+    { id: "design" as TabType, label: "調査設計" },
+    { id: "all" as TabType, label: "調査全体" },
     { id: "screening" as TabType, label: "スクリーニング調査" },
     { id: "main" as TabType, label: "本調査" },
   ];
@@ -81,7 +83,7 @@ export const ReviewPreviewSection = ({
 }: ReviewPreviewSectionProps) => {
   const params = useParams();
   const surveyId = Number(params.id);
-  const [activeTab, setActiveTab] = useState<TabType>("screening");
+  const [activeTab, setActiveTab] = useState<TabType>("all");
   const [expandedCommentId, setExpandedCommentId] = useState<number | null>(
     null,
   );
@@ -106,6 +108,9 @@ export const ReviewPreviewSection = ({
   const { handleSubmit, watch, setValue } = useForm<QuestionFormData>({
     defaultValues: {},
   });
+
+  // Fetch survey overview
+  const { data: survey } = api.survey.getById.useQuery({ id: surveyId });
 
   // Fetch questions from tRPC
   const { data: sections, isLoading: sectionsLoading, refetch } =
@@ -220,7 +225,7 @@ export const ReviewPreviewSection = ({
 
   // Convert threads to ReviewItems format
   const reviewItems: ReviewItem[] =
-    threads?.map((thread) => {
+    threads?.map((thread: any) => {
       // Calculate relative time
       const createdAt = new Date(thread.createdAt);
       const now = new Date();
@@ -269,13 +274,21 @@ export const ReviewPreviewSection = ({
   }
 
   // Get current sections based on active tab
-  const currentSections = sections.filter((section) =>
-    activeTab === "title"
-      ? false
-      : activeTab === "screening"
-        ? section.phase === "SCREENING"
-        : section.phase === "MAIN",
-  );
+  const currentSections = (sections || [])
+    .filter((section: any) =>
+      activeTab === "all"
+        ? true
+        : activeTab === "screening"
+          ? section.phase === "SCREENING"
+          : activeTab === "main"
+            ? section.phase === "MAIN"
+            : false,
+    )
+    .sort((a: any, b: any) => {
+      if (activeTab !== "all") return 0;
+      if (a.phase === b.phase) return 0;
+      return a.phase === "SCREENING" ? -1 : 1;
+    });
 
   return (
     <form
@@ -286,21 +299,68 @@ export const ReviewPreviewSection = ({
       <Card className="flex flex-col items-start gap-4 p-4 relative self-stretch w-full bg-[#138FB5] rounded-lg">
         <ScrollArea className="w-full h-[620px] scroll-container">
           <div className="flex flex-col items-start gap-4 relative w-full">
-            {activeTab === "title" ? (
+            {activeTab === "share" && (
               <Card className="flex flex-col items-start gap-4 px-6 py-4 relative self-stretch w-full bg-[#f4f7f9] rounded-lg border border-solid border-[#dcdcdc] shadow-[0px_0px_8px_0px_rgba(0,0,0,0.04)]">
                 <div className="inline-flex items-start gap-2 relative">
                   <div className="relative w-fit mt-[-1.00px] font-bold text-[#333333] text-xs leading-6 whitespace-nowrap">
-                    タイトル全体
+                    レビュー共有
                   </div>
                 </div>
                 <Card className="flex flex-col items-center justify-center relative self-stretch w-full bg-white rounded-lg border border-solid border-[#dcdcdc] min-h-[200px]">
-                  <p className="text-[#333333] text-base">
-                    タイトル全体のコンテンツ
-                  </p>
+                  <p className="text-[#333333] text-base">後ほど実装予定</p>
                 </Card>
               </Card>
-            ) : (
-              currentSections.map((section) => (
+            )}
+
+            {activeTab === "design" && (
+              <Card className="flex flex-col items-start gap-4 px-6 py-4 relative self-stretch w-full bg-[#f4f7f9] rounded-lg border border-solid border-[#dcdcdc] shadow-[0px_0px_8px_0px_rgba(0,0,0,0.04)]">
+                <div className="inline-flex items-start gap-2 relative">
+                  <div className="relative w-fit mt-[-1.00px] font-bold text-[#333333] text-xs leading-6 whitespace-nowrap">
+                    調査設計（概要 + セクション設定）
+                  </div>
+                </div>
+                <div className="flex flex-col gap-4 w-full">
+                  <Card className="p-4 bg-white border border-[#dcdcdc] rounded-lg">
+                    <div className="font-bold text-sm text-[#333333] mb-2">概要の設定項目</div>
+                    <div className="grid grid-cols-2 gap-3 text-sm text-[#333333]">
+                      <div><span className="text-[#666666] mr-2">タイトル</span>{survey?.title || "-"}</div>
+                      <div><span className="text-[#666666] mr-2">調査目的</span>{survey?.purpose || "-"}</div>
+                      <div className="col-span-2"><span className="text-[#666666] mr-2">調査対象者条件</span>{survey?.targetCondition || "-"}</div>
+                      <div className="col-span-2"><span className="text-[#666666] mr-2">分析対象者条件</span>{survey?.analysisCondition || "-"}</div>
+                      <div><span className="text-[#666666] mr-2">調査手法</span>{survey?.researchMethod || "-"}</div>
+                      <div><span className="text-[#666666] mr-2">調査規模（予算）</span>{survey?.researchScale || "-"}</div>
+                    </div>
+                  </Card>
+
+                  <Card className="p-4 bg-white border border-[#dcdcdc] rounded-lg">
+                    <div className="font-bold text-sm text-[#333333] mb-2">セクションの設定項目</div>
+                    <div className="w-full overflow-auto">
+                      <table className="min-w-full text-sm text-[#333333]">
+                        <thead>
+                          <tr className="text-left text-[#666666]">
+                            <th className="pr-4 py-1">フェーズ</th>
+                            <th className="pr-4 py-1">セクション名</th>
+                            <th className="pr-4 py-1">質問数</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(sections as any[]).map((s: any) => (
+                            <tr key={s.id}>
+                              <td className="pr-4 py-1">{s.phase === "SCREENING" ? "SC" : "Q"}</td>
+                              <td className="pr-4 py-1">{s.title}</td>
+                              <td className="pr-4 py-1">{s.questions?.length ?? 0}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </Card>
+                </div>
+              </Card>
+            )}
+
+            {activeTab !== "design" && activeTab !== "share" && (
+              currentSections.map((section: any) => (
                 <Card
                   key={section.id}
                   className="flex flex-col items-start gap-4 px-6 py-4 relative self-stretch w-full bg-[#f4f7f9] rounded-lg border border-solid border-[#dcdcdc] shadow-[0px_0px_8px_0px_rgba(0,0,0,0.04)]"
@@ -308,14 +368,17 @@ export const ReviewPreviewSection = ({
                   <div className="inline-flex items-start gap-2 relative">
                     <div className="relative w-fit mt-[-1.00px] font-bold text-[#333333] text-xs leading-6 whitespace-nowrap">
                       {section.title}
+                      <span className="ml-2 text-[#666666]">(
+                        {section.phase === "SCREENING" ? "SC" : "Q"}
+                      )</span>
                     </div>
                   </div>
 
-                  {section.questions.map((question) => {
+                  {section.questions.map((question: any) => {
                     // Get threads for this question
                     const questionThreads =
                       threads?.filter(
-                        (thread) => thread.questionId === question.id,
+                        (thread: any) => thread.questionId === question.id,
                       ) || [];
 
                     return (
@@ -363,7 +426,7 @@ export const ReviewPreviewSection = ({
                           )}
 
                         {/* Display threads as comments positioned on the question */}
-                        {questionThreads.map((thread) => {
+                        {questionThreads.map((thread: any) => {
                           const reviewItem = reviewItems.find(
                             (item) => item.id === thread.id,
                           );
@@ -411,7 +474,7 @@ export const ReviewPreviewSection = ({
                           type={question.type as QuestionType}
                           questionNumber={question.code}
                           questionText={question.title}
-                          options={question.options?.map((opt) => ({
+                          options={question.options?.map((opt: any) => ({
                             id: opt.value,
                             label: opt.label,
                           }))}

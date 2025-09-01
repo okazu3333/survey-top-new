@@ -9,7 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { api } from "@/lib/trpc/react";
 
-type TabType = "items" | "allocation" | "screening" | "main";
+type TabType = "all" | "screening" | "main";
 
 type FormData = Record<string, string | string[] | undefined>;
 
@@ -22,8 +22,8 @@ const TabSelectionSection = ({
   onTabChange: (tab: TabType) => void;
 }) => {
   const tabItems = [
-    { id: "items" as TabType, label: "調査項目" },
-    { id: "screening" as TabType, label: "SC調査" },
+    { id: "all" as TabType, label: "調査全体" },
+    { id: "screening" as TabType, label: "スクリーニング調査" },
     { id: "main" as TabType, label: "本調査" },
   ];
 
@@ -54,7 +54,7 @@ const TabSelectionSection = ({
 export const SurveyPreviewSection = () => {
   const params = useParams();
   const surveyId = Number(params.id);
-  const [activeTab, setActiveTab] = useState<TabType>("items");
+  const [activeTab, setActiveTab] = useState<TabType>("all");
   const [formValues, setFormValues] = useState<FormData>({});
 
   // Fetch questions from tRPC
@@ -114,29 +114,32 @@ export const SurveyPreviewSection = () => {
   }
 
   // Filter sections based on active tab
-  const currentSections = sections.filter((section) => {
-    switch (activeTab) {
-      case "items":
-        return true; // Show all sections for 調査項目
-      case "allocation":
-        return false; // Will implement allocation logic later
-      case "screening":
-        return section.phase === "SCREENING";
-      case "main":
-        return section.phase === "MAIN";
-      default:
-        return false;
-    }
-  });
+  const currentSections = (sections as any[])
+    .filter((section: any) =>
+      activeTab === "all"
+        ? true
+        : activeTab === "screening"
+          ? section.phase === "SCREENING"
+          : section.phase === "MAIN",
+    )
+    // Ensure SCREENING first then MAIN for 調査全体
+    .sort((a: any, b: any) => {
+      if (activeTab !== "all") return 0;
+      if (a.phase === b.phase) return 0;
+      return a.phase === "SCREENING" ? -1 : 1;
+    });
 
   const renderQuestion = (
     question: any,
     sectionIndex: number,
     questionIndex: number,
+    sectionPhase: "SCREENING" | "MAIN",
   ) => {
-    const questionNumber = `${
-      activeTab === "screening" || activeTab === "items" ? "SC" : "Q"
-    }${sectionIndex * 10 + questionIndex + 1}`;
+    const isScreeningContext =
+      activeTab === "screening" || (activeTab === "all" && sectionPhase === "SCREENING");
+    const questionNumber = `${isScreeningContext ? "SC" : "Q"}${
+      sectionIndex * 10 + questionIndex + 1
+    }`;
     const questionCode = question.code;
 
     // Parse config if it's a string
@@ -192,12 +195,7 @@ export const SurveyPreviewSection = () => {
       <Card className="flex flex-col items-start gap-4 p-4 relative self-stretch w-full bg-[#138FB5] rounded-lg">
         <ScrollArea className="w-full h-[620px]">
           <div className="flex flex-col items-start gap-4 relative w-full">
-            {activeTab === "items" && (
-              <div className="w-full mb-2">
-                <h2 className="text-base font-bold text-white">調査項目案</h2>
-              </div>
-            )}
-            {currentSections.map((section, sectionIndex) => (
+            {currentSections.map((section: any, sectionIndex: number) => (
               <Card
                 key={section.id}
                 className="flex flex-col items-start gap-4 px-6 py-4 relative self-stretch w-full bg-[#f4f7f9] rounded-lg border border-solid border-[#dcdcdc] shadow-[0px_0px_8px_0px_rgba(0,0,0,0.04)]"
@@ -205,24 +203,30 @@ export const SurveyPreviewSection = () => {
                 <div className="inline-flex items-start gap-2 relative">
                   <div className="relative w-fit mt-[-1.00px] font-bold text-[#333333] text-xs leading-6 whitespace-nowrap">
                     {section.title}
+                    <span className="ml-2 text-[#666666]">(
+                      {section.phase === "SCREENING" ? "SC" : "Q"}
+                    )</span>
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-4 w-full">
                   {section.questions.map(
                     (question: any, questionIndex: number) =>
-                      renderQuestion(question, sectionIndex, questionIndex),
+                      renderQuestion(
+                        question,
+                        sectionIndex,
+                        questionIndex,
+                        section.phase,
+                      ),
                   )}
                 </div>
               </Card>
             ))}
 
-            {currentSections.length === 0 && activeTab !== "allocation" && (
+            {currentSections.length === 0 && (
               <div className="flex flex-col items-center justify-center w-full h-64">
                 <p className="text-white">
-                  {activeTab === "items"
-                    ? "調査項目がありません"
-                    : activeTab === "screening"
+                  {activeTab === "screening"
                       ? "SC調査の質問がありません"
                       : "本調査の質問がありません"}
                 </p>
