@@ -38,8 +38,8 @@ RUN chmod 664 packages/database/dev.db
 USER nextjs
 
 # Expose port and start the application
-EXPOSE 3000
-ENV PORT=3000
+EXPOSE 8080
+ENV PORT=8080
 ENV HOSTNAME="0.0.0.0"
 
 CMD ["bun", "run", "start"] 
