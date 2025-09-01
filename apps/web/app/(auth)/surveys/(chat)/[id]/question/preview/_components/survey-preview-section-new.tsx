@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { QuestionForm, type QuestionType } from "@/components/question-form";
 import { Card } from "@/components/ui/card";
@@ -58,9 +58,25 @@ export const SurveyPreviewSection = () => {
   const [formValues, setFormValues] = useState<FormData>({});
 
   // Fetch questions from tRPC
-  const { data: sections, isLoading } = api.question.listBySurvey.useQuery({
+  const { data: sections, isLoading, refetch } = api.question.listBySurvey.useQuery({
     surveyId,
   });
+
+  // Seed dummy questions when none exist
+  const seedMutation = api.question.seedForSurvey.useMutation({
+    onSuccess: () => {
+      refetch();
+    },
+  });
+
+  useEffect(() => {
+    if (!isLoading && sections && sections.length > 0) {
+      const totalQuestions = sections.reduce((sum: number, s: any) => sum + (s.questions?.length || 0), 0);
+      if (totalQuestions === 0 && !seedMutation.isPending) {
+        seedMutation.mutate({ surveyId });
+      }
+    }
+  }, [isLoading, sections, seedMutation, surveyId, refetch]);
 
   const { handleSubmit } = useForm<FormData>();
 

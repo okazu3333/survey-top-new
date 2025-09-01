@@ -106,74 +106,66 @@ export const questionRouter = router({
         skipCondition: z.string().optional(),
         displayOrder: z.string().optional(),
         jumpCondition: z.string().optional(),
-        options: z
-          .array(
-            z.object({
-              id: z.number().optional(),
-              code: z.string(),
-              label: z.string(),
-              value: z.string(),
-              order: z.number(),
-            }),
-          )
-          .optional(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const { id, config, options, ...data } = input;
-      const updateData: Record<string, unknown> = { ...data };
-
-      if (config) {
-        updateData.config = JSON.stringify(config);
-      }
-
-      // Update question
-      await ctx.db.question.update({
+      const { id, config, ...data } = input;
+      const question = await ctx.db.question.update({
         where: { id },
-        data: updateData,
-        include: {
-          options: true,
+        data: {
+          ...data,
+          config: config ? JSON.stringify(config) : undefined,
         },
       });
+      return question;
+    }),
 
-      // Update options if provided
-      if (options) {
-        // Delete all existing options first to avoid order conflicts
-        await ctx.db.option.deleteMany({
-          where: { questionId: id },
-        });
+  // ダミー設問をセクション毎に生成（既に質問があるセクションはスキップ）
+  seedForSurvey: publicProcedure
+    .input(z.object({ surveyId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const sections = await ctx.db.section.findMany({
+        where: { surveyId: input.surveyId },
+        orderBy: [{ phase: "asc" }, { order: "asc" }],
+        include: { questions: true },
+      });
 
-        // Create all options fresh with new order
-        if (options.length > 0) {
+      for (const section of sections) {
+        if ((section.questions?.length || 0) > 0) continue;
+
+        const baseCode = section.phase === "SCREENING" ? "SC" : "Q";
+        const titles = [
+          `${section.title}についての質問1`,
+          `${section.title}についての質問2`,
+          `${section.title}についての質問3`,
+        ];
+
+        for (let i = 0; i < titles.length; i++) {
+          const q = await ctx.db.question.create({
+            data: {
+              sectionId: section.id,
+              code: `${baseCode}${section.order * 10 + i + 1}`,
+              type: i === 1 ? "MA" : "SA",
+              title: titles[i],
+              isRequired: i === 0,
+              order: i + 1,
+              config: "{}",
+            },
+          });
+
+          // SA/MA の場合は選択肢を作成
           await ctx.db.option.createMany({
-            data: options.map((opt) => ({
-              questionId: id,
-              code: opt.code,
-              label: opt.label,
-              value: opt.value,
-              order: opt.order,
+            data: [1, 2, 3, 4].map((n) => ({
+              questionId: q.id,
+              code: `O${n}`,
+              label: `選択肢${n}`,
+              value: `opt_${n}`,
+              order: n,
             })),
           });
         }
       }
 
-      // Return updated question with options
-      return await ctx.db.question.findUnique({
-        where: { id },
-        include: {
-          options: {
-            orderBy: { order: "asc" },
-          },
-        },
-      });
-    }),
-
-  delete: publicProcedure
-    .input(z.object({ id: z.number() }))
-    .mutation(async ({ input, ctx }) => {
-      const question = await ctx.db.question.delete({
-        where: { id: input.id },
-      });
-      return question;
+      return { ok: true };
     }),
 });

@@ -108,10 +108,24 @@ export const ReviewPreviewSection = ({
   });
 
   // Fetch questions from tRPC
-  const { data: sections, isLoading: sectionsLoading } =
+  const { data: sections, isLoading: sectionsLoading, refetch } =
     api.question.listBySurvey.useQuery({
       surveyId,
     });
+
+  // Seed dummy questions if none exist
+  const seedMutation = api.question.seedForSurvey.useMutation({
+    onSuccess: () => refetch(),
+  });
+
+  useEffect(() => {
+    if (!sectionsLoading && sections && sections.length > 0) {
+      const total = sections.reduce((sum: number, s: any) => sum + (s.questions?.length || 0), 0);
+      if (total === 0 && !seedMutation.isPending) {
+        seedMutation.mutate({ surveyId });
+      }
+    }
+  }, [sectionsLoading, sections, seedMutation, surveyId, refetch]);
 
   // Fetch threads from tRPC
   const {
