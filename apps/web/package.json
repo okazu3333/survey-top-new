@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "vercel-build": "cd ../../packages/database && prisma db push && tsx prisma/seed.ts && mkdir -p ../../apps/web/public && cp prisma/dev.db ../../apps/web/public/deploy.db && cd ../../apps/web && next build",
+    "vercel-build": "cd ../../packages/database && prisma db push && tsx prisma/seed.ts && if [ \"$CI\" != \"true\" ]; then mkdir -p ../../apps/web/public && cp prisma/dev.db ../../apps/web/public/deploy.db; fi && cd ../../apps/web && next build",
     "start": "next start",
     "lint": "biome check --write",
     "format": "biome format --write",
