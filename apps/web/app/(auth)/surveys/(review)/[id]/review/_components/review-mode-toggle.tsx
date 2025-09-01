@@ -68,14 +68,6 @@ export const ReviewModeToggle = ({
     router.push(path);
   };
 
-  const handleReviewScreen = () => {
-    setShowReviewUrlDialog(true);
-  };
-
-  const handleAnswerScreen = () => {
-    setShowRespondentDialog(true);
-  };
-
   return (
     <div className="flex items-start justify-end self-stretch w-full px-6 py-0">
       <div className="inline-flex items-center justify-end gap-2">
