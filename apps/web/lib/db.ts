@@ -4,19 +4,22 @@ import { join } from "node:path";
 
 function resolveDatabaseUrl(): string {
   const envUrl = process.env.DATABASE_URL;
-  // If explicitly set and not targeting /tmp, honor it (local/dev)
   if (envUrl && !envUrl.includes("/tmp/deploy.db")) return envUrl;
 
-  // Vercel or environments expecting /tmp storage
   const tmpPath = "/tmp/deploy.db";
-  const bundledPath = join(process.cwd(), "public", "deploy.db");
+  const bundledPrismaPath = join(process.cwd(), "prisma", "deploy.db");
+  const bundledPublicPath = join(process.cwd(), "public", "deploy.db");
 
   try {
-    if (!existsSync(tmpPath) && existsSync(bundledPath)) {
-      copyFileSync(bundledPath, tmpPath);
+    if (!existsSync(tmpPath)) {
+      if (existsSync(bundledPrismaPath)) {
+        copyFileSync(bundledPrismaPath, tmpPath);
+      } else if (existsSync(bundledPublicPath)) {
+        copyFileSync(bundledPublicPath, tmpPath);
+      }
     }
   } catch {
-    // noop - fall through; Prisma will still attempt connection
+    // ignore
   }
 
   return `file:${tmpPath}`;
