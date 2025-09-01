@@ -7,7 +7,7 @@ import {
   CircleHelp,
   MessageSquareText,
 } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { api } from "@/lib/trpc/react";
