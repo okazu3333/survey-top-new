@@ -15,7 +15,7 @@ function initializeDatabase() {
   // Cloud Run環境でのデータベース初期化
   if (isProduction && isCloudRun && !globalForPrisma.dbInitialized) {
     const tmpDbPath = "/tmp/dev.db";
-    const sourceDbPath = join(process.cwd(), "packages", "database", "dev.db");
+    const sourceDbPath = join(process.cwd(), "packages", "database", "prisma", "dev.db");
 
     try {
       console.log("Cloud Run environment detected, initializing database...");
@@ -35,8 +35,8 @@ function initializeDatabase() {
           // 代替パスを試行
           const altPaths = [
             join(process.cwd(), "dev.db"),
-            join(process.cwd(), "packages", "database", "dev.db"),
-            "/usr/src/app/packages/database/dev.db"
+            join(process.cwd(), "packages", "database", "prisma", "dev.db"),
+            "/usr/src/app/packages/database/prisma/dev.db"
           ];
           
           for (const altPath of altPaths) {
@@ -97,7 +97,7 @@ function initializeDatabase() {
     databaseUrl = process.env.DATABASE_URL;
   } else {
     // Fallback for build time when DATABASE_URL might not be set
-    databaseUrl = "file:./packages/database/dev.db";
+    databaseUrl = "file:./packages/database/prisma/dev.db";
   }
 
   return new PrismaClient({
