@@ -195,7 +195,7 @@ export const SurveyPreviewSection = () => {
       <Card className="flex flex-col items-start gap-3 p-3 relative self-stretch w-full bg-[#138FB5] rounded-lg">
         <ScrollArea className="w-full h-[720px]">
           <div className="flex flex-col items-start gap-3 relative w-full">
-              {currentSections.map((section: any, sectionIndex: number) => (
+              {currentSections.map((section: any) => (
                 <Card
                   key={section.id}
                   className="flex flex-col items-start gap-4 px-6 py-4 relative self-stretch w-full bg-[#f4f7f9] rounded-lg border border-solid border-[#dcdcdc] shadow-[0px_0px_8px_0px_rgba(0,0,0,0.04)]"
