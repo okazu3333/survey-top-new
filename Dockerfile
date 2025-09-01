@@ -15,14 +15,14 @@ RUN bun install --frozen-lockfile
 COPY . .
 
 # Setup database and build
-RUN cd packages/database && bun run db:generate
-RUN cd packages/database && DATABASE_URL="file:./dev.db" bun run db:push
-# Seed the database instead of copying a prebuilt dev.db
-RUN cd packages/database && DATABASE_URL="file:./dev.db" bun run db:seed
+RUN cd packages/database && bunx prisma generate
+RUN cd packages/database && DATABASE_URL="file:/usr/src/app/packages/database/prisma/deploy.db" bunx prisma db push --skip-generate
+# Seed the database into deploy.db
+RUN cd packages/database && DATABASE_URL="file:/usr/src/app/packages/database/prisma/deploy.db" bunx prisma db seed
 
 # Set environment variables before build
 ENV NODE_ENV=production
-ENV DATABASE_URL="file:./packages/database/dev.db"
+ENV DATABASE_URL="file:/usr/src/app/packages/database/prisma/deploy.db"
 
 RUN bun run build
 
@@ -32,7 +32,7 @@ RUN adduser --system --uid 1001 nextjs
 
 # Ensure database file has correct permissions
 RUN chown -R nextjs:nodejs packages/database/
-RUN chmod 664 packages/database/dev.db
+RUN chmod 664 packages/database/prisma/deploy.db
 
 USER nextjs
 
