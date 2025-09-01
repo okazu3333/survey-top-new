@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { FileSpreadsheet, Maximize, Network, X } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useParams } from "next/navigation";
 import { GoogleSheetViewer } from "@/components/google-sheet-viewer";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -35,6 +36,9 @@ export const PreviewLogicCheckSection = ({
       q5: [],
     },
   });
+
+  const params = useParams();
+  const surveyId = Number(params?.id);
 
   const onSubmit = (data: QuestionFormData) => {
     console.log("Form submitted:", data);
@@ -90,7 +94,7 @@ export const PreviewLogicCheckSection = ({
 
           {viewMode === "spreadsheet" ? (
             <div className="w-full h-full">
-              <GoogleSheetViewer />
+              <GoogleSheetViewer surveyId={isNaN(surveyId) ? undefined : surveyId} />
             </div>
           ) : (
             <ScrollArea className="w-full h-full">
@@ -160,7 +164,7 @@ export const PreviewLogicCheckSection = ({
                 <div className="p-6 h-full">
                   {viewMode === "spreadsheet" ? (
                     <div className="h-[calc(100vh-120px)]">
-                      <GoogleSheetViewer />
+                      <GoogleSheetViewer surveyId={isNaN(surveyId) ? undefined : surveyId} />
                     </div>
                   ) : (
                     <LogicCheckSurveyContent reviewItems={reviewItems} />

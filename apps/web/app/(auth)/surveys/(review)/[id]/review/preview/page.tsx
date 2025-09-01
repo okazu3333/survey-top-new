@@ -39,11 +39,14 @@ const Page = () => {
         currentStep={3}
         surveyId={surveyId}
       />
-      <div className="flex flex-col w-full items-center gap-6 p-6 bg-[#ffffff] rounded-b-lg shadow-main-bg">
+      <div className="flex flex-col w-full items-center gap-4 p-4 bg-[#ffffff] rounded-b-lg shadow-main-bg">
         {/* Header Section with Mode Toggle */}
-        <ReviewModeToggle currentMode="preview" />
-
-        <ReviewPreviewSection />
+        <div className="flex items-start justify-end self-stretch w-full">
+          <ReviewModeToggle currentMode="preview" />
+        </div>
+        <div className="w-full">
+          <ReviewPreviewSection />
+        </div>
       </div>
     </div>
   );

@@ -137,15 +137,9 @@ export const SurveyPreviewSection = () => {
 
   const renderQuestion = (
     question: any,
-    sectionIndex: number,
-    questionIndex: number,
-    sectionPhase: "SCREENING" | "MAIN",
+    displayNumber: string,
   ) => {
-    const isScreeningContext =
-      activeTab === "screening" || (activeTab === "all" && sectionPhase === "SCREENING");
-    const questionNumber = `${isScreeningContext ? "SC" : "Q"}${
-      sectionIndex * 10 + questionIndex + 1
-    }`;
+    const questionNumber = displayNumber;
     const questionCode = question.code;
 
     // Parse config if it's a string
@@ -198,50 +192,60 @@ export const SurveyPreviewSection = () => {
       className="flex flex-col items-start relative self-stretch w-full"
     >
       <TabSelectionSection activeTab={activeTab} onTabChange={setActiveTab} />
-      <Card className="flex flex-col items-start gap-4 p-4 relative self-stretch w-full bg-[#138FB5] rounded-lg">
-        <ScrollArea className="w-full h-[620px]">
-          <div className="flex flex-col items-start gap-4 relative w-full">
-            {currentSections.map((section: any, sectionIndex: number) => (
-              <Card
-                key={section.id}
-                className="flex flex-col items-start gap-4 px-6 py-4 relative self-stretch w-full bg-[#f4f7f9] rounded-lg border border-solid border-[#dcdcdc] shadow-[0px_0px_8px_0px_rgba(0,0,0,0.04)]"
-              >
-                <div className="inline-flex items-start gap-2 relative">
-                  <div className="relative w-fit mt-[-1.00px] font-bold text-[#333333] text-xs leading-6 whitespace-nowrap">
-                    {section.title}
-                    <span className="ml-2 text-[#666666]">(
-                      {section.phase === "SCREENING" ? "SC" : "Q"}
-                    )</span>
+      <Card className="flex flex-col items-start gap-3 p-3 relative self-stretch w-full bg-[#138FB5] rounded-lg">
+        <ScrollArea className="w-full h-[720px]">
+          <div className="flex flex-col items-start gap-3 relative w-full">
+              {currentSections.map((section: any, sectionIndex: number) => (
+                <Card
+                  key={section.id}
+                  className="flex flex-col items-start gap-4 px-6 py-4 relative self-stretch w-full bg-[#f4f7f9] rounded-lg border border-solid border-[#dcdcdc] shadow-[0px_0px_8px_0px_rgba(0,0,0,0.04)]"
+                >
+                  <div className="inline-flex items-start gap-2 relative">
+                    <div className="relative w-fit mt-[-1.00px] font-bold text-[#333333] text-xs leading-6 whitespace-nowrap">
+                      {section.title}
+                      <span className="ml-2 text-[#666666]">(
+                        {section.phase === "SCREENING" ? "SC" : "Q"}
+                      )</span>
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex flex-col gap-4 w-full">
-                  {section.questions.map(
-                    (question: any, questionIndex: number) =>
-                      renderQuestion(
-                        question,
-                        sectionIndex,
-                        questionIndex,
-                        section.phase,
-                      ),
-                  )}
-                </div>
-              </Card>
-            ))}
+                  <div className="flex flex-col gap-4 w-full">
+                    {(() => {
+                      // Build display numbers according to rules
+                      const isAll = activeTab === "all";
+                      const isScreening = section.phase === "SCREENING";
 
-            {currentSections.length === 0 && (
-              <div className="flex flex-col items-center justify-center w-full h-64">
-                <p className="text-white">
-                  {activeTab === "screening"
-                      ? "SC調査の質問がありません"
-                      : "本調査の質問がありません"}
-                </p>
-              </div>
-            )}
+                      // Compute running indices per phase when in 調査全体
+                      let prefix = isAll ? (isScreening ? "SC" : "Q") : "Q";
+
+                      // When 調査全体, numbering for MAIN should restart from 1 after SCREENING end
+                      // Prepare cumulative counts up to this section for its phase
+                      const sectionsForPhase = (currentSections as any[]).filter(s => s.phase === section.phase);
+                      const sectionOffset = sectionsForPhase.findIndex(s => s.id === section.id);
+                      const priorCount = sectionsForPhase.slice(0, sectionOffset).reduce((sum, s) => sum + (s.questions?.length || 0), 0);
+
+                      return section.questions.map((question: any, idx: number) => {
+                        const displayIndex = priorCount + idx + 1;
+                        const displayNumber = `${prefix}${displayIndex}`;
+                        return renderQuestion(question, displayNumber);
+                      });
+                    })()}
+                  </div>
+                </Card>
+              ))}
+
+              {currentSections.length === 0 && (
+                <div className="flex flex-col items-center justify-center w-full h-64">
+                  <p className="text-white">
+                    {activeTab === "screening"
+                        ? "SC調査の質問がありません"
+                        : "本調査の質問がありません"}
+                  </p>
+                </div>
+              )}
           </div>
         </ScrollArea>
       </Card>
-
       <Separator
         className="absolute w-1 h-[230px] top-[211px] right-4 bg-[#dcdcdc] rounded"
         orientation="vertical"

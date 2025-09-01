@@ -133,15 +133,16 @@ export const ReviewPreviewSection = ({
       { surveyId },
       { enabled: !isNaN(surveyId) && surveyId > 0 }
     );
-  const { mutate: upsertReviewAccess, isPending: isSavingShare } =
-    api.reviewAccess.upsert.useMutation({
-      onSuccess: () => {
-        toast("レビューアクセス情報を保存しました");
-        setIsEditingShare(false);
-        refetchReviewAccess();
-      },
-      onError: (error) => toast.error(`エラー: ${error.message}`),
-    });
+  // Share mutation disabled in preview; inputs are read-only
+  // const { mutate: upsertReviewAccess, isPending: isSavingShare } =
+  //   api.reviewAccess.upsert.useMutation({
+  //     onSuccess: () => {
+  //       toast("レビューアクセス情報を保存しました");
+  //       setIsEditingShare(false);
+  //       refetchReviewAccess();
+  //     },
+  //     onError: (error) => toast.error(`エラー: ${error.message}`),
+  //   });
 
   useEffect(() => {
     if (reviewAccess) {
@@ -197,6 +198,29 @@ export const ReviewPreviewSection = ({
     { surveyId },
     { enabled: !isNaN(surveyId) && surveyId > 0 }
   );
+
+  // Build effective threads (fallback to dummy when none)
+  const allQuestions: any[] = (sections || []).flatMap((s: any) => s.questions || []);
+  const dummyTargets: number[] = [allQuestions[0]?.id, allQuestions[1]?.id].filter(Boolean);
+  const effectiveThreads: any[] =
+    threads && threads.length > 0
+      ? threads
+      : dummyTargets.map((qid, idx) => ({
+          id: -100 - idx,
+          questionId: qid,
+          question: { code: allQuestions.find((q: any) => q.id === qid)?.code || `Q${idx + 1}` },
+          type: idx === 0 ? "ai" : "team",
+          createdBy: idx === 0 ? "AIレビュー" : "レビュアーA",
+          message:
+            idx === 0
+              ? "設問文が長い可能性があります。簡潔にしましょう。"
+              : "選択肢の網羅性に漏れがないか再確認をお願いします。",
+          createdAt: new Date().toISOString(),
+          isCompleted: false,
+          x: idx === 0 ? 25 : 60,
+          y: idx === 0 ? 40 : 30,
+          reviews: [],
+        }));
 
   // Create thread mutation
   const createThreadMutation = api.thread.create.useMutation({
@@ -281,8 +305,7 @@ export const ReviewPreviewSection = ({
   }, []);
 
   // Convert threads to ReviewItems format
-  const reviewItems: ReviewItem[] =
-    threads?.map((thread: any) => {
+  const reviewItems: ReviewItem[] = effectiveThreads.map((thread: any) => {
       // Calculate relative time
       const createdAt = new Date(thread.createdAt);
       const now = new Date();
@@ -301,7 +324,7 @@ export const ReviewPreviewSection = ({
       return {
         id: thread.id,
         questionNo: thread.question.code,
-        type: thread.type === "ai" ? "AIレビュー" : thread.createdBy,
+        type: thread.type === "ai" ? "AIレビュー" : "チームレビュー",
         reviewerName: thread.createdBy,
         time: timeAgo,
         comment: thread.message,
@@ -309,7 +332,7 @@ export const ReviewPreviewSection = ({
         reviewType: thread.type as "ai" | "team",
         replies: thread.reviews?.length || 0,
       };
-    }) || [];
+    });
 
   if (sectionsLoading || threadsLoading) {
     return (
@@ -335,8 +358,8 @@ export const ReviewPreviewSection = ({
     .filter((section: any) =>
       activeTab === "all"
         ? true
-        : activeTab === "screening"
-          ? section.phase === "SCREENING"
+      : activeTab === "screening"
+        ? section.phase === "SCREENING"
           : activeTab === "main"
             ? section.phase === "MAIN"
             : false,
@@ -347,312 +370,266 @@ export const ReviewPreviewSection = ({
       return a.phase === "SCREENING" ? -1 : 1;
     });
 
-  return (
-    <form
+  return (<form
       onSubmit={handleSubmit(onSubmit)}
       className="flex flex-col items-start relative self-stretch w-full"
     >
       <TabSelectionSection activeTab={activeTab} onTabChange={setActiveTab} />
-      <Card className="flex flex-col items-start gap-4 p-4 relative self-stretch w-full bg-[#138FB5] rounded-lg">
-        <ScrollArea className="w-full h-[620px] scroll-container">
-          <div className="flex flex-col items-start gap-4 relative w-full">
-            {activeTab === "share" && (
-              <>
-                <Card className="flex flex-col gap-4 px-6 py-4 w-full bg-[#f4f7f9] rounded-lg border border-[#dcdcdc] shadow-[0_0_8px_rgba(0,0,0,0.04)]">
-                  <div className="font-bold text-[#333333] text-xs">レビュー共有</div>
-                  <div className="space-y-3 w-full">
-                    <div className="space-y-1">
-                      <Label htmlFor="review-url" className="text-xs text-[#333]">レビュー用URL</Label>
-                      <div className="flex gap-2">
-                        <Input id="review-url" value={reviewUrl} readOnly className="flex-1" />
-                        <Button type="button" variant="outline" size="icon" onClick={() => handleCopy(reviewUrl, "URL")}>
-                          <Copy className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="space-y-1">
-                      <Label htmlFor="review-password" className="text-xs text-[#333]">パスワード</Label>
-                      <div className="flex gap-2">
-                        <Input
-                          id="review-password"
-                          value={sharePassword}
-                          readOnly={!isEditingShare}
-                          onChange={(e) => setSharePassword(e.target.value)}
-                          className={`flex-1 ${isEditingShare ? "border-blue-500 bg-blue-50 focus:bg-white" : "bg-gray-50"}`}
-                        />
-                        <Button type="button" variant="outline" size="icon" onClick={() => handleCopy(sharePassword, "パスワード")}>
-                          <Copy className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="space-y-1">
-                      <Label htmlFor="expires-at" className="text-xs text-[#333]">有効期限</Label>
-                      <div className="flex gap-2">
-                        <Input
-                          id="expires-at"
-                          type="datetime-local"
-                          value={shareExpiresAt}
-                          readOnly={!isEditingShare}
-                          onChange={(e) => setShareExpiresAt(e.target.value)}
-                          className={`flex-1 ${isEditingShare ? "border-blue-500 bg-blue-50 focus:bg-white" : "bg-gray-50"}`}
-                        />
-                        <div className="w-10" />
-                      </div>
-                      {reviewAccess?.isExpired && (
-                        <p className="text-sm text-red-500">このURLは有効期限が切れています</p>
-                      )}
-                    </div>
-                    <div className="pt-2 flex gap-2 justify-end">
-                      {!isEditingShare ? (
-                        <Button type="button" variant="outline" onClick={() => setIsEditingShare(true)} className="bg-blue-50 hover:bg-blue-100 border-blue-200">
-                          編集
-                        </Button>
-                      ) : (
-                        <>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => {
-                              setIsEditingShare(false);
-                              if (reviewAccess) {
-                                setSharePassword(reviewAccess.password);
-                                setShareExpiresAt(
-                                  new Date(reviewAccess.expiresAt).toISOString().slice(0, 16),
-                                );
-                              }
-                            }}
-                            className="bg-gray-50 hover:bg-gray-100"
-                          >
-                            キャンセル
+      <Card className="flex flex-col items-start gap-3 p-3 relative self-stretch w-full bg-[#138FB5] rounded-lg">
+        {/* Main scrollable content - full width */}
+        <ScrollArea className="w-full h-[720px] scroll-container">
+          <div className="flex flex-col items-start gap-3 relative w-full">
+              {activeTab === "share" && (
+                <>
+                  <Card className="flex flex-col gap-4 px-6 py-4 w-full bg-[#f4f7f9] rounded-lg border border-[#dcdcdc] shadow-[0_0_8px_rgba(0,0,0,0.04)]">
+                    <div className="font-bold text-[#333333] text-xs">レビュー共有</div>
+                    <div className="space-y-3 w-full">
+                      <div className="space-y-1">
+                        <Label htmlFor="review-url" className="text-xs text-[#333]">レビュー用URL</Label>
+                        <div className="flex gap-2">
+                          <Input id="review-url" value={reviewUrl} readOnly className="flex-1" />
+                          <Button type="button" variant="outline" size="icon" onClick={() => handleCopy(reviewUrl, "URL")}>
+                            <Copy className="w-4 h-4" />
                           </Button>
-                          <Button
-                            type="button"
-                            onClick={() =>
-                              upsertReviewAccess({
-                                surveyId,
-                                password: sharePassword,
-                                expiresAt: new Date(shareExpiresAt).toISOString(),
-                              })
-                            }
-                            disabled={isSavingShare}
-                            className="bg-blue-600 hover:bg-blue-700"
-                          >
-                            保存
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </Card>
-
-                <Card className="flex flex-col gap-4 px-6 py-4 w-full bg-[#f4f7f9] rounded-lg border border-[#dcdcdc] shadow-[0_0_8px_rgba(0,0,0,0.04)]">
-                  <div className="font-bold text-[#333333] text-xs">回答画面</div>
-                  <div className="space-y-3 w-full">
-                    <div className="space-y-1">
-                      <Label htmlFor="answer-url" className="text-xs text-[#333]">回答画面URL</Label>
-                      <div className="flex gap-2">
-                        <Input id="answer-url" value={answerUrl} readOnly className="flex-1" />
-                        <Button type="button" variant="outline" size="icon" onClick={() => handleCopy(answerUrl, "URL")}>
-                          <Copy className="w-4 h-4" />
-                        </Button>
+                        </div>
                       </div>
-                    </div>
-                    <div className="pt-2 flex justify-end">
-                      <Button type="button" onClick={() => window.open(answerUrl, "_blank")}>回答画面へ</Button>
-                    </div>
-                  </div>
-                </Card>
-              </>
-            )}
-
-            {activeTab === "design" && (
-              <Card className="flex flex-col items-start gap-4 px-6 py-4 relative self-stretch w-full bg-[#f4f7f9] rounded-lg border border-solid border-[#dcdcdc] shadow-[0px_0px_8px_0px_rgba(0,0,0,0.04)]">
-                <div className="inline-flex items-start gap-2 relative">
-                  <div className="relative w-fit mt-[-1.00px] font-bold text-[#333333] text-xs leading-6 whitespace-nowrap">
-                    調査設計（概要 + セクション設定）
-                  </div>
-                </div>
-                <div className="flex flex-col gap-4 w-full">
-                  <Card className="p-4 bg-white border border-[#dcdcdc] rounded-lg">
-                    <div className="font-bold text-sm text-[#333333] mb-2">概要の設定項目</div>
-                    <div className="grid grid-cols-2 gap-3 text-sm text-[#333333]">
-                      <div><span className="text-[#666666] mr-2">タイトル</span>{survey?.title || "-"}</div>
-                      <div><span className="text-[#666666] mr-2">調査目的</span>{survey?.purpose || "-"}</div>
-                      <div className="col-span-2"><span className="text-[#666666] mr-2">調査対象者条件</span>{survey?.targetCondition || "-"}</div>
-                      <div className="col-span-2"><span className="text-[#666666] mr-2">分析対象者条件</span>{survey?.analysisCondition || "-"}</div>
-                      <div><span className="text-[#666666] mr-2">調査手法</span>{survey?.researchMethod || "-"}</div>
-                      <div><span className="text-[#666666] mr-2">調査規模（予算）</span>{survey?.researchScale || "-"}</div>
+                      <div className="space-y-1">
+                        <Label htmlFor="review-password" className="text-xs text-[#333]">パスワード</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            id="review-password"
+                            value={sharePassword}
+                            readOnly={!isEditingShare}
+                            onChange={(e) => setSharePassword(e.target.value)}
+                            className={`flex-1 ${isEditingShare ? "border-blue-500 bg-blue-50 focus:bg-white" : "bg-gray-50"}`}
+                          />
+                          <Button type="button" variant="outline" size="icon" onClick={() => handleCopy(sharePassword, "パスワード")}>
+                            <Copy className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor="expires-at" className="text-xs text-[#333]">有効期限</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            id="expires-at"
+                            type="datetime-local"
+                            value={shareExpiresAt}
+                            readOnly={!isEditingShare}
+                            onChange={(e) => setShareExpiresAt(e.target.value)}
+                            className={`flex-1 ${isEditingShare ? "border-blue-500 bg-blue-50 focus:bg-white" : "bg-gray-50"}`}
+                          />
+                          <div className="w-10" />
+                        </div>
+                        {reviewAccess?.isExpired && (
+                          <p className="text-sm text-red-500">このURLは有効期限が切れています</p>
+                        )}
+                      </div>
+                      <div className="pt-2 flex gap-2 justify-end">
+                        {/* 操作用ボタン非表示（削除要件） */}
+                      </div>
                     </div>
                   </Card>
 
-                  <Card className="p-4 bg-white border border-[#dcdcdc] rounded-lg">
-                    <div className="font-bold text-sm text-[#333333] mb-2">セクションの設定項目</div>
-                    <div className="w-full overflow-auto">
-                      <table className="min-w-full text-sm text-[#333333]">
-                        <thead>
-                          <tr className="text-left text-[#666666]">
-                            <th className="pr-4 py-1">フェーズ</th>
-                            <th className="pr-4 py-1">セクション名</th>
-                            <th className="pr-4 py-1">質問数</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {(sections as any[]).map((s: any) => (
-                            <tr key={s.id}>
-                              <td className="pr-4 py-1">{s.phase === "SCREENING" ? "SC" : "Q"}</td>
-                              <td className="pr-4 py-1">{s.title}</td>
-                              <td className="pr-4 py-1">{s.questions?.length ?? 0}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                  <Card className="flex flex-col gap-4 px-6 py-4 w-full bg-[#f4f7f9] rounded-lg border border-[#dcdcdc] shadow-[0_0_8px_rgba(0,0,0,0.04)]">
+                    <div className="font-bold text-[#333333] text-xs">回答画面</div>
+                    <div className="space-y-3 w-full">
+                      <div className="space-y-1">
+                        <Label htmlFor="answer-url" className="text-xs text-[#333]">回答画面URL</Label>
+                        <div className="flex gap-2">
+                          <Input id="answer-url" value={answerUrl} readOnly className="flex-1" />
+                          <Button type="button" variant="outline" size="icon" onClick={() => handleCopy(answerUrl, "URL")}>
+                            <Copy className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      {/* 回答画面遷移ボタン削除 */}
                     </div>
                   </Card>
-                </div>
-              </Card>
-            )}
+                </>
+              )}
 
-            {activeTab !== "design" && activeTab !== "share" && (
-              currentSections.map((section: any) => (
-                <Card
-                  key={section.id}
-                  className="flex flex-col items-start gap-4 px-6 py-4 relative self-stretch w-full bg-[#f4f7f9] rounded-lg border border-solid border-[#dcdcdc] shadow-[0px_0px_8px_0px_rgba(0,0,0,0.04)]"
-                >
+              {activeTab === "design" && (
+                <Card className="flex flex-col items-start gap-4 px-6 py-4 relative self-stretch w-full bg-[#f4f7f9] rounded-lg border border-solid border-[#dcdcdc] shadow-[0px_0px_8px_0px_rgba(0,0,0,0.04)]">
                   <div className="inline-flex items-start gap-2 relative">
                     <div className="relative w-fit mt-[-1.00px] font-bold text-[#333333] text-xs leading-6 whitespace-nowrap">
-                      {section.title}
-                      <span className="ml-2 text-[#666666]">(
-                        {section.phase === "SCREENING" ? "SC" : "Q"}
-                      )</span>
+                      調査設計（概要）
                     </div>
                   </div>
-
-                  {section.questions.map((question: any) => {
-                    // Get threads for this question
-                    const questionThreads =
-                      threads?.filter(
-                        (thread: any) => thread.questionId === question.id,
-                      ) || [];
-
-                    return (
-                      // biome-ignore lint/a11y/useSemanticElements: unexpected reason
-                      <div
-                        key={question.id}
-                        className="w-full relative group"
-                        ref={(el) => {
-                          if (el) questionRefs.current.set(question.id, el);
-                        }}
-                        onMouseEnter={() => setHoveredQuestionId(question.id)}
-                        onMouseLeave={() => {
-                          setHoveredQuestionId(null);
-                          setCursorPosition(null);
-                          setShowIcon(false);
-                          if (hoverTimeoutRef.current) {
-                            clearTimeout(hoverTimeoutRef.current);
-                          }
-                        }}
-                        onMouseMove={(e) => handleMouseMove(e, question.id)}
-                        role="region"
-                        aria-label={`Question ${question.code}`}
-                      >
-                        {/* Hover comment icon at cursor position */}
-                        {hoveredQuestionId === question.id &&
-                          userType === "reviewer" &&
-                          cursorPosition &&
-                          showIcon && (
-                            <button
-                              type="button"
-                              onClick={(e) =>
-                                handleCommentIconClick(e, question.id)
-                              }
-                              className="absolute p-1.5 bg-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 z-40 border border-gray-200 opacity-90 hover:opacity-100"
-                              style={{
-                                left: `${cursorPosition.x + 10}px`,
-                                top: `${cursorPosition.y - 10}px`,
-                                pointerEvents: "auto",
-                                transform: "translate(-50%, -50%)",
-                              }}
-                              aria-label="Add comment"
-                            >
-                              <MessageCircle className="w-4 h-4 text-[#138FB5]" />
-                            </button>
-                          )}
-
-                        {/* Display threads as comments positioned on the question */}
-                        {questionThreads.map((thread: any) => {
-                          const reviewItem = reviewItems.find(
-                            (item) => item.id === thread.id,
-                          );
-                          if (!reviewItem) return null;
-
-                          return (
-                            <div
-                              key={thread.id}
-                              className="absolute"
-                              style={{
-                                left: `${thread.x}%`,
-                                top: `${thread.y}%`,
-                                zIndex:
-                                  expandedCommentId === thread.id ? 50 : 30,
-                              }}
-                            >
-                              <Comment
-                                {...reviewItem}
-                                userType={userType}
-                                question={question}
-                                threadId={thread.id}
-                                threadMessage={thread.message}
-                                threadCreatedBy={thread.createdBy}
-                                threadCreatedAt={thread.createdAt}
-                                threadIsCompleted={thread.isCompleted}
-                                reviews={thread.reviews}
-                                onExpandChange={(id, expanded) => {
-                                  setExpandedCommentId(expanded ? id : null);
-                                }}
-                                onDelete={() => {
-                                  setExpandedCommentId(null);
-                                  refetchThreads();
-                                }}
-                                sectionName={section.title}
-                                sectionPhase={
-                                  section.phase as "SCREENING" | "MAIN"
-                                }
-                              />
-                            </div>
-                          );
-                        })}
-
-                        {/* Question using QuestionForm component */}
-                        <QuestionForm
-                          type={question.type as QuestionType}
-                          questionNumber={question.code}
-                          questionText={question.title}
-                          options={question.options?.map((opt: any) => ({
-                            id: opt.value,
-                            label: opt.label,
-                          }))}
-                          suffix={question.suffix || undefined}
-                          placeholder={
-                            question.config
-                              ? typeof question.config === "string"
-                                ? JSON.parse(question.config).placeholder
-                                : (question.config as { placeholder: string })
-                                    .placeholder
-                              : undefined
-                          }
-                          isFixed={question.isRequired}
-                          isEditable={false}
-                          value={watch(question.code)}
-                          onValueChange={(value) =>
-                            setValue(question.code, value)
-                          }
-                        />
+                  <div className="flex flex-col gap-4 w-full">
+                    <Card className="p-4 bg-white border border-[#dcdcdc] rounded-lg">
+                      <div className="font-bold text-sm text-[#333333] mb-2">概要の設定項目</div>
+                      <div className="space-y-2 text-sm text-[#333333]">
+                        <div className="flex items-start gap-2"><span className="text-[#666666] min-w-28">タイトル</span><span className="flex-1">{survey?.title || "-"}</span></div>
+                        <div className="flex items-start gap-2"><span className="text-[#666666] min-w-28">調査目的</span><span className="flex-1 whitespace-pre-wrap">{survey?.purpose || "-"}</span></div>
+                        <div className="flex items-start gap-2"><span className="text-[#666666] min-w-28">調査対象者条件</span><span className="flex-1 whitespace-pre-wrap">{survey?.targetCondition || "-"}</span></div>
+                        <div className="flex items-start gap-2"><span className="text-[#666666] min-w-28">分析対象者条件</span><span className="flex-1 whitespace-pre-wrap">{survey?.analysisCondition || "-"}</span></div>
+                        <div className="flex items-start gap-2"><span className="text-[#666666] min-w-28">調査手法</span><span className="flex-1">{survey?.researchMethod || "-"}</span></div>
+                        <div className="flex items-start gap-2"><span className="text-[#666666] min-w-28">調査規模（予算）</span><span className="flex-1">{survey?.researchScale || "-"}</span></div>
                       </div>
-                    );
-                  })}
+                    </Card>
+                  </div>
                 </Card>
-              ))
-            )}
+              )}
+
+              {activeTab !== "design" && activeTab !== "share" && (
+                currentSections.map((section: any) => (
+                  <Card
+                    key={section.id}
+                    className="flex flex-col items-start gap-4 px-6 py-4 relative self-stretch w-full bg-[#f4f7f9] rounded-lg border border-solid border-[#dcdcdc] shadow-[0px_0px_8px_0px_rgba(0,0,0,0.04)]"
+                  >
+                    <div className="inline-flex items-start gap-2 relative">
+                      <div className="relative w-fit mt-[-1.00px] font-bold text-[#333333] text-xs leading-6 whitespace-nowrap">
+                        {section.title}
+                        <span className="ml-2 text-[#666666]">(
+                          {section.phase === "SCREENING" ? "SC" : "Q"}
+                        )</span>
+                      </div>
+                    </div>
+
+                    {section.questions.map((question: any, idx: number) => {
+                      const isAll = activeTab === "all";
+                      const isScreening = section.phase === "SCREENING";
+                      const prefix = isScreening ? "SC" : "Q";
+
+                      const sectionsForPhase = (currentSections as any[]).filter(
+                        (s) => s.phase === section.phase,
+                      );
+                      const sectionOffset = sectionsForPhase.findIndex(
+                        (s) => s.id === section.id,
+                      );
+                      const priorCount = isAll
+                        ? sectionsForPhase
+                            .slice(0, sectionOffset)
+                            .reduce(
+                              (sum, s) => sum + (s.questions?.length || 0),
+                              0,
+                            )
+                        : 0;
+
+                      const displayIndex = priorCount + idx + 1;
+                      const displayNumber = `${prefix}${displayIndex}`;
+
+                      const questionThreads =
+                        effectiveThreads.filter(
+                          (thread: any) => thread.questionId === question.id,
+                        ) || [];
+
+                      return (
+                        <div
+                          key={question.id}
+                          className="w-full relative group"
+                          ref={(el) => {
+                            if (el) questionRefs.current.set(question.id, el);
+                          }}
+                          onMouseEnter={() => setHoveredQuestionId(question.id)}
+                          onMouseLeave={() => {
+                            setHoveredQuestionId(null);
+                            setCursorPosition(null);
+                            setShowIcon(false);
+                            if (hoverTimeoutRef.current) {
+                              clearTimeout(hoverTimeoutRef.current);
+                            }
+                          }}
+                          onMouseMove={(e) => handleMouseMove(e, question.id)}
+                          role="region"
+                          aria-label={`Question ${displayNumber}`}
+                        >
+                          {hoveredQuestionId === question.id &&
+                            userType === "reviewer" &&
+                            cursorPosition &&
+                            showIcon && (
+                              <button
+                                type="button"
+                                onClick={(e) =>
+                                  handleCommentIconClick(e, question.id)
+                                }
+                                className="absolute p-1.5 bg-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 z-40 border border-gray-200 opacity-90 hover:opacity-100"
+                                style={{
+                                  left: `${cursorPosition.x + 10}px`,
+                                  top: `${cursorPosition.y - 10}px`,
+                                  pointerEvents: "auto",
+                                  transform: "translate(-50%, -50%)",
+                                }}
+                                aria-label="Add comment"
+                              >
+                                <MessageCircle className="w-4 h-4 text-[#138FB5]" />
+                              </button>
+                            )}
+
+                          {questionThreads.map((thread: any) => {
+                            const reviewItem = reviewItems.find(
+                              (item) => item.id === thread.id,
+                            );
+                            if (!reviewItem) return null;
+
+                            return (
+                              <div
+                                key={thread.id}
+                                className="absolute"
+                                style={{
+                                  left: `${thread.x}%`,
+                                  top: `${thread.y}%`,
+                                  zIndex:
+                                    expandedCommentId === thread.id ? 50 : 30,
+                                }}
+                              >
+                                <Comment
+                                  {...reviewItem}
+                                  userType={userType}
+                                  question={question}
+                                  threadId={thread.id}
+                                  threadMessage={thread.message}
+                                  threadCreatedBy={thread.createdBy}
+                                  threadCreatedAt={thread.createdAt}
+                                  threadIsCompleted={thread.isCompleted}
+                                  reviews={thread.reviews}
+                                  onExpandChange={(id, expanded) => {
+                                    setExpandedCommentId(expanded ? id : null);
+                                  }}
+                                  onDelete={() => {
+                                    setExpandedCommentId(null);
+                                    refetchThreads();
+                                  }}
+                                  sectionName={section.title}
+                                  sectionPhase={
+                                    section.phase as "SCREENING" | "MAIN"
+                                  }
+                                />
+                              </div>
+                            );
+                          })}
+
+                          <QuestionForm
+                            type={question.type as QuestionType}
+                            questionNumber={displayNumber}
+                            questionText={question.title}
+                            options={question.options?.map((opt: any) => ({
+                              id: opt.value,
+                              label: opt.label,
+                            }))}
+                            suffix={question.suffix || undefined}
+                            placeholder={
+                              question.config
+                                ? typeof question.config === "string"
+                                  ? JSON.parse(question.config).placeholder
+                                  : (question.config as { placeholder: string })
+                                      .placeholder
+                                : undefined
+                            }
+                            isFixed={question.isRequired}
+                            isEditable={false}
+                            value={watch(question.code)}
+                            onValueChange={(value) =>
+                              setValue(question.code, value)
+                            }
+                          />
+                        </div>
+                      );
+                    })}
+                  </Card>
+                ))
+              )}
           </div>
         </ScrollArea>
       </Card>

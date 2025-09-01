@@ -50,56 +50,54 @@ export const Header = () => {
         </Link>
 
         <nav className="flex items-center gap-12">
-          {!isReviewPage && (
-            <div className="flex gap-2">
-              {navItems.map((item) => (
-                <div key={item.id} className="relative">
-                  <button
-                    type="button"
-                    className={`flex h-16 items-center gap-3 px-4 font-bold text-[#202020] hover:bg-[#F4F7F9] ${
-                      activeDropdown === item.id ? "bg-[#F4F7F9]" : ""
-                    }`}
-                    onClick={() =>
-                      setActiveDropdown(
-                        activeDropdown === item.id ? null : item.id,
-                      )
-                    }
-                  >
-                    <span className="text-base tracking-[0.04em]">
-                      {item.title}
-                    </span>
-                    {item.dropdownItems.length > 0 && (
-                      <ChevronDown
-                        className={`h-4 w-4 text-[#9E9E9E] transition-transform ${
-                          activeDropdown === item.id ? "rotate-180" : ""
-                        }`}
-                      />
-                    )}
-                  </button>
+          <div className="flex gap-2">
+            {navItems.map((item) => (
+              <div key={item.id} className="relative">
+                <button
+                  type="button"
+                  className={`flex h-16 items-center gap-3 px-4 font-bold text-[#202020] hover:bg-[#F4F7F9] ${
+                    activeDropdown === item.id ? "bg-[#F4F7F9]" : ""
+                  }`}
+                  onClick={() =>
+                    setActiveDropdown(
+                      activeDropdown === item.id ? null : item.id,
+                    )
+                  }
+                >
+                  <span className="text-base tracking-[0.04em]">
+                    {item.title}
+                  </span>
+                  {item.dropdownItems.length > 0 && (
+                    <ChevronDown
+                      className={`h-4 w-4 text-[#9E9E9E] transition-transform ${
+                        activeDropdown === item.id ? "rotate-180" : ""
+                      }`}
+                    />
+                  )}
+                </button>
 
-                  {activeDropdown === item.id &&
-                    item.dropdownItems.length > 0 && (
-                      <div className="absolute left-0 top-full z-10 min-w-full rounded-b bg-[#F4F7F9] shadow-[0px_1px_1px_0px_rgba(0,0,0,0.25)]">
-                        {item.dropdownItems.map((dropdownItem) => (
-                          <Link
-                            key={dropdownItem}
-                            href={
-                              dropdownItem === "アンケート情報一覧"
-                                ? "/surveys"
-                                : "#"
-                            }
-                            className="block px-4 py-3 text-sm font-bold tracking-[0.04em] text-[#202020] hover:bg-[#e8ecef]"
-                            onClick={() => setActiveDropdown(null)}
-                          >
-                            {dropdownItem}
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                </div>
-              ))}
-            </div>
-          )}
+                {activeDropdown === item.id &&
+                  item.dropdownItems.length > 0 && (
+                    <div className="absolute left-0 top-full z-10 min-w-full rounded-b bg-[#F4F7F9] shadow-[0px_1px_1px_0px_rgba(0,0,0,0.25)]">
+                      {item.dropdownItems.map((dropdownItem) => (
+                        <Link
+                          key={dropdownItem}
+                          href={
+                            dropdownItem === "アンケート情報一覧"
+                              ? "/surveys"
+                              : "#"
+                          }
+                          className="block px-4 py-3 text-sm font-bold tracking-[0.04em] text-[#202020] hover:bg-[#e8ecef]"
+                          onClick={() => setActiveDropdown(null)}
+                        >
+                          {dropdownItem}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+              </div>
+            ))}
+          </div>
 
           <div className="relative">
             <button

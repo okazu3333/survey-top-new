@@ -97,14 +97,19 @@ function initializeDatabase() {
     databaseUrl = process.env.DATABASE_URL;
   } else {
     // Fallback for build time when DATABASE_URL might not be set
-    databaseUrl = "file:./packages/database/prisma/dev.db";
+    const candidates = [
+      join(process.cwd(), "packages", "database", "prisma", "dev.db"),
+      join(process.cwd(), "..", "packages", "database", "prisma", "dev.db"),
+      join(process.cwd(), "..", "..", "packages", "database", "prisma", "dev.db"),
+      join(__dirname, "..", "prisma", "dev.db"),
+    ];
+    const found = candidates.find((p) => existsSync(p));
+    const absLocalDbPath = found ?? join(__dirname, "..", "prisma", "dev.db");
+    databaseUrl = `file:${absLocalDbPath}`;
   }
 
   return new PrismaClient({
-    log:
-      process.env.NODE_ENV === "development"
-        ? ["query", "error", "warn"]
-        : ["error"],
+    log: ["error"],
     datasources: {
       db: {
         url: databaseUrl,

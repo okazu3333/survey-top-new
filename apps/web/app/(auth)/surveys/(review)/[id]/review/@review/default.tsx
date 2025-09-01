@@ -7,12 +7,14 @@ import {
   CircleHelp,
   MessageSquareText,
 } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { api } from "@/lib/trpc/react";
 import { cn } from "@/lib/utils";
 import { AiReviewDialog } from "../_components/ai-review-dialog";
 import { UserReviewDialog } from "../_components/user-review-dialog";
+import { Comment } from "../_components/comment";
 import { useReviewContext } from "../review-context";
 
 type ReviewType = "ai" | "team";
@@ -56,12 +58,87 @@ const ReviewSidebar = ({ userType = "reviewee" }: ReviewSidebarProps) => {
     },
   );
 
+  // Prefer real threads; if none, provide two dummy examples for visibility (memoized)
+  const effectiveThreads = useMemo(() => {
+    if (threads && threads.length > 0) return threads;
+    return [
+      {
+        id: 1001,
+        questionId: 1,
+        type: "ai",
+        createdBy: "AIレビュー",
+        createdAt: new Date().toISOString(),
+        isCompleted: false,
+        message: "設問文が長い可能性があります。簡潔にしましょう。",
+        reviews: [
+          {
+            id: 2001,
+            message: "具体例を短くする案です。",
+            createdBy: "AIアシスタント",
+            createdAt: new Date().toISOString(),
+          },
+        ],
+      },
+      {
+        id: 1002,
+        questionId: 2,
+        type: "team",
+        createdBy: "レビュアーA",
+        createdAt: new Date().toISOString(),
+        isCompleted: false,
+        message: "選択肢の網羅性に漏れがないか再確認をお願いします。",
+        reviews: [
+          {
+            id: 2002,
+            message: "同義の選択肢が重複しているかも。",
+            createdBy: "レビュアーB",
+            createdAt: new Date().toISOString(),
+          },
+        ],
+      },
+      {
+        id: 1003,
+        questionId: 3,
+        type: "team",
+        createdBy: "レビュアーB",
+        createdAt: new Date().toISOString(),
+        isCompleted: true,
+        message: "設問の日本語表現をより統一的にしてください。",
+        reviews: [
+          {
+            id: 2003,
+            message: "ガイドラインに合わせた表現例を貼りました。",
+            createdBy: "レビュアーC",
+            createdAt: new Date().toISOString(),
+          },
+        ],
+      },
+      {
+        id: 1004,
+        questionId: 4,
+        type: "team",
+        createdBy: "レビュアーC",
+        createdAt: new Date().toISOString(),
+        isCompleted: false,
+        message: "分岐条件が対象外の回答者にも当たっていないか確認をお願いします。",
+        reviews: [
+          {
+            id: 2004,
+            message: "対象条件のロジックを見直す必要がありそうです。",
+            createdBy: "レビュアーA",
+            createdAt: new Date().toISOString(),
+          },
+        ],
+      },
+    ];
+  }, [threads]);
+
   const [reviewItems, setReviewItems] = useState<ReviewItem[]>([]);
 
   // Convert threads to ReviewItems format
   useEffect(() => {
-    if (threads) {
-      const items: ReviewItem[] = threads.map((thread) => {
+    if (effectiveThreads) {
+      const items: ReviewItem[] = effectiveThreads.map((thread: any) => {
         // Calculate relative time
         const createdAt = new Date(thread.createdAt);
         const now = new Date();
@@ -97,7 +174,14 @@ const ReviewSidebar = ({ userType = "reviewee" }: ReviewSidebarProps) => {
       });
       setReviewItems(items);
     }
-  }, [threads]);
+  }, [effectiveThreads]);
+
+  // Auto-select first thread when threads arrive and nothing is selected
+  useEffect(() => {
+    if (!selectedThread && effectiveThreads && effectiveThreads.length > 0) {
+      setSelectedThread(effectiveThreads[0]);
+    }
+  }, [effectiveThreads, selectedThread]);
 
   // Get tRPC utils for invalidation
   const utils = api.useUtils();
@@ -137,7 +221,7 @@ const ReviewSidebar = ({ userType = "reviewee" }: ReviewSidebarProps) => {
 
   const handleItemDoubleClick = (item: ReviewItem) => {
     // Find the corresponding thread
-    const thread = threads?.find((t) => t.id === item.id);
+    const thread = threads?.find((t: { id: number }) => t.id === item.id);
     if (thread) {
       setSelectedThread(thread);
       if (item.reviewType === "ai") {
@@ -332,6 +416,10 @@ const ReviewSidebar = ({ userType = "reviewee" }: ReviewSidebarProps) => {
                         ? "bg-[#F8FAFB] hover:bg-[#F0F4F6]"
                         : "bg-white hover:bg-[#E7ECF0]",
                     )}
+                    onClick={() => {
+                      const thread = (effectiveThreads ?? []).find((t: { id: number }) => t.id === item.id);
+                      if (thread) setSelectedThread(thread);
+                    }}
                     onDoubleClick={() => handleItemDoubleClick(item)}
                   >
                     <div className="flex items-start justify-between mb-2">
@@ -375,13 +463,9 @@ const ReviewSidebar = ({ userType = "reviewee" }: ReviewSidebarProps) => {
                             : "text-[#333333]",
                         )}
                       >
-                        {selectedReviewType === "ai"
-                          ? item.type
-                          : item.reviewerName}
+                        {selectedReviewType === "ai" ? item.type : item.reviewerName}
                       </span>
-                      <span className="text-xs text-[#9DA0A7]">
-                        {item.time}
-                      </span>
+                      <span className="text-xs text-[#9DA0A7]">{item.time}</span>
                     </div>
                     <p
                       className={cn(
@@ -394,9 +478,7 @@ const ReviewSidebar = ({ userType = "reviewee" }: ReviewSidebarProps) => {
                       {item.comment}
                     </p>
                     {(item?.replies ?? 0) > 0 && (
-                      <p className="text-xs text-[#9DA0A7] mt-2">
-                        {item.replies}件の返信
-                      </p>
+                      <p className="text-xs text-[#9DA0A7] mt-2">{item.replies}件の返信</p>
                     )}
                   </div>
                 ))

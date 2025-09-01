@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
+  transpilePackages: ["@survey-poc/database", "@survey-poc/api"],
   turbopack: {
     rules: {
       '*.svg': {

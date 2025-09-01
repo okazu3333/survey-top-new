@@ -77,7 +77,7 @@ export const ReviewModeToggle = ({
   };
 
   return (
-    <div className="flex items-center justify-between self-stretch w-full px-6 py-0">
+    <div className="flex items-start justify-end self-stretch w-full px-6 py-0">
       <div className="inline-flex items-center justify-end gap-2">
         <div className="inline-flex gap-2 items-center">
           <span className="font-medium text-[#138FB5] text-xs leading-8 whitespace-nowrap">
@@ -110,29 +110,7 @@ export const ReviewModeToggle = ({
       </div>
 
       {type !== "reviewer" && (
-        <div className="flex items-center gap-2">
-          <span className="text-[#138FB5] text-xs font-medium leading-6 whitespace-nowrap">
-            確認URL
-          </span>
-          <Button
-            onClick={handleReviewScreen}
-            variant="outline"
-            className="h-8 px-6 py-4 bg-white border border-[#60ADC2] rounded-[20px] inline-flex items-center justify-center"
-          >
-            <span className="font-bold text-[#60ADC2] text-sm text-center leading-6 whitespace-nowrap">
-              レビュー画面
-            </span>
-          </Button>
-          <Button
-            onClick={handleAnswerScreen}
-            variant="outline"
-            className="h-8 px-6 py-4 bg-white border border-[#60ADC2] rounded-[20px] inline-flex items-center justify-center"
-          >
-            <span className="font-bold text-[#60ADC2] text-sm text-center leading-6 whitespace-nowrap">
-              回答画面
-            </span>
-          </Button>
-        </div>
+        <div className="flex items-center gap-2" />
       )}
 
       <ReviewUrlDialog

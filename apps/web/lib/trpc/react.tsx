@@ -7,8 +7,10 @@ import { createTRPCReact } from "@trpc/react-query";
 import { useState } from "react";
 
 const getBaseUrl = () => {
-  if (typeof window !== "undefined") return "";
-  return "";
+  if (typeof window !== "undefined") {
+    return window.location.origin; // avoid inheriting credentials from URL
+  }
+  return "http://localhost:3000";
 };
 
 export const trpc = createTRPCReact<AppRouter>();
@@ -20,9 +22,7 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
     trpc.createClient({
       links: [
         loggerLink({
-          enabled: (op) =>
-            process.env.NODE_ENV === "development" ||
-            (op.direction === "down" && op.result instanceof Error),
+          enabled: () => false,
         }),
         httpBatchLink({
           url: `${getBaseUrl()}/api/trpc`,
