@@ -1,5 +1,5 @@
 import { appRouter } from "@survey-poc/api/src/router";
-import { db } from "@survey-poc/database";
+import { db } from "@/lib/db";
 import type { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 
