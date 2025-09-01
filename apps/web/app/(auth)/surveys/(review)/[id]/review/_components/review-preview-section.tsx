@@ -125,10 +125,10 @@ export const ReviewPreviewSection = ({
   );
 
   // Review share settings (URL, password, expiry)
-  const [isEditingShare, setIsEditingShare] = useState(false);
+  const [isEditingShare] = useState(false);
   const [sharePassword, setSharePassword] = useState("");
   const [shareExpiresAt, setShareExpiresAt] = useState("");
-  const { data: reviewAccess, refetch: refetchReviewAccess } =
+  const { data: reviewAccess } =
     api.reviewAccess.getBySurveyId.useQuery(
       { surveyId },
       { enabled: !isNaN(surveyId) && surveyId > 0 }

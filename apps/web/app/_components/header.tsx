@@ -3,13 +3,10 @@
 import { ChevronDown, CircleUser } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 export const Header = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-  const pathname = usePathname();
-  const isReviewPage = pathname.match(/\/surveys\/\d+\/review\//); // Updated to match /surveys/[id]/review/
 
   const navItems = [
     {
