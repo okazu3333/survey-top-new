@@ -1,7 +1,9 @@
 "use client";
 
+import { useParams } from "next/navigation";
 import { SurveyCardHeader } from "@/components/survey-card-header";
 import type { ReviewItem } from "@/lib/types/review";
+import { api } from "@/lib/trpc/react";
 import { ReviewModeToggle } from "../_components/review-mode-toggle";
 import { PreviewLogicCheckSection } from "./_components/preview-logic-check-section";
 
@@ -21,40 +23,32 @@ const mockReviewItems: ReviewItem[] = [
     questionId: "q1",
     position: { x: 70, y: 20 },
   },
-  {
-    id: 102,
-    questionNo: "Q4",
-    type: "SA",
-    reviewerName: "AIレビュー",
-    time: "15分前",
-    comment:
-      "分岐ロジックが正しく設定されていますが、両方の選択肢でテスト実施を推奨します。",
-    status: "unresolved",
-    reviewType: "ai",
-    sectionId: "group-marriage",
-    questionId: "q4",
-    position: { x: 75, y: 30 },
-  },
-  {
-    id: 103,
-    questionNo: "Q8",
-    type: "SA",
-    reviewerName: "佐藤花子",
-    time: "1時間前",
-    comment:
-      "本調査の最初の質問として適切です。回答者が理解しやすい内容になっています。",
-    status: "resolved",
-    reviewType: "team",
-    sectionId: "group-4",
-    questionId: "q8",
-    position: { x: 80, y: 10 },
-  },
 ];
 
 const Page = () => {
+  const params = useParams();
+  const surveyId = Number(params.id);
+
+  // Fetch sections/questions
+  const { data: sections, isLoading, refetch } = api.question.listBySurvey.useQuery({
+    surveyId,
+  });
+
+  // Auto-seed dummy if empty
+  const seedMutation = api.question.seedForSurvey.useMutation({
+    onSuccess: () => refetch(),
+  });
+
+  if (!isLoading && sections && sections.length > 0) {
+    const total = sections.reduce((sum: number, s: any) => sum + (s.questions?.length || 0), 0);
+    if (total === 0 && !seedMutation.isPending) {
+      seedMutation.mutate({ surveyId });
+    }
+  }
+
   return (
     <div className="flex flex-col gap-4">
-      <SurveyCardHeader workingTitle="○○○に関する意識調査" currentStep={3} />
+      <SurveyCardHeader workingTitle="ロジック確認" currentStep={3} surveyId={surveyId} />
       <div className="flex flex-col w-full items-center gap-6 p-6 bg-[#ffffff] rounded-b-lg shadow-main-bg">
         {/* Header Section with Mode Toggle */}
         <ReviewModeToggle currentMode="logic" />
