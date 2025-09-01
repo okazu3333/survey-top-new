@@ -14,7 +14,7 @@
     "db:migrate": "prisma migrate deploy",
     "db:migrate:dev": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "postinstall": "prisma generate",
+    "postinstall": "if [ \"$CI\" != \"true\" ]; then prisma generate; fi",
     "lint": "biome check --write",
     "format": "biome format --write",
     "type-check": "tsc --noEmit"

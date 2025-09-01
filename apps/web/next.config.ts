@@ -7,13 +7,20 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  transpilePackages: ["@survey-poc/database", "@survey-poc/api"],
+  transpilePackages: ["@survey-poc/api"],
   turbopack: {
     rules: {
       '*.svg': {
         loaders: ['@svgr/webpack'],
         as: '*.js',
       },
+    },
+  },
+  experimental: {
+    outputFileTracingIncludes: {
+      "**/*": [
+        "./prisma/deploy.db",
+      ],
     },
   },
 };
