@@ -1,11 +1,11 @@
 steps:
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/survey-poc/survey-poc:$COMMIT_SHA', '.']
+    args: ['build', '-t', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/survey-top-new/survey-top-new:$COMMIT_SHA', '.']
 
   # Push the container image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/survey-poc/survey-poc:$COMMIT_SHA']
+    args: ['push', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/survey-top-new/survey-top-new:$COMMIT_SHA']
 
   # Deploy container image to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -13,27 +13,27 @@ steps:
     args:
       - 'run'
       - 'deploy'
-      - 'survey-poc'
+      - 'survey-top-new'
       - '--image'
-      - 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/survey-poc/survey-poc:$COMMIT_SHA'
+      - 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/survey-top-new/survey-top-new:$COMMIT_SHA'
       - '--region'
       - 'asia-northeast1'
       - '--platform'
       - 'managed'
       - '--allow-unauthenticated'
       - '--port'
-      - '3000'
+      - '8080'
       - '--memory'
-      - '2Gi'
+      - '512Mi'
       - '--cpu'
-      - '2'
+      - '1'
       - '--max-instances'
-      - '10'
+      - '100'
       - '--set-env-vars'
       - 'NODE_ENV=production,DATABASE_URL=file:./packages/database/dev.db,BASIC_AUTH_USER=cmgadmin,BASIC_AUTH_PASSWORD=crossadmin'
 
 images:
-  - 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/survey-poc/survey-poc:$COMMIT_SHA'
+  - 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/survey-top-new/survey-top-new:$COMMIT_SHA'
 
 options:
   logging: CLOUD_LOGGING_ONLY 
