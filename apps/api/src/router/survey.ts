@@ -61,17 +61,23 @@ export const surveyRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const survey = await ctx.db.survey.create({
-        data: {
-          title: input.title,
-          purpose: input.purpose,
-          targetCondition: input.targetCondition,
-          analysisCondition: input.analysisCondition,
-          researchMethod: input.researchMethod,
-          researchScale: input.researchScale,
-        },
-      });
-      return survey;
+      console.log("survey.create input:", input);
+      try {
+        const survey = await ctx.db.survey.create({
+          data: {
+            title: input.title,
+            purpose: input.purpose,
+            targetCondition: input.targetCondition,
+            analysisCondition: input.analysisCondition,
+            researchMethod: input.researchMethod,
+            researchScale: input.researchScale,
+          },
+        });
+        return survey;
+      } catch (e) {
+        console.error("survey.create prisma error:", e);
+        throw e;
+      }
     }),
 
   update: publicProcedure
