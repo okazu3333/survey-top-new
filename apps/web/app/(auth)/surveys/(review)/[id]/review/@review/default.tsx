@@ -14,7 +14,7 @@ import { api } from "@/lib/trpc/react";
 import { cn } from "@/lib/utils";
 import { AiReviewDialog } from "../_components/ai-review-dialog";
 import { UserReviewDialog } from "../_components/user-review-dialog";
-import { Comment } from "../_components/comment";
+
 import { useReviewContext } from "../review-context";
 
 type ReviewType = "ai" | "team";
