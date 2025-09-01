@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageCircle } from "lucide-react";
+import { Copy, MessageCircle } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -8,6 +8,8 @@ import { Comment } from "@/app/(auth)/surveys/(review)/[id]/review/_components/c
 import { QuestionForm, type QuestionType } from "@/components/question-form";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -17,6 +19,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/lib/trpc/react";
+import { toast } from "sonner";
 
 type ReviewItem = {
   id: number;
@@ -111,6 +114,46 @@ export const ReviewPreviewSection = ({
 
   // Fetch survey overview
   const { data: survey } = api.survey.getById.useQuery({ id: surveyId });
+
+  // Review share settings (URL, password, expiry)
+  const [isEditingShare, setIsEditingShare] = useState(false);
+  const [sharePassword, setSharePassword] = useState("");
+  const [shareExpiresAt, setShareExpiresAt] = useState("");
+  const { data: reviewAccess, refetch: refetchReviewAccess } =
+    api.reviewAccess.getBySurveyId.useQuery({ surveyId }, { enabled: true });
+  const { mutate: upsertReviewAccess, isPending: isSavingShare } =
+    api.reviewAccess.upsert.useMutation({
+      onSuccess: () => {
+        toast("レビューアクセス情報を保存しました");
+        setIsEditingShare(false);
+        refetchReviewAccess();
+      },
+      onError: (error) => toast.error(`エラー: ${error.message}`),
+    });
+
+  useEffect(() => {
+    if (reviewAccess) {
+      setSharePassword(reviewAccess.password);
+      setShareExpiresAt(
+        new Date(reviewAccess.expiresAt).toISOString().slice(0, 16),
+      );
+    } else {
+      setSharePassword("review123");
+      const d = new Date();
+      d.setDate(d.getDate() + 7);
+      setShareExpiresAt(d.toISOString().slice(0, 16));
+    }
+  }, [reviewAccess]);
+
+  const origin =
+    typeof window !== "undefined" ? window.location.origin : "";
+  const reviewUrl = `${origin}/surveys/${surveyId}/review/reviewer/login`;
+  const answerUrl = `${origin}/surveys/preview/${surveyId}`;
+
+  const handleCopy = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    toast(`${label}をコピーしました`);
+  };
 
   // Fetch questions from tRPC
   const { data: sections, isLoading: sectionsLoading, refetch } =
@@ -300,16 +343,112 @@ export const ReviewPreviewSection = ({
         <ScrollArea className="w-full h-[620px] scroll-container">
           <div className="flex flex-col items-start gap-4 relative w-full">
             {activeTab === "share" && (
-              <Card className="flex flex-col items-start gap-4 px-6 py-4 relative self-stretch w-full bg-[#f4f7f9] rounded-lg border border-solid border-[#dcdcdc] shadow-[0px_0px_8px_0px_rgba(0,0,0,0.04)]">
-                <div className="inline-flex items-start gap-2 relative">
-                  <div className="relative w-fit mt-[-1.00px] font-bold text-[#333333] text-xs leading-6 whitespace-nowrap">
-                    レビュー共有
+              <>
+                <Card className="flex flex-col gap-4 px-6 py-4 w-full bg-[#f4f7f9] rounded-lg border border-[#dcdcdc] shadow-[0_0_8px_rgba(0,0,0,0.04)]">
+                  <div className="font-bold text-[#333333] text-xs">レビュー共有</div>
+                  <div className="space-y-3 w-full">
+                    <div className="space-y-1">
+                      <Label htmlFor="review-url" className="text-xs text-[#333]">レビュー用URL</Label>
+                      <div className="flex gap-2">
+                        <Input id="review-url" value={reviewUrl} readOnly className="flex-1" />
+                        <Button type="button" variant="outline" size="icon" onClick={() => handleCopy(reviewUrl, "URL")}>
+                          <Copy className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="review-password" className="text-xs text-[#333]">パスワード</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          id="review-password"
+                          value={sharePassword}
+                          readOnly={!isEditingShare}
+                          onChange={(e) => setSharePassword(e.target.value)}
+                          className={`flex-1 ${isEditingShare ? "border-blue-500 bg-blue-50 focus:bg-white" : "bg-gray-50"}`}
+                        />
+                        <Button type="button" variant="outline" size="icon" onClick={() => handleCopy(sharePassword, "パスワード")}>
+                          <Copy className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="expires-at" className="text-xs text-[#333]">有効期限</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          id="expires-at"
+                          type="datetime-local"
+                          value={shareExpiresAt}
+                          readOnly={!isEditingShare}
+                          onChange={(e) => setShareExpiresAt(e.target.value)}
+                          className={`flex-1 ${isEditingShare ? "border-blue-500 bg-blue-50 focus:bg-white" : "bg-gray-50"}`}
+                        />
+                        <div className="w-10" />
+                      </div>
+                      {reviewAccess?.isExpired && (
+                        <p className="text-sm text-red-500">このURLは有効期限が切れています</p>
+                      )}
+                    </div>
+                    <div className="pt-2 flex gap-2 justify-end">
+                      {!isEditingShare ? (
+                        <Button type="button" variant="outline" onClick={() => setIsEditingShare(true)} className="bg-blue-50 hover:bg-blue-100 border-blue-200">
+                          編集
+                        </Button>
+                      ) : (
+                        <>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => {
+                              setIsEditingShare(false);
+                              if (reviewAccess) {
+                                setSharePassword(reviewAccess.password);
+                                setShareExpiresAt(
+                                  new Date(reviewAccess.expiresAt).toISOString().slice(0, 16),
+                                );
+                              }
+                            }}
+                            className="bg-gray-50 hover:bg-gray-100"
+                          >
+                            キャンセル
+                          </Button>
+                          <Button
+                            type="button"
+                            onClick={() =>
+                              upsertReviewAccess({
+                                surveyId,
+                                password: sharePassword,
+                                expiresAt: new Date(shareExpiresAt).toISOString(),
+                              })
+                            }
+                            disabled={isSavingShare}
+                            className="bg-blue-600 hover:bg-blue-700"
+                          >
+                            保存
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
-                <Card className="flex flex-col items-center justify-center relative self-stretch w-full bg-white rounded-lg border border-solid border-[#dcdcdc] min-h-[200px]">
-                  <p className="text-[#333333] text-base">後ほど実装予定</p>
                 </Card>
-              </Card>
+
+                <Card className="flex flex-col gap-4 px-6 py-4 w-full bg-[#f4f7f9] rounded-lg border border-[#dcdcdc] shadow-[0_0_8px_rgba(0,0,0,0.04)]">
+                  <div className="font-bold text-[#333333] text-xs">回答画面</div>
+                  <div className="space-y-3 w-full">
+                    <div className="space-y-1">
+                      <Label htmlFor="answer-url" className="text-xs text-[#333]">回答画面URL</Label>
+                      <div className="flex gap-2">
+                        <Input id="answer-url" value={answerUrl} readOnly className="flex-1" />
+                        <Button type="button" variant="outline" size="icon" onClick={() => handleCopy(answerUrl, "URL")}>
+                          <Copy className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="pt-2 flex justify-end">
+                      <Button type="button" onClick={() => window.open(answerUrl, "_blank")}>回答画面へ</Button>
+                    </div>
+                  </div>
+                </Card>
+              </>
             )}
 
             {activeTab === "design" && (
