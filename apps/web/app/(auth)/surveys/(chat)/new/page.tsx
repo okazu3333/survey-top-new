@@ -146,14 +146,29 @@ const SurveyNewContent = () => {
   });
 
   const onSubmit = async (data: SurveyFormData) => {
+    const payload = {
+      title: (data.title || "").trim(),
+      purpose: data.purpose?.trim() || undefined,
+      targetCondition: data.targetCondition?.trim() || undefined,
+      analysisCondition: data.analysisCondition?.trim() || undefined,
+      researchMethod: data.researchMethod?.trim() || undefined,
+      researchScale: data.researchScale?.trim() || undefined,
+    };
+
+    if (!payload.title) {
+      toast.error("タイトルは必須です");
+      return;
+    }
+
     if (!isDistributionOptimal) {
       setIsDialogOpen(true);
-    } else {
-      try {
-        await createSurvey.mutateAsync(data);
-      } catch (error) {
-        console.error("Failed to create survey:", error);
-      }
+      return;
+    }
+
+    try {
+      await createSurvey.mutateAsync(payload as any);
+    } catch (error) {
+      console.error("Failed to create survey:", error);
     }
   };
 
@@ -164,8 +179,22 @@ const SurveyNewContent = () => {
   const handleProceedAnyway = async () => {
     setIsDialogOpen(false);
     const data = form.getValues();
+    const payload = {
+      title: (data.title || "").trim(),
+      purpose: data.purpose?.trim() || undefined,
+      targetCondition: data.targetCondition?.trim() || undefined,
+      analysisCondition: data.analysisCondition?.trim() || undefined,
+      researchMethod: data.researchMethod?.trim() || undefined,
+      researchScale: data.researchScale?.trim() || undefined,
+    };
+
+    if (!payload.title) {
+      toast.error("タイトルは必須です");
+      return;
+    }
+
     try {
-      await createSurvey.mutateAsync(data);
+      await createSurvey.mutateAsync(payload as any);
     } catch (error) {
       console.error("Failed to create survey:", error);
     }
