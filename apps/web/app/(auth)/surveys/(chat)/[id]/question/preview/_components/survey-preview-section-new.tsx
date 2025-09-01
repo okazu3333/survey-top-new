@@ -54,13 +54,19 @@ const TabSelectionSection = ({
 export const SurveyPreviewSection = () => {
   const params = useParams();
   const surveyId = Number(params.id);
+  
+  // Debug logging
+  console.log("Question Preview - Params:", params);
+  console.log("Question Preview - SurveyId:", surveyId);
+  console.log("Question Preview - SurveyId type:", typeof surveyId);
   const [activeTab, setActiveTab] = useState<TabType>("all");
   const [formValues, setFormValues] = useState<FormData>({});
 
   // Fetch questions from tRPC
-  const { data: sections, isLoading, refetch } = api.question.listBySurvey.useQuery({
-    surveyId,
-  });
+  const { data: sections, isLoading, refetch } = api.question.listBySurvey.useQuery(
+    { surveyId },
+    { enabled: !isNaN(surveyId) && surveyId > 0 }
+  );
 
   // Seed dummy questions when none exist
   const seedMutation = api.question.seedForSurvey.useMutation({

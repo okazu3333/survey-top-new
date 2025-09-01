@@ -86,6 +86,11 @@ export const ReviewPreviewSection = ({
 }: ReviewPreviewSectionProps) => {
   const params = useParams();
   const surveyId = Number(params.id);
+  
+  // Debug logging
+  console.log("Params:", params);
+  console.log("SurveyId:", surveyId);
+  console.log("SurveyId type:", typeof surveyId);
   const [activeTab, setActiveTab] = useState<TabType>("all");
   const [expandedCommentId, setExpandedCommentId] = useState<number | null>(
     null,
@@ -113,14 +118,21 @@ export const ReviewPreviewSection = ({
   });
 
   // Fetch survey overview
-  const { data: survey } = api.survey.getById.useQuery({ id: surveyId });
+  console.log("Calling survey.getById with:", { id: surveyId });
+  const { data: survey } = api.survey.getById.useQuery(
+    { id: surveyId },
+    { enabled: !isNaN(surveyId) && surveyId > 0 }
+  );
 
   // Review share settings (URL, password, expiry)
   const [isEditingShare, setIsEditingShare] = useState(false);
   const [sharePassword, setSharePassword] = useState("");
   const [shareExpiresAt, setShareExpiresAt] = useState("");
   const { data: reviewAccess, refetch: refetchReviewAccess } =
-    api.reviewAccess.getBySurveyId.useQuery({ surveyId }, { enabled: true });
+    api.reviewAccess.getBySurveyId.useQuery(
+      { surveyId },
+      { enabled: !isNaN(surveyId) && surveyId > 0 }
+    );
   const { mutate: upsertReviewAccess, isPending: isSavingShare } =
     api.reviewAccess.upsert.useMutation({
       onSuccess: () => {
@@ -157,9 +169,10 @@ export const ReviewPreviewSection = ({
 
   // Fetch questions from tRPC
   const { data: sections, isLoading: sectionsLoading, refetch } =
-    api.question.listBySurvey.useQuery({
-      surveyId,
-    });
+    api.question.listBySurvey.useQuery(
+      { surveyId },
+      { enabled: !isNaN(surveyId) && surveyId > 0 }
+    );
 
   // Seed dummy questions if none exist
   const seedMutation = api.question.seedForSurvey.useMutation({
@@ -180,9 +193,10 @@ export const ReviewPreviewSection = ({
     data: threads,
     isLoading: threadsLoading,
     refetch: refetchThreads,
-  } = api.thread.list.useQuery({
-    surveyId,
-  });
+  } = api.thread.list.useQuery(
+    { surveyId },
+    { enabled: !isNaN(surveyId) && surveyId > 0 }
+  );
 
   // Create thread mutation
   const createThreadMutation = api.thread.create.useMutation({
