@@ -138,7 +138,7 @@ const SurveyNewContent = () => {
   const createSurvey = api.survey.create.useMutation({
     onSuccess: (data) => {
       toast.success("調査が作成されました");
-      router.push(`/surveys/${data.id}`);
+      router.push(`/surveys/${data.id}/sections`);
     },
     onError: (error) => {
       toast.error(`エラーが発生しました: ${error.message}`);
