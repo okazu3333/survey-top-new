@@ -1,7 +1,6 @@
 "use client";
 
-import { ArrowLeft, Download, ChevronDown, ChevronUp } from "lucide-react";
-import Link from "next/link";
+import { Download, ChevronDown, ChevronUp } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
