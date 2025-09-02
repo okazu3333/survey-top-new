@@ -93,7 +93,7 @@ Q5,最も使用しているとお答えいただいたＱＲコード決済○�
       link.setAttribute("href", url);
       link.setAttribute(
         "download",
-        `GT表_${projectId}_${new Date().toISOString().split("T")[0]}.csv`,
+        `レポート_${projectId}_${new Date().toISOString().split("T")[0]}.csv`,
       );
       link.style.visibility = "hidden";
       document.body.appendChild(link);
@@ -242,10 +242,7 @@ Q5,最も使用しているとお答えいただいたＱＲコード決済○�
               <Button variant="outline" size="sm">
                 選択項目を削除
               </Button>
-              <Button variant="outline" size="sm">
-                <Download className="w-4 h-4 mr-1" />
-                テスト結果をダウンロード
-              </Button>
+              {/* 削除: テスト結果をダウンロード ボタン */}
             </div>
             <Button 
               onClick={() => router.push('/surveys/assistant')}
@@ -270,20 +267,22 @@ Q5,最も使用しているとお答えいただいたＱＲコード決済○�
                 <TableHead className="text-white">調査コード</TableHead>
                 <TableHead className="text-white">調査タイトル</TableHead>
                 <TableHead className="text-white">ステータス</TableHead>
-                <TableHead className="text-white">作成日時</TableHead>
+                {/* 作成日時 -> 更新日時 */}
                 <TableHead className="text-white">更新日時</TableHead>
+                {/* 更新日時 -> 実査日時 */}
+                <TableHead className="text-white">実査日時</TableHead>
                 <TableHead className="text-white">作成者</TableHead>
-                <TableHead className="text-white text-center whitespace-nowrap">
+                <TableHead className="text-white text-center whitespace-nowrap w-24">
                   レビューリンク
                 </TableHead>
-                <TableHead className="text-white text-center whitespace-nowrap">
+                <TableHead className="text-white text-center whitespace-nowrap w-24">
                   回答画面
                 </TableHead>
-                <TableHead className="text-white text-center whitespace-nowrap">
+                <TableHead className="text-white text-center whitespace-nowrap w-24">
                   配信
                 </TableHead>
-                <TableHead className="text-white text-center whitespace-nowrap">
-                  GT表
+                <TableHead className="text-white text-center whitespace-nowrap w-24">
+                  レポート
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -320,13 +319,13 @@ Q5,最も使用しているとお答えいただいたＱＲコード決済○�
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm text-gray-600">
-                      {project.createdDate}
-                    </TableCell>
-                    <TableCell className="text-sm text-gray-600">
                       {project.updatedDate}
                     </TableCell>
+                    <TableCell className="text-sm text-gray-600">
+                      {project.createdDate}
+                    </TableCell>
                     <TableCell>{project.creator}</TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className="text-center w-24">
                       <Button
                         variant="outline"
                         size="sm"
@@ -339,7 +338,7 @@ Q5,最も使用しているとお答えいただいたＱＲコード決済○�
                         <Share2 className="w-4 h-4" />
                       </Button>
                     </TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className="text-center w-24">
                       <Button
                         variant="outline"
                         size="sm"
@@ -355,7 +354,7 @@ Q5,最も使用しているとお答えいただいたＱＲコード決済○�
                         <MessageSquare className="w-4 h-4" />
                       </Button>
                     </TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className="text-center w-24">
                       <Button
                         variant="outline"
                         size="sm"
@@ -368,12 +367,12 @@ Q5,最も使用しているとお答えいただいたＱＲコード決済○�
                         <Settings className="w-4 h-4" />
                       </Button>
                     </TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className="text-center w-24">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={(e) => handleDownloadGT(project.id, e)}
-                        title="GT表をダウンロード"
+                        title="レポートをダウンロード"
                       >
                         <FileText className="w-4 h-4" />
                       </Button>
