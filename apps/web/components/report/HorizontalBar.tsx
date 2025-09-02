@@ -8,6 +8,7 @@ import {
   Legend,
   Tooltip,
   Title,
+  type ChartData,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 
@@ -20,8 +21,8 @@ export type HorizontalBarProps = {
 };
 
 export function HorizontalBar({ labels, counts, title }: HorizontalBarProps) {
-  const data = {
-    labels,
+  const data: ChartData<'bar'> = {
+    labels: labels,
     datasets: [
       {
         label: "件数",
@@ -31,7 +32,7 @@ export function HorizontalBar({ labels, counts, title }: HorizontalBarProps) {
         borderSkipped: false,
       },
     ],
-  } as const;
+  };
 
   return (
     <Bar
