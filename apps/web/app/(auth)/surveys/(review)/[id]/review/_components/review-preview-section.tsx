@@ -186,8 +186,6 @@ export const ReviewPreviewSection = ({
     { enabled: !isNaN(surveyId) && surveyId > 0 }
   );
 
-  // 追加: thread seed mutation
-  const seedThreadsMutation = api.thread.seedForSurvey.useMutation();
 
   // Build effective threads (fallback to dummy when none)
   const allQuestions: any[] = (sections || []).flatMap((s: any) => s.questions || []);
