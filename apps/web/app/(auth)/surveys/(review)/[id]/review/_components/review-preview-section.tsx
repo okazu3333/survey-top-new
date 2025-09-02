@@ -169,7 +169,7 @@ export const ReviewPreviewSection = ({
   };
 
   // Fetch questions from tRPC
-  const { data: sections, isLoading: sectionsLoading, refetch } =
+  const { data: sections, isLoading: sectionsLoading } =
     api.question.listBySurvey.useQuery(
       { surveyId },
       { enabled: !isNaN(surveyId) && surveyId > 0 }
