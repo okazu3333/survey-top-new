@@ -7,6 +7,7 @@ import { useState } from "react";
 
 export const Header = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [imgError, setImgError] = useState(false);
 
   const navItems = [
     {
@@ -37,13 +38,20 @@ export const Header = () => {
     <header className="relative h-16 bg-[#F9F9F9] shadow-[0px_1px_1px_0px_rgba(0,0,0,0.25)]">
       <div className="flex h-full items-center justify-between px-6">
         <Link href="/" className="relative h-[50px] w-[272px]">
-          <Image
-            src="/logo.svg"
-            alt="SurveyBridge"
-            fill
-            className="object-contain object-left"
-            priority
-          />
+          {imgError ? (
+            <div className="h-full w-full flex items-center">
+              <span className="text-[#138FB5] font-bold text-2xl leading-none">SurveyBridge</span>
+            </div>
+          ) : (
+            <Image
+              src="/logo.png"
+              alt="SurveyBridge"
+              fill
+              className="object-contain object-left"
+              priority
+              onError={() => setImgError(true)}
+            />
+          )}
         </Link>
 
         <nav className="flex items-center gap-12">
