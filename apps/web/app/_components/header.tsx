@@ -38,7 +38,7 @@ export const Header = () => {
       <div className="flex h-full items-center justify-between px-6">
         <Link href="/" className="relative h-[50px] w-[272px]">
           <Image
-            src="/logo.png"
+            src="/logo.svg"
             alt="SurveyBridge"
             fill
             className="object-contain object-left"
