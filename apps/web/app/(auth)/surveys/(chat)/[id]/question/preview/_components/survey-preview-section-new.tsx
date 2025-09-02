@@ -198,7 +198,7 @@ export const SurveyPreviewSection = () => {
     >
       <TabSelectionSection activeTab={activeTab} onTabChange={setActiveTab} />
       <Card className="flex flex-col items-start gap-3 p-3 relative self-stretch w-full bg-[#138FB5] rounded-lg">
-        <ScrollArea className="w-full h-[720px]">
+        <ScrollArea className="w-full h-[calc(100vh-220px)]">
           <div className="flex flex-col items-start gap-3 relative w-full">
               {currentSections.map((section: any) => (
                 <Card

@@ -33,34 +33,36 @@ export const ModeToggle = ({ currentMode }: ModeToggleProps) => {
   };
 
   return (
-    <div className="inline-flex items-center justify-end gap-2">
-      <div className="inline-flex gap-2 items-center">
-        <span className="font-medium text-[#138FB5] text-xs leading-8 whitespace-nowrap">
-          モード切り替え
-        </span>
-      </div>
+    <div className="flex items-start justify-end self-stretch w-full px-6 py-0">
+      <div className="inline-flex items-center justify-end gap-2">
+        <div className="inline-flex gap-2 items-center">
+          <span className="font-medium text-[#138FB5] text-xs leading-8 whitespace-nowrap">
+            モード切り替え
+          </span>
+        </div>
 
-      <div className="inline-flex items-center">
-        {modes.map((mode, index) => (
-          <React.Fragment key={mode.id}>
-            {index > 0 && <div className="w-1 h-0.5 bg-[#138FB5] mx-0" />}
-            <button
-              className={`h-6 px-4 py-0 rounded-[20px] border-2 border-solid border-[#138fb5] inline-flex items-center gap-2 ${
-                mode.id === currentMode ? "bg-[#138FB5]" : "bg-white"
-              }`}
-              type="button"
-              onClick={() => handleModeChange(mode.pathSuffix)}
-            >
-              <span
-                className={`whitespace-nowrap font-bold text-xs leading-8 ${
-                  mode.id === currentMode ? "text-white" : "text-[#138FB5]"
+        <div className="inline-flex items-center">
+          {modes.map((mode, index) => (
+            <React.Fragment key={mode.id}>
+              {index > 0 && <div className="w-1 h-0.5 bg-[#138FB5] mx-0" />}
+              <button
+                className={`h-6 px-4 py-0 rounded-[20px] border-2 border-solid border-[#138fb5] inline-flex items-center gap-2 ${
+                  mode.id === currentMode ? "bg-[#138FB5]" : "bg-white"
                 }`}
+                type="button"
+                onClick={() => handleModeChange(mode.pathSuffix)}
               >
-                {mode.label}
-              </span>
-            </button>
-          </React.Fragment>
-        ))}
+                <span
+                  className={`whitespace-nowrap font-bold text-xs leading-8 ${
+                    mode.id === currentMode ? "text-white" : "text-[#138FB5]"
+                  }`}
+                >
+                  {mode.label}
+                </span>
+              </button>
+            </React.Fragment>
+          ))}
+        </div>
       </div>
     </div>
   );

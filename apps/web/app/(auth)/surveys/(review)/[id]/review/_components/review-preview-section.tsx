@@ -378,7 +378,7 @@ export const ReviewPreviewSection = ({
       <TabSelectionSection activeTab={activeTab} onTabChange={setActiveTab} />
       <Card className="flex flex-col items-start gap-3 p-3 relative self-stretch w-full bg-[#138FB5] rounded-lg">
         {/* Main scrollable content - full width */}
-        <ScrollArea className="w-full h-[720px] scroll-container">
+        <ScrollArea className="w-full h-[calc(100vh-220px)] scroll-container">
           <div className="flex flex-col items-start gap-3 relative w-full">
               {activeTab === "share" && (
                 <>

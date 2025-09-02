@@ -3,6 +3,7 @@
 import { CircleCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useChatContext } from "@/app/(auth)/surveys/(chat)/chat-context";
 
 export type StepStatus = "complete" | "current" | "next";
 
@@ -34,6 +35,7 @@ export const PublishStep = ({
   surveyId,
 }: PublishStepProps) => {
   const router = useRouter();
+  const { isChatCollapsed } = useChatContext();
 
   const getStepStatus = (index: number): StepStatus => {
     if (index < currentStep) return "complete";
@@ -77,7 +79,12 @@ export const PublishStep = ({
         className,
       )}
     >
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-start">
+      <div
+        className={cn(
+          "flex flex-col gap-2 sm:flex-row sm:items-center",
+          isChatCollapsed ? "sm:justify-center" : "sm:justify-start",
+        )}
+      >
         <h3 className="text-xs font-bold text-white whitespace-nowrap">
           配信までのステップ
         </h3>
@@ -108,7 +115,7 @@ export const PublishStep = ({
   );
 };
 
-type StepItemProps = {
+export type StepItemProps = {
   label: string;
   status: StepStatus;
   isCompact?: boolean;
