@@ -370,8 +370,8 @@ Q5,最も使用しているとお答えいただいたＱＲコード決済○�
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={(e) => handleDownloadGT(project.id, e)}
-                        title="レポートをダウンロード"
+                        onClick={(e) => { e.stopPropagation(); router.push(`/surveys/${project.numericId}/report`); }}
+                        title="レポートページを開く"
                       >
                         <FileText className="w-4 h-4" />
                       </Button>
