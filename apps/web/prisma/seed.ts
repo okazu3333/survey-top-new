@@ -2,19 +2,10 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// For PoC simplicity, reuse the same seeding logic as packages/database/prisma/seed.ts
-// Trimmed: create minimal seed to verify connectivity
-async function main() {
-  console.log("🌱 Starting web-local database seed...");
-
-  await prisma.review.deleteMany();
-  await prisma.thread.deleteMany();
-  await prisma.option.deleteMany();
-  await prisma.question.deleteMany();
-  await prisma.section.deleteMany();
-  await prisma.survey.deleteMany();
-
-  const survey = await prisma.survey.create({
+async function ensureSurvey() {
+  const existing = await prisma.survey.findFirst({ where: { title: "PoC Survey" } });
+  if (existing) return existing;
+  return prisma.survey.create({
     data: {
       title: "PoC Survey",
       purpose: "PoC local prisma in apps/web",
@@ -22,71 +13,71 @@ async function main() {
       analysisCondition: "n/a",
       researchMethod: "n/a",
       researchScale: "n/a",
-      sections: {
-        create: [
-          {
-            phase: "SCREENING",
-            order: 1,
-            title: "Screening",
-            questions: {
-              create: [
-                {
-                  code: "SC1",
-                  type: "SA",
-                  title: "年齢を教えてください",
-                  order: 1,
-                  isRequired: true,
-                  config: "{}",
-                  options: {
-                    create: [
-                      { code: "1", label: "20代", value: "20s", order: 1 },
-                      { code: "2", label: "30代", value: "30s", order: 2 }
-                    ]
-                  }
-                }
-              ]
-            }
-          },
-          {
-            phase: "MAIN",
-            order: 1,
-            title: "Main",
-            questions: {
-              create: [
-                {
-                  code: "Q1",
-                  type: "SA",
-                  title: "満足度を教えてください",
-                  order: 1,
-                  isRequired: true,
-                  config: "{}",
-                  options: {
-                    create: [
-                      { code: "1", label: "満足", value: "good", order: 1 },
-                      { code: "2", label: "不満", value: "bad", order: 2 }
-                    ]
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    }
+    },
   });
+}
 
-  await prisma.thread.create({
+async function ensureSection(surveyId: number, phase: string, order: number, title: string) {
+  const existing = await prisma.section.findFirst({ where: { surveyId, phase, order } });
+  if (existing) return existing;
+  return prisma.section.create({ data: { surveyId, phase, order, title } });
+}
+
+async function ensureQuestion(sectionId: number, code: string, title: string) {
+  const existing = await prisma.question.findFirst({ where: { sectionId, code } });
+  if (existing) return existing;
+  return prisma.question.create({
     data: {
-      questionId: (await prisma.question.findFirst({ where: { code: "Q1" } }))!.id,
+      sectionId,
+      code,
+      type: "SA",
+      title,
+      order: 1,
+      isRequired: true,
+      config: "{}",
+    },
+  });
+}
+
+async function ensureOption(questionId: number, code: string, label: string, value: string, order: number) {
+  const existing = await prisma.option.findFirst({ where: { questionId, code } });
+  if (existing) return existing;
+  return prisma.option.create({ data: { questionId, code, label, value, order } });
+}
+
+async function ensureThread(questionId: number) {
+  const existing = await prisma.thread.findFirst({ where: { questionId, type: "ai" } });
+  if (existing) return existing;
+  return prisma.thread.create({
+    data: {
+      questionId,
       x: 10,
       y: 10,
       createdBy: "AIレビュー",
       message: "PoC: 表現の一貫性を確認してください",
-      type: "ai"
-    }
+      type: "ai",
+    },
   });
+}
 
-  console.log("✅ Web local seed done:", survey.id);
+async function main() {
+  console.log("🌱 Seeding (append mode) ...");
+
+  const survey = await ensureSurvey();
+  const screening = await ensureSection(survey.id, "SCREENING", 1, "Screening");
+  const mainSec = await ensureSection(survey.id, "MAIN", 1, "Main");
+
+  const qSc1 = await ensureQuestion(screening.id, "SC1", "年齢を教えてください");
+  await ensureOption(qSc1.id, "1", "20代", "20s", 1);
+  await ensureOption(qSc1.id, "2", "30代", "30s", 2);
+
+  const q1 = await ensureQuestion(mainSec.id, "Q1", "満足度を教えてください");
+  await ensureOption(q1.id, "1", "満足", "good", 1);
+  await ensureOption(q1.id, "2", "不満", "bad", 2);
+
+  await ensureThread(q1.id);
+
+  console.log("✅ Seed append done: surveyId", survey.id);
 }
 
 main().catch(async (e) => {
