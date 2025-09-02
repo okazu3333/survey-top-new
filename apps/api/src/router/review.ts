@@ -1,4 +1,3 @@
-import { db } from "@survey-poc/database";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { publicProcedure, router } from "../trpc";
@@ -11,8 +10,8 @@ export const reviewRouter = router({
         threadId: z.number(),
       }),
     )
-    .query(async ({ input }) => {
-      const reviews = await db.review.findMany({
+    .query(async ({ input, ctx }) => {
+      const reviews = await ctx.db.review.findMany({
         where: {
           threadId: input.threadId,
         },
@@ -33,8 +32,8 @@ export const reviewRouter = router({
         createdBy: z.string(),
       }),
     )
-    .mutation(async ({ input }) => {
-      const review = await db.review.create({
+    .mutation(async ({ input, ctx }) => {
+      const review = await ctx.db.review.create({
         data: {
           threadId: input.threadId,
           message: input.message,
@@ -52,8 +51,8 @@ export const reviewRouter = router({
         id: z.number(),
       }),
     )
-    .query(async ({ input }) => {
-      const review = await db.review.findUnique({
+    .query(async ({ input, ctx }) => {
+      const review = await ctx.db.review.findUnique({
         where: {
           id: input.id,
         },
@@ -82,8 +81,8 @@ export const reviewRouter = router({
         }),
       }),
     )
-    .mutation(async ({ input }) => {
-      const review = await db.review.update({
+    .mutation(async ({ input, ctx }) => {
+      const review = await ctx.db.review.update({
         where: {
           id: input.id,
         },
@@ -100,8 +99,8 @@ export const reviewRouter = router({
         id: z.number(),
       }),
     )
-    .mutation(async ({ input }) => {
-      const review = await db.review.delete({
+    .mutation(async ({ input, ctx }) => {
+      const review = await ctx.db.review.delete({
         where: {
           id: input.id,
         },
