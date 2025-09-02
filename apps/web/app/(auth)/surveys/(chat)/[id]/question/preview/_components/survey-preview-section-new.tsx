@@ -70,10 +70,15 @@ export const SurveyPreviewSection = () => {
 
   // Seed dummy questions when none exist
   const seedMutation = api.question.seedForSurvey.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       refetch();
+      try {
+        await seedThreadsMutation.mutateAsync({ surveyId });
+      } catch {}
     },
   });
+
+  const seedThreadsMutation = api.thread.seedForSurvey.useMutation();
 
   useEffect(() => {
     if (!isLoading && sections && sections.length > 0) {

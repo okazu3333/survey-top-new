@@ -1,4 +1,3 @@
-import { db } from "@survey-poc/database";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { publicProcedure, router } from "../trpc";
@@ -13,7 +12,7 @@ export const threadRouter = router({
         isCompleted: z.boolean().nullable().optional(),
       }),
     )
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const where: {
         question: {
           section: {
@@ -40,7 +39,7 @@ export const threadRouter = router({
         where.isCompleted = input.isCompleted;
       }
 
-      const threads = await db.thread.findMany({
+      const threads = await ctx.db.thread.findMany({
         where,
         include: {
           question: {
@@ -79,8 +78,8 @@ export const threadRouter = router({
         type: z.string(),
       }),
     )
-    .mutation(async ({ input }) => {
-      const thread = await db.thread.create({
+    .mutation(async ({ input, ctx }) => {
+      const thread = await ctx.db.thread.create({
         data: {
           questionId: input.questionId,
           x: input.x,
@@ -101,8 +100,8 @@ export const threadRouter = router({
         id: z.number(),
       }),
     )
-    .query(async ({ input }) => {
-      const thread = await db.thread.findUnique({
+    .query(async ({ input, ctx }) => {
+      const thread = await ctx.db.thread.findUnique({
         where: {
           id: input.id,
         },
@@ -138,8 +137,8 @@ export const threadRouter = router({
         }),
       }),
     )
-    .mutation(async ({ input }) => {
-      const thread = await db.thread.update({
+    .mutation(async ({ input, ctx }) => {
+      const thread = await ctx.db.thread.update({
         where: {
           id: input.id,
         },
@@ -156,13 +155,79 @@ export const threadRouter = router({
         id: z.number(),
       }),
     )
-    .mutation(async ({ input }) => {
-      const thread = await db.thread.delete({
+    .mutation(async ({ input, ctx }) => {
+      const thread = await ctx.db.thread.delete({
         where: {
           id: input.id,
         },
       });
 
       return thread;
+    }),
+
+  // 質問ごとにダミースレッド/レビューを生成（既存があればスキップ）
+  seedForSurvey: publicProcedure
+    .input(z.object({ surveyId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const questions = await ctx.db.question.findMany({
+        where: { section: { surveyId: input.surveyId } },
+        select: { id: true, code: true, title: true, section: { select: { phase: true, title: true } } },
+        orderBy: [{ section: { phase: "asc" } }, { order: "asc" }],
+      });
+
+      for (const q of questions) {
+        const existing = await ctx.db.thread.findFirst({ where: { questionId: q.id } });
+        if (existing) continue;
+
+        // AIレビュー
+        const ai = await ctx.db.thread.create({
+          data: {
+            questionId: q.id,
+            x: 22,
+            y: 35,
+            type: "ai",
+            createdBy: "AIレビュー",
+            message:
+              q.section.title.includes("ブランド") || q.title.includes("ブランド")
+                ? "ブランド関連設問：表現の一貫性を確認してください。"
+                : q.section.title.includes("購買") || q.title.includes("購入")
+                  ? "購入要因の選択肢に抜け漏れがないか確認しました。"
+                  : "設問文の簡潔性と選択肢の網羅性を確認しました。",
+          },
+        });
+        await ctx.db.review.create({
+          data: {
+            threadId: ai.id,
+            message: "選択肢順序はロジックに合わせ昇順が読みやすいです。",
+            createdBy: "AIレビュー",
+          },
+        });
+
+        // チームレビュー
+        const team = await ctx.db.thread.create({
+          data: {
+            questionId: q.id,
+            x: 68,
+            y: 30,
+            type: "team",
+            createdBy: "レビュアーA",
+            message:
+              q.section.title.includes("利用意向")
+                ? "設問の前提（利用経験の有無）を明記しましょう。"
+                : q.section.title.includes("利用状況")
+                  ? "最近の期間を指定（直近3ヶ月など）した方が回答が安定します。"
+                  : "回答者が解釈しやすいようラベルの具体度を合わせてください。",
+          },
+        });
+        await ctx.db.review.create({
+          data: {
+            threadId: team.id,
+            message: "コメントありがとうございます。修正案を次回ドラフトに反映します。",
+            createdBy: "作成者",
+          },
+        });
+      }
+
+      return { ok: true };
     }),
 });

@@ -177,17 +177,15 @@ export const ReviewPreviewSection = ({
 
   // Seed dummy questions if none exist
   const seedMutation = api.question.seedForSurvey.useMutation({
-    onSuccess: () => refetch(),
+    onSuccess: async () => {
+      await refetch();
+      // 追加: スレッドのダミーも生成
+      try {
+        await seedThreadsMutation.mutateAsync({ surveyId });
+        await refetchThreads();
+      } catch {}
+    },
   });
-
-  useEffect(() => {
-    if (!sectionsLoading && sections && sections.length > 0) {
-      const total = sections.reduce((sum: number, s: any) => sum + (s.questions?.length || 0), 0);
-      if (total === 0 && !seedMutation.isPending) {
-        seedMutation.mutate({ surveyId });
-      }
-    }
-  }, [sectionsLoading, sections, seedMutation, surveyId, refetch]);
 
   // Fetch threads from tRPC
   const {
@@ -198,6 +196,9 @@ export const ReviewPreviewSection = ({
     { surveyId },
     { enabled: !isNaN(surveyId) && surveyId > 0 }
   );
+
+  // 追加: thread seed mutation
+  const seedThreadsMutation = api.thread.seedForSurvey.useMutation();
 
   // Build effective threads (fallback to dummy when none)
   const allQuestions: any[] = (sections || []).flatMap((s: any) => s.questions || []);
