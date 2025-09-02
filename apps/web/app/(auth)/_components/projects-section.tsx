@@ -37,70 +37,6 @@ export const ProjectsSection = () => {
     title: string;
   } | null>(null);
 
-
-  // GT表のサンプルデータ
-  const gtTableData: Record<string, string> = {
-    SRB008: `Q1,あなたの性別をお答えください。（ＳＡ）,,,
-,,回答数,％
-,全体,5,100.0
-1,男性,4,80.0
-2,女性,1,20.0
-
-Q2,あなたの年代をお答えください。（ＳＡ）,,,
-,,回答数,％
-,全体,5,100.0
-1,１０代,2,40.0
-2,２０代,1,20.0
-3,３０代,1,20.0
-4,４０代,0,0.0
-5,５０代,1,20.0
-6,６０代以上,0,0.0
-
-Q3,あなたはＱＲコード決済を使用していますか？（ＳＡ）,,,
-,,回答数,％
-,全体,5,100.0
-1,日常的に使用している,4,80.0
-2,アカウントは持っているがあまり使用していない,1,20.0
-3,アカウントを持っていない,0,0.0
-
-Q5,最も使用しているとお答えいただいたＱＲコード決済○○○（ｑ４＿１回答再掲）についてお聞きしますこのサービスにどの程度満足していますか（ＳＡ）,,,
-,,回答数,％
-,全体,5,100.0
-1,非常に満足している,1,20.0
-2,満足している,3,60.0
-3,どちらともいえない,1,20.0
-4,やや不満,0,0.0
-5,非常に不満,0,0.0`,
-  };
-
-  const handleDownloadGT = (projectId: string, event: React.MouseEvent) => {
-    event.stopPropagation();
-
-    // プロジェクトIDに対応するGT表データを取得（デモ用に全て同じデータを使用）
-    const csvContent = gtTableData.SRB008 || gtTableData.SRB008;
-
-    // BOMを追加してExcelで正しく日本語が表示されるようにする
-    const BOM = "\uFEFF";
-    const blob = new Blob([BOM + csvContent], {
-      type: "text/csv;charset=utf-8;",
-    });
-
-    // ダウンロードリンクを作成
-    const link = document.createElement("a");
-    if (link.download !== undefined) {
-      const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
-      link.setAttribute(
-        "download",
-        `レポート_${projectId}_${new Date().toISOString().split("T")[0]}.csv`,
-      );
-      link.style.visibility = "hidden";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  };
-
   const projects = [
     {
       id: "SRB008",
@@ -210,7 +146,6 @@ Q5,最も使用しているとお答えいただいたＱＲコード決済○�
   };
 
   const handleRowClick = (numericId: number, event: React.MouseEvent) => {
-    // チェックボックスやボタンのクリックの場合は何もしない
     const target = event.target as HTMLElement;
     if (
       target.tagName === "BUTTON" ||
@@ -222,8 +157,6 @@ Q5,最も使用しているとお答えいただいたＱＲコード決済○�
     }
     router.push(`/surveys/${numericId}/question/preview`);
   };
-
-
 
   return (
     <Card className="bg-transparent shadow-none border-none">
@@ -241,9 +174,8 @@ Q5,最も使用しているとお答えいただいたＱＲコード決済○�
               <Button variant="outline" size="sm">
                 選択項目を削除
               </Button>
-              {/* 削除: テスト結果をダウンロード ボタン */}
             </div>
-            <Button 
+            <Button
               onClick={() => router.push('/surveys/assistant')}
               className="bg-[#138fb5] hover:bg-[#0f7a9e]"
             >
@@ -266,23 +198,13 @@ Q5,最も使用しているとお答えいただいたＱＲコード決済○�
                 <TableHead className="text-white">調査コード</TableHead>
                 <TableHead className="text-white">調査タイトル</TableHead>
                 <TableHead className="text-white">ステータス</TableHead>
-                {/* 作成日時 -> 更新日時 */}
                 <TableHead className="text-white">更新日時</TableHead>
-                {/* 更新日時 -> 実査日時 */}
                 <TableHead className="text-white">実査日時</TableHead>
                 <TableHead className="text-white">作成者</TableHead>
-                <TableHead className="text-white text-center whitespace-nowrap w-24">
-                  レビューリンク
-                </TableHead>
-                <TableHead className="text-white text-center whitespace-nowrap w-24">
-                  回答画面
-                </TableHead>
-                <TableHead className="text-white text-center whitespace-nowrap w-24">
-                  配信
-                </TableHead>
-                <TableHead className="text-white text-center whitespace-nowrap w-24">
-                  レポート
-                </TableHead>
+                <TableHead className="text-white text-center whitespace-nowrap w-24">レビューリンク</TableHead>
+                <TableHead className="text-white text-center whitespace-nowrap w-24">回答画面</TableHead>
+                <TableHead className="text-white text-center whitespace-nowrap w-24">配信</TableHead>
+                <TableHead className="text-white text-center whitespace-nowrap w-24">レポート</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -292,9 +214,7 @@ Q5,最も使用しているとお答えいただいたＱＲコード決済○�
                   <TableRow
                     key={project.id}
                     className={`cursor-pointer ${
-                      isSelected
-                        ? "bg-yellow-50 hover:bg-yellow-100"
-                        : "bg-white hover:bg-gray-50"
+                      isSelected ? "bg-yellow-50 hover:bg-yellow-100" : "bg-white hover:bg-gray-50"
                     }`}
                     onClick={(e) => handleRowClick(project.numericId, e)}
                   >
@@ -317,12 +237,8 @@ Q5,最も使用しているとお答えいただいたＱＲコード決済○�
                         {project.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-sm text-gray-600">
-                      {project.updatedDate}
-                    </TableCell>
-                    <TableCell className="text-sm text-gray-600">
-                      {project.createdDate}
-                    </TableCell>
+                    <TableCell className="text-sm text-gray-600">{project.updatedDate}</TableCell>
+                    <TableCell className="text-sm text-gray-600">{project.createdDate}</TableCell>
                     <TableCell>{project.creator}</TableCell>
                     <TableCell className="text-center w-24">
                       <Button
@@ -343,10 +259,7 @@ Q5,最も使用しているとお答えいただいたＱＲコード決済○�
                         size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setSelectedProject({
-                            id: project.id,
-                            title: project.title,
-                          });
+                          setSelectedProject({ id: project.id, title: project.title });
                           setRespondentDialogOpen(true);
                         }}
                       >
@@ -370,7 +283,10 @@ Q5,最も使用しているとお答えいただいたＱＲコード決済○�
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={(e) => { e.stopPropagation(); router.push(`/surveys/${project.numericId}/report`); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/surveys/${project.numericId}/report`);
+                        }}
                         title="レポートページを開く"
                       >
                         <FileText className="w-4 h-4" />
@@ -383,11 +299,7 @@ Q5,最も使用しているとお答えいただいたＱＲコード決済○�
           </Table>
         </div>
       </CardContent>
-      <ReviewUrlDialog
-        open={reviewDialogOpen}
-        onOpenChange={setReviewDialogOpen}
-        surveyId={selectedSurveyId}
-      />
+      <ReviewUrlDialog open={reviewDialogOpen} onOpenChange={setReviewDialogOpen} surveyId={selectedSurveyId} />
       {selectedProject && (
         <RespondentAttributesDialog
           open={respondentDialogOpen}
@@ -396,7 +308,6 @@ Q5,最も使用しているとお答えいただいたＱＲコード決済○�
           projectTitle={selectedProject.title}
         />
       )}
-
     </Card>
   );
 };

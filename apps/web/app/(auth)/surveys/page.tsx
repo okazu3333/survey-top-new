@@ -332,48 +332,6 @@ export default function SurveysPage() {
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentProjects = allProjects.slice(startIndex, endIndex);
 
-  // GT表のサンプルデータ
-  const gtTableData: Record<string, string> = {
-    SRB008: `Q1,あなたの性別をお答えください。（ＳＡ）,,,
-,,回答数,％
-,全体,5,100.0
-1,男性,4,80.0
-2,女性,1,20.0
-
-Q2,あなたの年代をお答えください。（ＳＡ）,,,
-,,回答数,％
-,全体,5,100.0
-1,１０代,2,40.0
-2,２０代,1,20.0
-3,３０代,1,20.0
-4,４０代,0,0.0
-5,５０代,1,20.0
-6,６０代以上,0,0.0`,
-  };
-
-  const handleDownloadGT = (projectId: string, event: React.MouseEvent) => {
-    event.stopPropagation();
-
-    const csvContent = gtTableData.SRB008;
-    const BOM = "\uFEFF";
-    const blob = new Blob([BOM + csvContent], {
-      type: "text/csv;charset=utf-8;",
-    });
-
-    const link = document.createElement("a");
-    if (link.download !== undefined) {
-      const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
-      link.setAttribute(
-        "download",
-        `GT表_${projectId}_${new Date().toISOString().split("T")[0]}.csv`,
-      );
-      link.style.visibility = "hidden";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  };
 
   const handleRowClick = (numericId: number, event: React.MouseEvent) => {
     const target = event.target as HTMLElement;
@@ -425,7 +383,7 @@ Q2,あなたの年代をお答えください。（ＳＡ）,,,
                       配信
                     </TableHead>
                     <TableHead className="text-white text-center whitespace-nowrap">
-                      GT表
+                      レポート
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -503,8 +461,11 @@ Q2,あなたの年代をお答えください。（ＳＡ）,,,
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={(e) => handleDownloadGT(project.id, e)}
-                            title="GT表をダウンロード"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`/surveys/${project.numericId}/report`);
+                            }}
+                            title="レポートページを開く"
                           >
                             <FileText className="w-4 h-4" />
                           </Button>
