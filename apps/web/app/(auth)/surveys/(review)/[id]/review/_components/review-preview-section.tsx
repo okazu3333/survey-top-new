@@ -175,17 +175,6 @@ export const ReviewPreviewSection = ({
       { enabled: !isNaN(surveyId) && surveyId > 0 }
     );
 
-  // Seed dummy questions if none exist
-  const seedMutation = api.question.seedForSurvey.useMutation({
-    onSuccess: async () => {
-      await refetch();
-      // 追加: スレッドのダミーも生成
-      try {
-        await seedThreadsMutation.mutateAsync({ surveyId });
-        await refetchThreads();
-      } catch {}
-    },
-  });
 
   // Fetch threads from tRPC
   const {
