@@ -35,7 +35,12 @@ export const PublishStep = ({
   surveyId,
 }: PublishStepProps) => {
   const router = useRouter();
-  const { isChatCollapsed } = useChatContext();
+  let isChatCollapsed = false;
+  try {
+    isChatCollapsed = useChatContext().isChatCollapsed;
+  } catch {
+    isChatCollapsed = false;
+  }
 
   const getStepStatus = (index: number): StepStatus => {
     if (index < currentStep) return "complete";

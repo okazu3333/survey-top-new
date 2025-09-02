@@ -289,7 +289,12 @@ export const SurveyItems = ({ className = "", surveyId }: SurveyItemsProps) => {
     createSurveyItemsData(),
   );
 
-  const { isChatCollapsed } = useChatContext();
+  let isChatCollapsed = false;
+  try {
+    isChatCollapsed = useChatContext().isChatCollapsed;
+  } catch {
+    isChatCollapsed = false;
+  }
 
   useEffect(() => {
     if (survey) {
