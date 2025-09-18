@@ -1,0 +1,93 @@
+{
+  "specId": "P1:normal",
+  "pattern": "P1",
+  "caseType": "normal",
+  "title": "P1 正常系",
+  "surveySpec": {
+    "surveyTitle": "消費者満足度調査 2024年版",
+    "sections": [
+      {
+        "title": "スクリーニング",
+        "questions": [
+          {"code":"SC1","type":"SA","title":"あなたの性別を教えてください。","isRequired":true,"options":[{"code":1,"label":"男性"},{"code":2,"label":"女性"},{"code":3,"label":"その他"}]},
+          {"code":"SC2","type":"SA","title":"あなたの年齢帯をお選びください。","isRequired":true,"options":[{"code":1,"label":"20-29"},{"code":2,"label":"30-39"},{"code":3,"label":"40-49"},{"code":4,"label":"50-59"},{"code":5,"label":"60-69"}]},
+          {"code":"SC3","type":"SA","title":"現在お住まいの地域をお選びください。","isRequired":true,"options":[{"code":1,"label":"北海道・東北"},{"code":2,"label":"関東"},{"code":3,"label":"中部"},{"code":4,"label":"近畿"},{"code":5,"label":"中国・四国"},{"code":6,"label":"九州・沖縄"}]},
+          {"code":"SC4","type":"SA","title":"当該ブランドを知っていますか。","isRequired":true,"options":[{"code":1,"label":"知っている"},{"code":2,"label":"知らない"}]},
+          {"code":"SC5","type":"SA","title":"過去1年以内に当該ブランドを利用しましたか。","isRequired":true,"options":[{"code":1,"label":"はい"},{"code":2,"label":"いいえ"}]},
+          {"code":"SC6","type":"SA","title":"スクリーニング対象外に該当しますか。","isRequired":true,"options":[{"code":1,"label":"はい（対象外）"},{"code":2,"label":"いいえ（対象）"}]},
+          {"code":"SC7","type":"SA","title":"主に利用するデバイスを教えてください。","isRequired":true,"options":[{"code":1,"label":"スマートフォン"},{"code":2,"label":"PC"},{"code":3,"label":"タブレット"}]}
+        ]
+      },
+      {
+        "title": "本調査",
+        "questions": [
+          {"code":"Q1","type":"SA","title":"このブランドを知っていますか。","isRequired":true,"options":[{"code":1,"label":"知っている"},{"code":2,"label":"知らない"}]},
+          {"code":"Q2","type":"MA","title":"どこでこのブランドを知りましたか。あてはまるものをすべてお選びください。","isRequired":true,"options":[{"code":1,"label":"SNS"},{"code":2,"label":"Web検索"},{"code":3,"label":"店頭"},{"code":4,"label":"知人の紹介"}]},
+          {"code":"Q3","type":"SA","title":"直近1年以内に購入しましたか。","isRequired":true,"options":[{"code":1,"label":"購入した"},{"code":2,"label":"購入していない"}]},
+          {"code":"Q4","type":"SA","title":"購入頻度を教えてください。","isRequired":true,"options":[{"code":1,"label":"週1-2回"},{"code":2,"label":"月1回"},{"code":3,"label":"年数回"},{"code":4,"label":"初めて"}]},
+          {"code":"Q5","type":"NUM","title":"1回あたりの平均購入金額（円）を半角数字で入力してください。","options":[]},
+          {"code":"Q6","type":"SA","title":"商品を選ぶ際に最も重視する点はどれですか。","isRequired":true,"options":[{"code":1,"label":"価格"},{"code":2,"label":"品質"},{"code":3,"label":"ブランド"},{"code":4,"label":"サポート"},{"code":5,"label":"使いやすさ"}]},
+          {"code":"Q7","type":"MA","title":"商品選びで重視する点をすべてお選びください。","isRequired":true,"options":[{"code":1,"label":"価格"},{"code":2,"label":"品質"},{"code":3,"label":"ブランド"},{"code":4,"label":"サポート"},{"code":5,"label":"使いやすさ"}]},
+          {"code":"Q8","type":"SCALE","title":"総合満足度を5段階でお答えください。","options":[{"code":1,"label":"1"},{"code":2,"label":"2"},{"code":3,"label":"3"},{"code":4,"label":"4"},{"code":5,"label":"5"}]},
+          {"code":"Q9","type":"SCALE","title":"このブランドを家族や友人に勧める可能性（0〜10）。","options":[{"code":0,"label":"0"},{"code":1,"label":"1"},{"code":2,"label":"2"},{"code":3,"label":"3"},{"code":4,"label":"4"},{"code":5,"label":"5"},{"code":6,"label":"6"},{"code":7,"label":"7"},{"code":8,"label":"8"},{"code":9,"label":"9"},{"code":10,"label":"10"}]},
+          {"code":"Q10","type":"MA","title":"購入前の情報収集で利用したチャネルを教えてください。","options":[{"code":1,"label":"SNS"},{"code":2,"label":"比較サイト"},{"code":3,"label":"公式サイト"},{"code":4,"label":"店頭での説明"}]},
+          {"code":"Q11","type":"SCALE","title":"価格の妥当性についてお答えください（1〜5）。","options":[{"code":1,"label":"1"},{"code":2,"label":"2"},{"code":3,"label":"3"},{"code":4,"label":"4"},{"code":5,"label":"5"}]},
+          {"code":"Q12","type":"SCALE","title":"ブランドへの信頼度（1〜5）。","options":[{"code":1,"label":"1"},{"code":2,"label":"2"},{"code":3,"label":"3"},{"code":4,"label":"4"},{"code":5,"label":"5"}]},
+          {"code":"Q13","type":"SA","title":"今後の乗り換え意向はありますか。","options":[{"code":1,"label":"ある"},{"code":2,"label":"ない"},{"code":3,"label":"わからない"}]},
+          {"code":"Q14","type":"SA","title":"主な購入チャネルを教えてください。","options":[
+            {"code":1,"label":"ECモール","isOther":false,"otherPlaceholder":null},
+            {"code":2,"label":"直販サイト","isOther":false,"otherPlaceholder":null},
+            {"code":3,"label":"実店舗","isOther":false,"otherPlaceholder":null},
+            {"code":4,"label":"その他","isOther":true,"otherPlaceholder":"具体的にご記入ください"}
+          ]},
+          {"code":"Q15","type":"SA","title":"1回あたりの購入金額帯をお選びください。","options":[{"code":1,"label":"〜1,000円"},{"code":2,"label":"1,001〜3,000円"},{"code":3,"label":"3,001〜5,000円"},{"code":4,"label":"5,001円以上"}]},
+          {"code":"Q16","type":"MA","title":"購入時に競合として検討したブランドをすべてお選びください。","options":[
+            {"code":1,"label":"A社","isOther":false,"otherPlaceholder":null},
+            {"code":2,"label":"B社","isOther":false,"otherPlaceholder":null},
+            {"code":3,"label":"C社","isOther":false,"otherPlaceholder":null},
+            {"code":4,"label":"D社","isOther":false,"otherPlaceholder":null},
+            {"code":5,"label":"その他","isOther":true,"otherPlaceholder":"具体的にご記入ください"}
+          ]},
+          {"code":"Q17","type":"MA","title":"不満点があれば選んでください。","options":[{"code":1,"label":"価格"},{"code":2,"label":"品質"},{"code":3,"label":"在庫"},{"code":4,"label":"配送"},{"code":5,"label":"サポート"},{"code":6,"label":"UI/UX"}]},
+          {"code":"Q18","type":"SA","title":"今後の新機能・改善に期待しますか。","options":[{"code":1,"label":"はい"},{"code":2,"label":"いいえ"}]},
+          {"code":"Q19","type":"FA","title":"ご意見・ご要望があれば自由にご記入ください。","options":[]},
+          {"code":"Q20","type":"MA","title":"過去1ヶ月で記憶に残った広告を選んでください。","options":[{"code":1,"label":"テレビ"},{"code":2,"label":"YouTube"},{"code":3,"label":"屋外"},{"code":4,"label":"SNS"},{"code":5,"label":"検索広告"}]}
+        ]
+      }
+    ]
+  },
+  "expectations": {
+    "maxQuestions": 27,
+    "requiredCoverage": ["SC1","SC2","SC3","SC4","SC5","SC6","SC7","Q1","Q2","Q3","Q4","Q6","Q7"],
+    "invalidCombos": [],
+    "rules": {
+      "numericRanges": {"Q5": [100, 100000]},
+      "scaleRanges": {"Q8": [1,5], "Q9": [0,10], "Q11": [1,5], "Q12": [1,5]},
+      "maxChoices": {"Q2":3, "Q7":3, "Q10":3, "Q16":3, "Q17":3, "Q20":3},
+      "minChoices": {"Q2":1, "Q7":1},
+      "allowedAgeCodes": {"SC2": [1]},
+      "gatingMustPass": ["SC4==1","SC5==1","SC6==2","SC2 in [1]"],
+      "visibilityConditions": {
+        "Q1": "SC4==1 && SC5==1 && SC6==2 && SC2 in [1]",
+        "Q3": "SC5==1"
+      },
+      "disallowAnswersWhenHidden": true,
+      "otherTextRequired": {"Q14": true, "Q16": true},
+      "mutualExclusions": {"Q14": [["4","3"],["4","2"]]},
+      "randomizeOptions": {"Q2": true, "Q7": true, "Q10": true, "Q16": true},
+      "maxConsecutiveFA": 1,
+      "uiConstraints": {
+        "Q9": { "kind": "NPS", "orientation": "horizontal", "valueRange": [0,10], "contiguous": true }
+      }
+    },
+    "basic": {
+      "title": "消費者満足度調査 2024年版",
+      "purpose": "顧客満足度とブランド認知度の総合的な評価・分析",
+      "targetConditions": ["全国","20-60代","男女","当該ブランド認知者","過去1年以内の利用経験者"],
+      "analysisTargets": ["ブランド認知度・利用状況","満足度評価（総合・項目別）","NPS（推奨意向）","競合ブランドとの比較評価","今後の利用意向・改善要望"],
+      "screeningQuestionCount": 7,
+      "mainQuestionCount": 20
+    }
+  },
+  "isActive": true
+}
