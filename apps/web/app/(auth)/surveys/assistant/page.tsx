@@ -525,6 +525,9 @@ export default function SurveyAssistantPage() {
             setIsRecommendedComparison(false);
           }}
           isRecommendedComparison={isRecommendedComparison}
+          onFileUpload={(files) => {
+            setAttachedFiles((prev) => [...prev, ...files]);
+          }}
         />
       )}
     </div>

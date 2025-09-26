@@ -352,15 +352,13 @@ export default function SurveyLibrary({
                   >
                     <Eye className="h-4 w-4" />
                   </button>
-                  {(hasUploadedFiles || recommendedSurveyIds.includes(survey.id)) && (
-                    <button
-                      onClick={(e) => handleCompare(survey, e)}
-                      className="px-2 py-1 bg-[#FF6B6B] text-white text-xs rounded hover:bg-[#FF5252] transition-colors"
-                      title={hasUploadedFiles ? "アップロードファイルと比較" : "この調査票と比較"}
-                    >
-                      比較
-                    </button>
-                  )}
+                  <button
+                    onClick={(e) => handleCompare(survey, e)}
+                    className="px-2 py-1 bg-[#FF6B6B] text-white text-xs rounded hover:bg-[#FF5252] transition-colors"
+                    title="この調査票と比較"
+                  >
+                    比較
+                  </button>
                   <button
                     onClick={(e) => handleMore(survey, e)}
                     className="p-1 text-[#9E9E9E] hover:text-[#202020] hover:bg-[#F9F9F9] rounded transition-colors"

@@ -1,6 +1,6 @@
 "use client";
 
-import { FileText, X } from "lucide-react";
+import { FileText, X, Upload } from "lucide-react";
 import type React from "react";
 
 interface Survey {
@@ -19,6 +19,7 @@ interface ComparisonPreviewModalProps {
   recommendedSurvey: Survey | null;
   onClose: () => void;
   isRecommendedComparison?: boolean;
+  onFileUpload?: (files: File[]) => void;
 }
 
 export default function ComparisonPreviewModal({
@@ -27,8 +28,16 @@ export default function ComparisonPreviewModal({
   recommendedSurvey,
   onClose,
   isRecommendedComparison = false,
+  onFileUpload,
 }: ComparisonPreviewModalProps) {
   if (!isOpen) return null;
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && onFileUpload) {
+      onFileUpload(Array.from(files));
+    }
+  };
 
   // アップロードファイルから抽出された内容（モック）
   const extractedContent = uploadedFiles.map(file => {
@@ -156,9 +165,28 @@ export default function ComparisonPreviewModal({
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)]">
           {/* File Info */}
           <div className="mb-6 p-4 bg-[#F9F9F9] rounded-lg">
-            <h3 className="font-medium text-[#202020] mb-3">アップロードファイル</h3>
+            <div className="flex items-center justify-between mb-3">
+              <div className="font-medium text-[#202020]">アップロードファイル</div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="file"
+                  multiple
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  id="file-upload-modal"
+                  accept=".txt,.pdf,.doc,.docx,.xlsx,.xls,.csv"
+                />
+                <label
+                  htmlFor="file-upload-modal"
+                  className="flex items-center gap-1 px-3 py-1 bg-[#138FB5] text-white text-xs rounded cursor-pointer hover:bg-[#0f7a9e] transition-colors"
+                >
+                  <Upload className="h-3 w-3" />
+                  ファイル追加
+                </label>
+              </div>
+            </div>
             <div className="space-y-3">
-              {extractedContent.map((content, index) => (
+              {extractedContent.length > 0 ? extractedContent.map((content, index) => (
                 <div key={index} className="bg-white p-3 rounded-lg border">
                   <div className="flex items-center gap-2 mb-2">
                     <FileText className="h-4 w-4 text-[#138FB5]" />
@@ -190,7 +218,12 @@ export default function ComparisonPreviewModal({
                     </div>
                   )}
                 </div>
-              ))}
+              )) : (
+                <div className="text-center py-8 text-[#9E9E9E]">
+                  <Upload className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">比較するファイルをアップロードしてください</p>
+                </div>
+              )}
             </div>
           </div>
 
