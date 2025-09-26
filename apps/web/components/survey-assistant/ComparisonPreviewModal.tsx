@@ -1,7 +1,7 @@
 "use client";
 
 import { FileText, X, Upload } from "lucide-react";
-import type React from "react";
+import React from "react";
 
 interface Survey {
   id: string;
@@ -32,8 +32,29 @@ export default function ComparisonPreviewModal({
 }: ComparisonPreviewModalProps) {
   if (!isOpen) return null;
 
+  const [isDragOver, setIsDragOver] = React.useState(false);
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
+    if (files && onFileUpload) {
+      onFileUpload(Array.from(files));
+    }
+  };
+
+  const handleDragOver = (event: React.DragEvent) => {
+    event.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (event: React.DragEvent) => {
+    event.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (event: React.DragEvent) => {
+    event.preventDefault();
+    setIsDragOver(false);
+    const files = event.dataTransfer.files;
     if (files && onFileUpload) {
       onFileUpload(Array.from(files));
     }
@@ -163,80 +184,37 @@ export default function ComparisonPreviewModal({
 
         {/* Content */}
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)]">
-          {/* File Info */}
-          <div className="mb-6 p-4 bg-[#F9F9F9] rounded-lg">
-            <div className="flex items-center justify-between mb-3">
-              <div className="font-medium text-[#202020]">アップロードファイル</div>
-              <div className="flex items-center gap-2">
-                <input
-                  type="file"
-                  multiple
-                  onChange={handleFileUpload}
-                  className="hidden"
-                  id="file-upload-modal"
-                  accept=".txt,.pdf,.doc,.docx,.xlsx,.xls,.csv"
-                />
-                <label
-                  htmlFor="file-upload-modal"
-                  className="flex items-center gap-1 px-3 py-1 bg-[#138FB5] text-white text-xs rounded cursor-pointer hover:bg-[#0f7a9e] transition-colors"
-                >
-                  <Upload className="h-3 w-3" />
-                  ファイル追加
-                </label>
-              </div>
-            </div>
-            <div className="space-y-3">
-              {extractedContent.length > 0 ? extractedContent.map((content, index) => (
-                <div key={index} className="bg-white p-3 rounded-lg border">
-                  <div className="flex items-center gap-2 mb-2">
-                    <FileText className="h-4 w-4 text-[#138FB5]" />
-                    <span className="text-sm font-medium text-[#202020]">{content.fileName}</span>
-                    <span className="text-xs px-2 py-1 bg-[#E8F4F8] text-[#138FB5] rounded-full">
-                      {content.type === 'survey' ? '調査票' : '要件・課題'}
-                    </span>
-                  </div>
-                  
-                  {content.type === 'survey' && content.questions && (
-                    <div className="text-sm text-[#666666]">
-                      抽出された質問: {content.questions.length}件
-                    </div>
-                  )}
-                  
-                  {content.type === 'requirements' && content.requirements && (
-                    <div className="text-sm text-[#666666] space-y-1">
-                      {content.requirements.slice(0, 2).map((req) => (
-                        <div key={req.id} className="flex gap-2">
-                          <span className="font-medium text-[#138FB5]">{req.category}:</span>
-                          <span className="line-clamp-1">{req.text}</span>
-                        </div>
-                      ))}
-                      {content.requirements.length > 2 && (
-                        <div className="text-xs text-[#9E9E9E]">
-                          他 {content.requirements.length - 2} 項目
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )) : (
-                <div className="text-center py-8 text-[#9E9E9E]">
-                  <Upload className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">比較するファイルをアップロードしてください</p>
-                </div>
-              )}
-            </div>
-          </div>
-
           {/* Comparison Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Uploaded File Questions */}
-            <div>
-              <h3 className="font-medium text-[#202020] mb-4 flex items-center gap-2">
-                <div className="w-3 h-3 bg-[#FF6B6B] rounded-full"></div>
-                アップロードファイルから抽出
-              </h3>
-              <div className="space-y-4">
-                {extractedQuestions.map((question, index) => (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
+            {/* Left Side - File Upload & Analysis */}
+            <div className={`border-2 border-dashed rounded-lg transition-colors ${
+              isDragOver 
+                ? 'border-[#FF5252] bg-[#FFF5F5]' 
+                : 'border-[#FF6B6B]'
+            }`}>
+              {extractedContent.length > 0 ? (
+                <div className="p-4">
+                  <h3 className="font-medium text-[#202020] mb-4 flex items-center gap-2">
+                    <div className="w-3 h-3 bg-[#FF6B6B] rounded-full"></div>
+                    アップロードファイルから抽出
+                  </h3>
+                  
+                  {/* File List */}
+                  <div className="mb-4 space-y-2">
+                    {extractedContent.map((content, index) => (
+                      <div key={index} className="flex items-center gap-2 text-sm">
+                        <FileText className="h-4 w-4 text-[#FF6B6B]" />
+                        <span className="font-medium">{content.fileName}</span>
+                        <span className="text-xs px-2 py-1 bg-[#FFF5F5] text-[#FF6B6B] rounded-full">
+                          {content.type === 'survey' ? '調査票' : '要件・課題'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Questions */}
+                  <div className="space-y-4">
+                    {extractedQuestions.map((question, index) => (
                   <div key={question.id} className="border border-[#FF6B6B] rounded-lg p-4 bg-[#FFF5F5]">
                     <div className="flex items-start gap-3 mb-3">
                       <span className="bg-[#FF6B6B] text-white text-xs px-2 py-1 rounded">
@@ -283,9 +261,50 @@ export default function ComparisonPreviewModal({
                         </span>
                       </div>
                     )}
+                    </div>
+                  ))}
                   </div>
-                ))}
-              </div>
+                </div>
+              ) : (
+                <div 
+                  className="h-full min-h-[400px] flex flex-col items-center justify-center p-8 text-center"
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                >
+                  <Upload className="h-16 w-16 text-[#FF6B6B] mb-4 opacity-50" />
+                  <h3 className="font-medium text-[#202020] mb-2">
+                    ファイルをドラッグ&ドロップ
+                  </h3>
+                  <p className="text-sm text-[#9E9E9E] mb-4">
+                    調査票や要件ファイルをここにドロップしてください
+                  </p>
+                  <div className="text-xs text-[#9E9E9E] mb-4">
+                    対応形式: .txt, .pdf, .doc, .docx, .xlsx, .xls, .csv
+                  </div>
+                  
+                  <div className="flex items-center gap-2 text-[#9E9E9E] text-sm mb-4">
+                    <div className="flex-1 h-px bg-[#E5E5E5]"></div>
+                    <span>または</span>
+                    <div className="flex-1 h-px bg-[#E5E5E5]"></div>
+                  </div>
+                  
+                  <input
+                    type="file"
+                    multiple
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    id="file-upload-modal"
+                    accept=".txt,.pdf,.doc,.docx,.xlsx,.xls,.csv"
+                  />
+                  <label
+                    htmlFor="file-upload-modal"
+                    className="px-4 py-2 bg-[#FF6B6B] text-white rounded-lg cursor-pointer hover:bg-[#FF5252] transition-colors text-sm"
+                  >
+                    ファイルを選択
+                  </label>
+                </div>
+              )}
             </div>
 
             {/* Recommended Survey Questions */}
