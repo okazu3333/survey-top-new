@@ -30,30 +30,67 @@ export default function ComparisonPreviewModal({
 }: ComparisonPreviewModalProps) {
   if (!isOpen) return null;
 
-  // アップロードファイルから抽出された質問（モック）
-  const extractedQuestions = [
-    {
-      id: "extracted-1",
-      title: "お客様の年齢層を教えてください",
-      type: "SA",
-      source: "uploaded",
-      options: ["20代", "30代", "40代", "50代", "60代以上"],
-    },
-    {
-      id: "extracted-2",
-      title: "弊社サービスの満足度を教えてください",
-      type: "NU",
-      source: "uploaded",
-      range: { min: 1, max: 5 },
-    },
-    {
-      id: "extracted-3",
-      title: "今後も継続してご利用いただけますか？",
-      type: "SA",
-      source: "uploaded",
-      options: ["はい", "いいえ", "わからない"],
-    },
-  ];
+  // アップロードファイルから抽出された内容（モック）
+  const extractedContent = uploadedFiles.map(file => {
+    // ファイル名から内容タイプを推測
+    const fileName = file.name.toLowerCase();
+    const isSurveyFile = fileName.includes('survey') || fileName.includes('調査') || fileName.includes('questionnaire');
+    
+    if (isSurveyFile) {
+      // 調査票ファイルの場合
+      return {
+        fileName: file.name,
+        type: 'survey' as const,
+        questions: [
+          {
+            id: "extracted-1",
+            title: "お客様の年齢層を教えてください",
+            type: "SA",
+            source: "uploaded",
+            options: ["20代", "30代", "40代", "50代", "60代以上"],
+          },
+          {
+            id: "extracted-2",
+            title: "弊社サービスの満足度を教えてください",
+            type: "NU",
+            source: "uploaded",
+            range: { min: 1, max: 5 },
+          },
+        ]
+      };
+    } else {
+      // 課題整理や要件定義ファイルの場合
+      return {
+        fileName: file.name,
+        type: 'requirements' as const,
+        requirements: [
+          {
+            id: "req1",
+            category: "課題・背景",
+            text: "顧客満足度の低下が懸念されており、具体的な改善点を把握する必要がある",
+          },
+          {
+            id: "req2",
+            category: "調査目的",
+            text: "サービス利用者の満足度と改善要望を定量・定性的に把握する",
+          },
+          {
+            id: "req3",
+            category: "対象者",
+            text: "過去6ヶ月以内にサービスを利用した顧客（約1000名）",
+          },
+          {
+            id: "req4",
+            category: "調査項目",
+            text: "総合満足度、各機能の評価、継続利用意向、改善要望",
+          },
+        ]
+      };
+    }
+  });
+
+  // 後方互換性のため、最初のファイルの質問を抽出
+  const extractedQuestions = extractedContent.find(c => c.type === 'survey')?.questions || [];
 
   // レコメンド調査票の質問（モック）
   const recommendedQuestions = [
@@ -120,11 +157,38 @@ export default function ComparisonPreviewModal({
           {/* File Info */}
           <div className="mb-6 p-4 bg-[#F9F9F9] rounded-lg">
             <h3 className="font-medium text-[#202020] mb-3">アップロードファイル</h3>
-            <div className="flex flex-wrap gap-2">
-              {uploadedFiles.map((file, index) => (
-                <div key={index} className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border">
-                  <FileText className="h-4 w-4 text-[#138FB5]" />
-                  <span className="text-sm text-[#202020]">{file.name}</span>
+            <div className="space-y-3">
+              {extractedContent.map((content, index) => (
+                <div key={index} className="bg-white p-3 rounded-lg border">
+                  <div className="flex items-center gap-2 mb-2">
+                    <FileText className="h-4 w-4 text-[#138FB5]" />
+                    <span className="text-sm font-medium text-[#202020]">{content.fileName}</span>
+                    <span className="text-xs px-2 py-1 bg-[#E8F4F8] text-[#138FB5] rounded-full">
+                      {content.type === 'survey' ? '調査票' : '要件・課題'}
+                    </span>
+                  </div>
+                  
+                  {content.type === 'survey' && content.questions && (
+                    <div className="text-sm text-[#666666]">
+                      抽出された質問: {content.questions.length}件
+                    </div>
+                  )}
+                  
+                  {content.type === 'requirements' && content.requirements && (
+                    <div className="text-sm text-[#666666] space-y-1">
+                      {content.requirements.slice(0, 2).map((req) => (
+                        <div key={req.id} className="flex gap-2">
+                          <span className="font-medium text-[#138FB5]">{req.category}:</span>
+                          <span className="line-clamp-1">{req.text}</span>
+                        </div>
+                      ))}
+                      {content.requirements.length > 2 && (
+                        <div className="text-xs text-[#9E9E9E]">
+                          他 {content.requirements.length - 2} 項目
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

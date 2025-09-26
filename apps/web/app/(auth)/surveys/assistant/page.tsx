@@ -43,12 +43,12 @@ export default function SurveyAssistantPage() {
   // Extract keywords from message for survey filtering
   const extractKeywordsFromMessage = (message: string): string[] => {
     const keywordMap: { [key: string]: string[] } = {
-      満足度: ["満足度", "NPS", "ブランド評価"],
+      満足度: ["満足度", "NPS", "ブランド評価", "顧客満足"],
       認知度: ["認知度", "定点", "ブランド"],
       購買: ["購買行動", "変化", "トレンド"],
       コンセプト: ["新商品", "コンセプト", "評価"],
       デジタル: ["デジタル", "UX", "満足度"],
-      価格: ["価格", "感度", "分析"],
+      価格: ["価格", "感度", "分析", "料金", "コスト"],
       SNS: ["SNS", "利用実態", "デジタル"],
       健康: ["健康", "意識", "ライフスタイル"],
       教育: ["教育", "オンライン", "学習"],
@@ -63,11 +63,23 @@ export default function SurveyAssistantPage() {
       メンタル: ["メンタルヘルス", "健康", "ストレス"],
       Z世代: ["Z世代", "消費行動", "価値観"],
       医療: ["リモート医療", "テレヘルス", "満足度"],
+      // 課題整理・要件定義関連のキーワードを追加
+      課題: ["課題", "問題", "改善", "課題整理", "要件"],
+      顧客: ["顧客", "カスタマー", "ユーザー", "利用者", "お客様"],
+      サービス: ["サービス", "プロダクト", "商品", "製品"],
+      評価: ["評価", "レビュー", "フィードバック", "意見"],
+      継続: ["継続", "リピート", "再利用", "利用意向"],
+      品質: ["品質", "クオリティ", "性能"],
+      使いやすさ: ["使いやすさ", "UI", "UX", "操作性", "ユーザビリティ"],
+      サポート: ["サポート", "対応", "ヘルプ", "カスタマーサービス"],
+      要件: ["要件", "仕様", "ニーズ", "目的", "要件定義"],
+      調査: ["調査", "アンケート", "リサーチ", "分析"],
     };
 
     const lowerMessage = message.toLowerCase();
     const foundKeywords: string[] = [];
 
+    // メッセージからキーワード抽出
     Object.entries(keywordMap).forEach(([key, keywords]) => {
       if (
         lowerMessage.includes(key.toLowerCase()) ||
@@ -75,6 +87,19 @@ export default function SurveyAssistantPage() {
       ) {
         foundKeywords.push(...keywords);
       }
+    });
+
+    // アップロードファイル名からもキーワード抽出
+    attachedFiles.forEach(file => {
+      const fileName = file.name.toLowerCase();
+      Object.entries(keywordMap).forEach(([key, keywords]) => {
+        if (
+          fileName.includes(key.toLowerCase()) ||
+          keywords.some((keyword) => fileName.includes(keyword.toLowerCase()))
+        ) {
+          foundKeywords.push(...keywords);
+        }
+      });
     });
 
     return [...new Set(foundKeywords)]; // Remove duplicates
@@ -435,7 +460,7 @@ export default function SurveyAssistantPage() {
           onPreviewSurvey={handlePreviewSurvey}
           onCompareSurvey={handleCompareSurvey}
           hasUploadedFiles={attachedFiles.length > 0}
-          recommendedSurveyIds={recommendedSurveys.length > 0 ? recommendedSurveys.map(s => s.id) : ["1", "2", "3"]}
+          recommendedSurveyIds={recommendedSurveys.map(s => s.id)}
         />
 
         {/* Settings Display */}
