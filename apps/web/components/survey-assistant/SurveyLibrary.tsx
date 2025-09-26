@@ -1,4 +1,4 @@
-import { Calendar, Eye, FileText, MoreHorizontal, X } from "lucide-react";
+import { Calendar, Eye, FileText, MoreHorizontal, X, GitCompare } from "lucide-react";
 import type React from "react";
 import { useCallback, useMemo, useState } from "react";
 
@@ -17,6 +17,8 @@ interface SurveyLibraryProps {
   searchKeywords?: string[];
   onClearSearch?: () => void;
   onPreviewSurvey?: (survey: Survey) => void;
+  onCompareSurvey?: (survey: Survey) => void;
+  hasUploadedFiles?: boolean;
 }
 
 export default function SurveyLibrary({
@@ -24,6 +26,8 @@ export default function SurveyLibrary({
   searchKeywords = [],
   onClearSearch,
   onPreviewSurvey,
+  onCompareSurvey,
+  hasUploadedFiles = false,
 }: SurveyLibraryProps) {
   const [showAll, setShowAll] = useState(false);
   const [selectedSurveyId, setSelectedSurveyId] = useState<string | null>(null);
@@ -252,6 +256,13 @@ export default function SurveyLibrary({
     console.log("詳細:", survey.title);
   }, []);
 
+  const handleCompare = useCallback((survey: Survey, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onCompareSurvey) {
+      onCompareSurvey(survey);
+    }
+  }, [onCompareSurvey]);
+
   return (
     <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
       <div className="flex items-center justify-between mb-6">
@@ -334,6 +345,15 @@ export default function SurveyLibrary({
                   >
                     <Eye className="h-4 w-4" />
                   </button>
+                  {hasUploadedFiles && (
+                    <button
+                      onClick={(e) => handleCompare(survey, e)}
+                      className="p-1 text-[#FF6B6B] hover:text-[#FF5252] hover:bg-[#FFF5F5] rounded transition-colors"
+                      title="アップロードファイルと比較"
+                    >
+                      <GitCompare className="h-4 w-4" />
+                    </button>
+                  )}
                   <button
                     onClick={(e) => handleMore(survey, e)}
                     className="p-1 text-[#9E9E9E] hover:text-[#202020] hover:bg-[#F9F9F9] rounded transition-colors"

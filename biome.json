@@ -6,13 +6,6 @@
     "includes": [
       "apps/**/*.{js,jsx,ts,tsx,json}",
       "*.{js,jsx,ts,tsx,json}"
-    ],
-    "ignore": [
-      "**/.next/**",
-      "**/node_modules/**",
-      "**/dist/**",
-      "**/.turbo/**",
-      "**/storybook-static/**"
     ]
   },
   "formatter": {

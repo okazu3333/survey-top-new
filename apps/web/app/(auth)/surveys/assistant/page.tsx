@@ -196,10 +196,9 @@ export default function SurveyAssistantPage() {
     setShowPreviewModal(true);
   };
 
-  const handleShowComparison = () => {
-    if (attachedFiles.length > 0) {
-      setShowComparisonModal(true);
-    }
+  const handleCompareSurvey = (survey: Survey) => {
+    setReferenceSurvey(survey);
+    setShowComparisonModal(true);
   };
 
   return (
@@ -277,24 +276,14 @@ export default function SurveyAssistantPage() {
           </div>
         </div>
 
-        {/* Comparison Button */}
-        {attachedFiles.length > 0 && (
-          <div className="text-center">
-            <button
-              onClick={handleShowComparison}
-              className="px-6 py-3 bg-[#FF6B6B] text-white rounded-lg hover:bg-[#FF5252] font-medium transition-colors shadow-sm"
-            >
-              アップロードファイルとライブラリを比較
-            </button>
-          </div>
-        )}
-
         {/* Survey Library */}
         <SurveyLibrary
           onSelectSurvey={handleSurveySelect}
           searchKeywords={searchKeywords}
           onClearSearch={handleClearSearch}
           onPreviewSurvey={handlePreviewSurvey}
+          onCompareSurvey={handleCompareSurvey}
+          hasUploadedFiles={attachedFiles.length > 0}
         />
 
         {/* Settings Display */}
