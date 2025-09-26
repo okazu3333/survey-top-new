@@ -31,7 +31,6 @@
     ],
     "paths": {
       "@/*": ["./*"],
-      "@survey-poc/database": ["../../packages/database/src"],
       "@survey-poc/api/*": ["../../apps/api/*"]
     },
     "target": "ES2017"

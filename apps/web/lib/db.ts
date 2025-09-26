@@ -1,27 +1,24 @@
-import { PrismaClient } from "@prisma/client";
+import { BigQuery } from "@google-cloud/bigquery";
 
-function resolveDatabaseUrl(): string {
-  const accelUrl = process.env.PRISMA_DATABASE_URL;
-  if (accelUrl) return accelUrl;
-  const directUrl = process.env.DATABASE_URL;
-  if (directUrl) return directUrl;
-  throw new Error("DATABASE_URL or PRISMA_DATABASE_URL is required");
-}
-
-const globalForPrisma = global as unknown as { prisma?: PrismaClient };
-
-function createPrismaClient(): PrismaClient {
-  return new PrismaClient({
-    datasources: {
-      db: { url: resolveDatabaseUrl() },
-    },
-    log: ["error", "warn"],
+function createBigQueryClient(): BigQuery {
+  const projectId = process.env.BQ_PROJECT_ID || "viewpers";
+  const location = process.env.BQ_LOCATION || "US";
+  
+  return new BigQuery({
+    projectId,
+    location,
+    // 認証は環境変数 GOOGLE_APPLICATION_CREDENTIALS または
+    // Cloud Run環境のサービスアカウントを使用
   });
 }
 
-export function getPrisma(): PrismaClient {
-  if (!globalForPrisma.prisma) {
-    globalForPrisma.prisma = createPrismaClient();
+const globalForBigQuery = global as unknown as { bigquery?: BigQuery };
+
+export function getBigQuery(): BigQuery {
+  if (!globalForBigQuery.bigquery) {
+    globalForBigQuery.bigquery = createBigQueryClient();
   }
-  return globalForPrisma.prisma;
-} 
+  return globalForBigQuery.bigquery;
+}
+
+export const db = getBigQuery(); 

@@ -4,8 +4,7 @@
   "private": true,
   "workspaces": [
     "apps/web",
-    "apps/api",
-    "packages/*"
+    "apps/api"
   ],
   "packageManager": "bun@1.2.2",
   "scripts": {
@@ -29,7 +28,6 @@
     "@radix-ui/react-slot": "^1.2.3"
   },
   "trustedDependencies": [
-    "@survey-poc/database",
     "@survey-poc/web",
     "core-js-pure"
   ]

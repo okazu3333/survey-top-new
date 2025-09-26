@@ -1,20 +1,26 @@
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
-import { PrismaClient } from "@prisma/client";
+import { BigQuery } from "@google-cloud/bigquery";
 
-const globalForPrisma = global as unknown as { prisma?: PrismaClient };
+const globalForBigQuery = global as unknown as { bigquery?: BigQuery };
 
-function getPrisma(): PrismaClient {
-  if (!globalForPrisma.prisma) {
-    globalForPrisma.prisma = new PrismaClient();
+function getBigQuery(): BigQuery {
+  if (!globalForBigQuery.bigquery) {
+    const projectId = process.env.BQ_PROJECT_ID || "viewpers";
+    const location = process.env.BQ_LOCATION || "US";
+    
+    globalForBigQuery.bigquery = new BigQuery({
+      projectId,
+      location,
+    });
   }
-  return globalForPrisma.prisma;
+  return globalForBigQuery.bigquery;
 }
 
 export const createContext = ({ req, res }: CreateExpressContextOptions) => {
   return {
     req,
     res,
-    db: getPrisma(),
+    db: getBigQuery(),
   };
 };
 

@@ -7,9 +7,7 @@
     "moduleResolution": "bundler",
     "outDir": "./dist",
     "noEmit": false,
-    "paths": {
-      "@survey-poc/database": ["../../packages/database/src"]
-    }
+    "paths": {}
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]
