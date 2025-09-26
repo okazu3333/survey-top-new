@@ -435,7 +435,7 @@ export default function SurveyAssistantPage() {
           onPreviewSurvey={handlePreviewSurvey}
           onCompareSurvey={handleCompareSurvey}
           hasUploadedFiles={attachedFiles.length > 0}
-          recommendedSurveyIds={recommendedSurveys.map(s => s.id)}
+          recommendedSurveyIds={recommendedSurveys.length > 0 ? recommendedSurveys.map(s => s.id) : ["1", "2", "3"]}
         />
 
         {/* Settings Display */}

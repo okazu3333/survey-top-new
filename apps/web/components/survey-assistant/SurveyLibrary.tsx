@@ -361,6 +361,16 @@ export default function SurveyLibrary({
                       <GitCompare className="h-4 w-4" />
                     </button>
                   )}
+                  {/* Debug: Always show compare button for testing */}
+                  {!hasUploadedFiles && !recommendedSurveyIds.includes(survey.id) && (
+                    <button
+                      onClick={(e) => handleCompare(survey, e)}
+                      className="p-1 text-[#999999] hover:text-[#FF5252] hover:bg-[#FFF5F5] rounded transition-colors opacity-50"
+                      title="デバッグ: 比較ボタン"
+                    >
+                      <GitCompare className="h-4 w-4" />
+                    </button>
+                  )}
                   <button
                     onClick={(e) => handleMore(survey, e)}
                     className="p-1 text-[#9E9E9E] hover:text-[#202020] hover:bg-[#F9F9F9] rounded transition-colors"
