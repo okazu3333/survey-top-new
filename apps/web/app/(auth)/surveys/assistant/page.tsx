@@ -1,6 +1,6 @@
 "use client";
 
-import { Send, Upload, Eye, GitCompare } from "lucide-react";
+import { Send, Upload, Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type React from "react";
 import { useState } from "react";
@@ -419,15 +419,13 @@ export default function SurveyAssistantPage() {
                       >
                         <Eye className="h-4 w-4" />
                       </button>
-                      {attachedFiles.length > 0 && (
-                        <button
-                          onClick={() => handleCompareSurvey(survey)}
-                          className="p-1 text-[#FF6B6B] hover:text-[#FF5252] rounded transition-colors"
-                          title="比較"
-                        >
-                          <GitCompare className="h-4 w-4" />
-                        </button>
-                      )}
+                      <button
+                        onClick={() => handleCompareSurvey(survey)}
+                        className="px-2 py-1 bg-[#FF6B6B] text-white text-xs rounded hover:bg-[#FF5252] transition-colors"
+                        title="比較"
+                      >
+                        比較
+                      </button>
                     </div>
                   </div>
                   <h4 className="font-medium text-[#202020] text-sm mb-2 line-clamp-2">

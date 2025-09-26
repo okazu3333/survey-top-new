@@ -1,4 +1,4 @@
-import { Calendar, Eye, FileText, MoreHorizontal, X, GitCompare } from "lucide-react";
+import { Calendar, Eye, FileText, MoreHorizontal, X } from "lucide-react";
 import type React from "react";
 import { useCallback, useMemo, useState } from "react";
 
@@ -355,10 +355,10 @@ export default function SurveyLibrary({
                   {(hasUploadedFiles || recommendedSurveyIds.includes(survey.id)) && (
                     <button
                       onClick={(e) => handleCompare(survey, e)}
-                      className="p-1 text-[#FF6B6B] hover:text-[#FF5252] hover:bg-[#FFF5F5] rounded transition-colors"
+                      className="px-2 py-1 bg-[#FF6B6B] text-white text-xs rounded hover:bg-[#FF5252] transition-colors"
                       title={hasUploadedFiles ? "アップロードファイルと比較" : "この調査票と比較"}
                     >
-                      <GitCompare className="h-4 w-4" />
+                      比較
                     </button>
                   )}
                   <button
