@@ -60,13 +60,48 @@ export default function ComparisonPreviewModal({
     }
   };
 
+  // PDFファイルから調査票内容を生成（モック）
+  const generateSurveyFromPDF = (fileName: string) => {
+    return [
+      {
+        id: "pdf-q1",
+        title: `${fileName}から抽出: お客様の年齢層を教えてください`,
+        type: "SA",
+        source: "pdf",
+        options: ["20代", "30代", "40代", "50代", "60代以上"],
+      },
+      {
+        id: "pdf-q2",
+        title: `${fileName}から抽出: サービスの満足度を教えてください`,
+        type: "NU",
+        source: "pdf",
+        range: { min: 1, max: 5 },
+      },
+      {
+        id: "pdf-q3",
+        title: `${fileName}から抽出: 今後も継続してご利用いただけますか？`,
+        type: "SA",
+        source: "pdf",
+        options: ["はい", "いいえ", "わからない"],
+      },
+    ];
+  };
+
   // アップロードファイルから抽出された内容（モック）
   const extractedContent = uploadedFiles.map(file => {
     // ファイル名から内容タイプを推測
     const fileName = file.name.toLowerCase();
-    const isSurveyFile = fileName.includes('survey') || fileName.includes('調査') || fileName.includes('questionnaire');
+    const isPDFFile = fileName.endsWith('.pdf');
+    const isSurveyFile = fileName.includes('survey') || fileName.includes('調査') || fileName.includes('questionnaire') || isPDFFile;
     
-    if (isSurveyFile) {
+    if (isPDFFile) {
+      // PDFファイルの場合は調査票として処理
+      return {
+        fileName: file.name,
+        type: 'survey' as const,
+        questions: generateSurveyFromPDF(file.name),
+      };
+    } else if (isSurveyFile) {
       // 調査票ファイルの場合
       return {
         fileName: file.name,
@@ -206,7 +241,8 @@ export default function ComparisonPreviewModal({
                         <FileText className="h-4 w-4 text-[#FF6B6B]" />
                         <span className="font-medium">{content.fileName}</span>
                         <span className="text-xs px-2 py-1 bg-[#FFF5F5] text-[#FF6B6B] rounded-full">
-                          {content.type === 'survey' ? '調査票' : '要件・課題'}
+                          {content.fileName.toLowerCase().endsWith('.pdf') ? 'PDF調査票' : 
+                           content.type === 'survey' ? '調査票' : '要件・課題'}
                         </span>
                       </div>
                     ))}
@@ -215,9 +251,15 @@ export default function ComparisonPreviewModal({
                   {/* Questions */}
                   <div className="space-y-4">
                     {extractedQuestions.map((question, index) => (
-                  <div key={question.id} className="border border-[#FF6B6B] rounded-lg p-4 bg-[#FFF5F5]">
+                  <div key={question.id} className={`border rounded-lg p-4 ${
+                    question.source === 'pdf' 
+                      ? 'border-[#9C27B0] bg-[#F3E5F5]' 
+                      : 'border-[#FF6B6B] bg-[#FFF5F5]'
+                  }`}>
                     <div className="flex items-start gap-3 mb-3">
-                      <span className="bg-[#FF6B6B] text-white text-xs px-2 py-1 rounded">
+                      <span className={`text-white text-xs px-2 py-1 rounded ${
+                        question.source === 'pdf' ? 'bg-[#9C27B0]' : 'bg-[#FF6B6B]'
+                      }`}>
                         Q{index + 1}
                       </span>
                       <span className="bg-gray-100 text-[#666666] text-xs px-2 py-1 rounded">
