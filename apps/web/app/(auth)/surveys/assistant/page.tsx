@@ -528,6 +528,18 @@ export default function SurveyAssistantPage() {
           onFileUpload={(files) => {
             setAttachedFiles((prev) => [...prev, ...files]);
           }}
+          onCreateFromUpload={() => {
+            console.log("アップロードファイルベースで作成");
+            // TODO: 調査作成画面への遷移
+          }}
+          onCreateFromRecommended={() => {
+            console.log("レコメンド調査票ベースで作成");
+            // TODO: 調査作成画面への遷移
+          }}
+          onProceedToDesign={() => {
+            console.log("このまま調査設計へ進む");
+            // TODO: 調査設計画面への遷移
+          }}
         />
       )}
     </div>

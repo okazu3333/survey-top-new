@@ -20,6 +20,9 @@ interface ComparisonPreviewModalProps {
   onClose: () => void;
   isRecommendedComparison?: boolean;
   onFileUpload?: (files: File[]) => void;
+  onCreateFromUpload?: () => void;
+  onCreateFromRecommended?: () => void;
+  onProceedToDesign?: () => void;
 }
 
 export default function ComparisonPreviewModal({
@@ -29,6 +32,9 @@ export default function ComparisonPreviewModal({
   onClose,
   isRecommendedComparison = false,
   onFileUpload,
+  onCreateFromUpload,
+  onCreateFromRecommended,
+  onProceedToDesign,
 }: ComparisonPreviewModalProps) {
   if (!isOpen) return null;
 
@@ -214,12 +220,14 @@ export default function ComparisonPreviewModal({
               }
             </p>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <X className="h-5 w-5 text-[#9E9E9E]" />
-          </button>
+          {onProceedToDesign && (
+            <button
+              onClick={onProceedToDesign}
+              className="px-4 py-2 bg-[#138FB5] text-white rounded-lg hover:bg-[#0f7a9e] font-medium transition-colors"
+            >
+              このまま調査設計へ進む
+            </button>
+          )}
         </div>
 
         {/* Content */}
@@ -234,10 +242,20 @@ export default function ComparisonPreviewModal({
             }`}>
               {extractedContent.length > 0 ? (
                 <div className="p-4">
-                  <h3 className="font-medium text-[#202020] mb-4 flex items-center gap-2">
-                    <div className="w-3 h-3 bg-[#FF6B6B] rounded-full"></div>
-                    アップロードファイルから抽出
-                  </h3>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-medium text-[#202020] flex items-center gap-2">
+                      <div className="w-3 h-3 bg-[#FF6B6B] rounded-full"></div>
+                      アップロードファイルから抽出
+                    </h3>
+                    {onCreateFromUpload && (
+                      <button
+                        onClick={onCreateFromUpload}
+                        className="px-3 py-1 bg-[#FF6B6B] text-white text-sm rounded hover:bg-[#FF5252] transition-colors"
+                      >
+                        ベースで作成
+                      </button>
+                    )}
+                  </div>
                   
                   {/* File List */}
                   <div className="mb-4 space-y-3">
@@ -363,13 +381,23 @@ export default function ComparisonPreviewModal({
 
             {/* Recommended Survey Questions */}
             <div>
-              <h3 className="font-medium text-[#202020] mb-4 flex items-center gap-2">
-                <div className="w-3 h-3 bg-[#138FB5] rounded-full"></div>
-                レコメンド調査票
-                {recommendedSurvey && (
-                  <span className="text-sm text-[#9E9E9E]">({recommendedSurvey.title})</span>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-medium text-[#202020] flex items-center gap-2">
+                  <div className="w-3 h-3 bg-[#138FB5] rounded-full"></div>
+                  レコメンド調査票
+                  {recommendedSurvey && (
+                    <span className="text-sm text-[#9E9E9E]">({recommendedSurvey.title})</span>
+                  )}
+                </h3>
+                {onCreateFromRecommended && (
+                  <button
+                    onClick={onCreateFromRecommended}
+                    className="px-3 py-1 bg-[#138FB5] text-white text-sm rounded hover:bg-[#0f7a9e] transition-colors"
+                  >
+                    ベースで作成
+                  </button>
                 )}
-              </h3>
+              </div>
               <div className="space-y-4">
                 {recommendedQuestions.map((question, index) => (
                   <div key={question.id} className="border border-[#138FB5] rounded-lg p-4 bg-[#F0F8FF]">
