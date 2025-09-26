@@ -1,6 +1,6 @@
 "use client";
 
-import { Send, Upload } from "lucide-react";
+import { Send, Upload, Eye, GitCompare } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type React from "react";
 import { useState } from "react";
@@ -36,6 +36,8 @@ export default function SurveyAssistantPage() {
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [previewSurvey, setPreviewSurvey] = useState<Survey | null>(null);
   const [showComparisonModal, setShowComparisonModal] = useState(false);
+  const [recommendedSurveys, setRecommendedSurveys] = useState<Survey[]>([]);
+  const [hasProcessedMessage, setHasProcessedMessage] = useState(false);
 
   // Extract keywords from message for survey filtering
   const extractKeywordsFromMessage = (message: string): string[] => {
@@ -96,6 +98,67 @@ export default function SurveyAssistantPage() {
     return [...new Set(keywords)];
   };
 
+  // Generate recommended surveys based on message content and keywords
+  const generateRecommendedSurveys = (message: string, keywords: string[]): Survey[] => {
+    // Mock survey data for demonstration
+    const allSurveys: Survey[] = [
+      {
+        id: "1",
+        title: "消費者満足度調査 2024年版",
+        client: "A社",
+        purpose: "満足度調査",
+        implementationDate: "2024年3月",
+        tags: ["満足度", "NPS", "ブランド評価"],
+        description: "顧客満足度とNPSを測定する包括的な調査",
+      },
+      {
+        id: "2",
+        title: "ブランド認知度定点調査",
+        client: "B社",
+        purpose: "定点調査",
+        implementationDate: "2024年1月",
+        tags: ["認知度", "定点", "ブランド"],
+        description: "四半期ごとのブランド認知度追跡調査",
+      },
+      {
+        id: "3",
+        title: "購買行動変化調査",
+        client: "C社",
+        purpose: "行動調査",
+        implementationDate: "2024年2月",
+        tags: ["購買行動", "変化", "トレンド"],
+        description: "コロナ後の消費者購買行動の変化を分析",
+      },
+    ];
+
+    // Score surveys based on keyword matches and message content
+    const scoredSurveys = allSurveys.map(survey => {
+      let score = 0;
+      const lowerMessage = message.toLowerCase();
+      
+      // Check title matches
+      if (lowerMessage.includes(survey.title.toLowerCase())) score += 10;
+      
+      // Check tag matches
+      survey.tags.forEach(tag => {
+        if (keywords.includes(tag) || lowerMessage.includes(tag.toLowerCase())) {
+          score += 5;
+        }
+      });
+      
+      // Check purpose matches
+      if (keywords.some(keyword => survey.purpose.includes(keyword))) score += 3;
+      
+      return { ...survey, score };
+    });
+
+    // Return top 3 recommended surveys
+    return scoredSurveys
+      .filter(survey => survey.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3);
+  };
+
   const handleSendMessage = () => {
     if (!inputMessage.trim() && attachedFiles.length === 0) return;
 
@@ -106,6 +169,11 @@ export default function SurveyAssistantPage() {
     // Extract keywords from input message for survey filtering
     const keywords = extractKeywordsFromMessage(inputMessage);
     setSearchKeywords(keywords);
+
+    // Generate recommended surveys based on message content
+    const recommended = generateRecommendedSurveys(inputMessage, keywords);
+    setRecommendedSurveys(recommended);
+    setHasProcessedMessage(true);
 
     setInputMessage("");
     setAttachedFiles([]);
@@ -201,6 +269,13 @@ export default function SurveyAssistantPage() {
     setShowComparisonModal(true);
   };
 
+  const handleCompareWithTopRecommendation = () => {
+    if (recommendedSurveys.length > 0) {
+      setReferenceSurvey(recommendedSurveys[0]);
+      setShowComparisonModal(true);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#F9F9F9]">
       {/* Main Content */}
@@ -276,6 +351,79 @@ export default function SurveyAssistantPage() {
           </div>
         </div>
 
+        {/* AI Recommendation Results */}
+        {hasProcessedMessage && recommendedSurveys.length > 0 && (
+          <div className="bg-gradient-to-r from-[#E8F4F8] to-[#F0F8FF] border border-[#138FB5] rounded-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-[#138FB5] rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-bold">AI</span>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-[#202020]">AIレコメンド結果</h3>
+                  <p className="text-sm text-[#666666]">
+                    入力内容に基づいて{recommendedSurveys.length}件の関連調査票を発見しました
+                  </p>
+                </div>
+              </div>
+              {attachedFiles.length > 0 && (
+                <button
+                  onClick={handleCompareWithTopRecommendation}
+                  className="px-4 py-2 bg-[#FF6B6B] text-white rounded-lg hover:bg-[#FF5252] font-medium transition-colors text-sm"
+                >
+                  トップレコメンドと比較
+                </button>
+              )}
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {recommendedSurveys.map((survey, index) => (
+                <div key={survey.id} className="bg-white rounded-lg p-4 border border-[#138FB5]/20">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="bg-[#138FB5] text-white text-xs px-2 py-1 rounded-full">
+                      #{index + 1} 推奨
+                    </span>
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => handlePreviewSurvey(survey)}
+                        className="p-1 text-[#9E9E9E] hover:text-[#138FB5] rounded transition-colors"
+                        title="プレビュー"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
+                      {attachedFiles.length > 0 && (
+                        <button
+                          onClick={() => handleCompareSurvey(survey)}
+                          className="p-1 text-[#FF6B6B] hover:text-[#FF5252] rounded transition-colors"
+                          title="比較"
+                        >
+                          <GitCompare className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  <h4 className="font-medium text-[#202020] text-sm mb-2 line-clamp-2">
+                    {survey.title}
+                  </h4>
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {survey.tags.slice(0, 2).map((tag, tagIndex) => (
+                      <span
+                        key={tagIndex}
+                        className="text-xs bg-[#E8F4F8] text-[#138FB5] px-2 py-1 rounded-full"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="text-xs text-[#666666] line-clamp-2">
+                    {survey.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Survey Library */}
         <SurveyLibrary
           onSelectSurvey={handleSurveySelect}
@@ -284,6 +432,7 @@ export default function SurveyAssistantPage() {
           onPreviewSurvey={handlePreviewSurvey}
           onCompareSurvey={handleCompareSurvey}
           hasUploadedFiles={attachedFiles.length > 0}
+          recommendedSurveyIds={recommendedSurveys.map(s => s.id)}
         />
 
         {/* Settings Display */}

@@ -19,6 +19,7 @@ interface SurveyLibraryProps {
   onPreviewSurvey?: (survey: Survey) => void;
   onCompareSurvey?: (survey: Survey) => void;
   hasUploadedFiles?: boolean;
+  recommendedSurveyIds?: string[];
 }
 
 export default function SurveyLibrary({
@@ -28,6 +29,7 @@ export default function SurveyLibrary({
   onPreviewSurvey,
   onCompareSurvey,
   hasUploadedFiles = false,
+  recommendedSurveyIds = [],
 }: SurveyLibraryProps) {
   const [showAll, setShowAll] = useState(false);
   const [selectedSurveyId, setSelectedSurveyId] = useState<string | null>(null);
@@ -336,6 +338,11 @@ export default function SurveyLibrary({
                   <span className="text-xs font-medium text-[#0f7a9e] bg-[#E8F4F8] px-2 py-1 rounded-full">
                     {survey.purpose}
                   </span>
+                  {recommendedSurveyIds.includes(survey.id) && (
+                    <span className="text-xs font-medium text-white bg-[#4CAF50] px-2 py-1 rounded-full">
+                      AI推奨
+                    </span>
+                  )}
                 </div>
                 <div className="flex gap-1">
                   <button
