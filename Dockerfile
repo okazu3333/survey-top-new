@@ -12,7 +12,9 @@ RUN bun install --frozen-lockfile
 # Copy source code and build
 COPY . .
 ENV NODE_ENV=production
-RUN bun run build
+
+# Build only the web app (API is embedded as a package)
+RUN cd apps/web && bun run build
 
 # Create non-root user for security
 RUN addgroup --system --gid 1001 nodejs
@@ -21,9 +23,10 @@ RUN chown -R nextjs:nodejs /usr/src/app
 
 USER nextjs
 
-# Expose port and start the application
+# Expose port and start the web application
 EXPOSE 8080
 ENV PORT=8080
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["bun", "run", "start"] 
+# Start the Next.js web app (which includes the API routes)
+CMD ["bun", "--cwd", "apps/web", "start"] 
