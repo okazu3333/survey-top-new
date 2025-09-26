@@ -37,10 +37,12 @@ export const Header = () => {
   return (
     <header className="relative h-16 bg-[#F9F9F9] shadow-[0px_1px_1px_0px_rgba(0,0,0,0.25)]">
       <div className="flex h-full items-center justify-between px-6">
-                 <Link href="/" className="relative h-[50px] w-[272px]">
+        <Link href="/" className="relative h-[50px] w-[272px]">
           {imgError ? (
             <div className="h-full w-full flex items-center">
-              <span className="text-[#138FB5] font-bold text-2xl leading-none">SurveyBridge</span>
+              <span className="text-[#138FB5] font-bold text-2xl leading-none">
+                SurveyBridge
+              </span>
             </div>
           ) : (
             <Image

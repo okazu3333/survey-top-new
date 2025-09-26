@@ -8,7 +8,7 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { SurveyCardHeader } from "@/components/survey-card-header";
@@ -36,48 +36,58 @@ const SurveyNewContent = () => {
   } = useChatContext();
 
   // アシスタント画面からの参考調査票情報を取得
-  const referenceSurveyId = searchParams.get('referenceSurveyId');
-  const referenceSurveyTitle = searchParams.get('referenceSurveyTitle');
-  const ruleModelName = searchParams.get('ruleModelName');
+  const referenceSurveyId = searchParams.get("referenceSurveyId");
+  const referenceSurveyTitle = searchParams.get("referenceSurveyTitle");
+  const ruleModelName = searchParams.get("ruleModelName");
 
   // 参考調査票に基づいてダミーデータを生成する関数
   const generateDummyData = (surveyId: string, surveyTitle: string) => {
     const dummyDataMap: { [key: string]: Partial<SurveyFormData> } = {
-      '1': { // ブランド満足度調査
+      "1": {
+        // ブランド満足度調査
         title: "ブランド満足度調査（参考: " + surveyTitle + "）",
         purpose: "顧客満足度とブランド認知度の総合的な評価・分析",
-        targetCondition: "全国\n20-60代\n男女\n当該ブランド認知者\n過去1年以内の利用経験者",
-        analysisCondition: "ブランド認知度・利用状況\n満足度評価（総合・項目別）\nNPS（推奨意向）\n競合ブランドとの比較評価\n今後の利用意向・改善要望",
+        targetCondition:
+          "全国\n20-60代\n男女\n当該ブランド認知者\n過去1年以内の利用経験者",
+        analysisCondition:
+          "ブランド認知度・利用状況\n満足度評価（総合・項目別）\nNPS（推奨意向）\n競合ブランドとの比較評価\n今後の利用意向・改善要望",
         researchMethod: "Webアンケート調査",
-        researchScale: "n=1,000"
+        researchScale: "n=1,000",
       },
-      '2': { // 購買行動パターン分析
+      "2": {
+        // 購買行動パターン分析
         title: "購買行動パターン分析（参考: " + surveyTitle + "）",
         purpose: "消費者の購買行動変化とトレンドの把握・分析",
-        targetCondition: "全国\n25-55代\n男女\n世帯年収300万円以上\n主たる購買決定者",
-        analysisCondition: "購買チャネルの利用状況\n購買決定要因・重視点\n情報収集行動\n購買頻度・金額の変化\nコロナ禍での行動変化",
+        targetCondition:
+          "全国\n25-55代\n男女\n世帯年収300万円以上\n主たる購買決定者",
+        analysisCondition:
+          "購買チャネルの利用状況\n購買決定要因・重視点\n情報収集行動\n購買頻度・金額の変化\nコロナ禍での行動変化",
         researchMethod: "オンラインインタビュー + Webアンケート",
-        researchScale: "定性: n=20, 定量: n=800"
+        researchScale: "定性: n=20, 定量: n=800",
       },
-      '3': { // 新商品コンセプト評価
+      "3": {
+        // 新商品コンセプト評価
         title: "新商品コンセプト評価（参考: " + surveyTitle + "）",
         purpose: "新商品コンセプトの市場受容性と改善点の把握",
-        targetCondition: "全国\n20-50代\n男女\n対象カテゴリ利用者\n購買関与度：中～高",
-        analysisCondition: "コンセプト理解度・魅力度\n購入意向・推奨意向\n価格受容性\n競合商品との差別化ポイント\nコンセプト改善提案",
+        targetCondition:
+          "全国\n20-50代\n男女\n対象カテゴリ利用者\n購買関与度：中～高",
+        analysisCondition:
+          "コンセプト理解度・魅力度\n購入意向・推奨意向\n価格受容性\n競合商品との差別化ポイント\nコンセプト改善提案",
         researchMethod: "会場調査（CLT）",
-        researchScale: "n=300"
+        researchScale: "n=300",
       },
-      'default': {
+      default: {
         title: "市場調査（参考: " + surveyTitle + "）",
         purpose: "市場動向と消費者ニーズの把握・分析",
         targetCondition: "全国\n20-60代\n男女\n対象商品・サービス利用者",
-        analysisCondition: "利用実態・満足度\n購買行動・決定要因\n競合比較・ブランド評価\n今後のニーズ・要望",
+        analysisCondition:
+          "利用実態・満足度\n購買行動・決定要因\n競合比較・ブランド評価\n今後のニーズ・要望",
         researchMethod: "Webアンケート調査",
-        researchScale: "n=500"
-      }
+        researchScale: "n=500",
+      },
     };
 
-    return dummyDataMap[surveyId] || dummyDataMap['default'];
+    return dummyDataMap[surveyId] || dummyDataMap["default"];
   };
 
   const form = useForm<SurveyFormData>({
@@ -97,7 +107,10 @@ const SurveyNewContent = () => {
   // アシスタントからのデータがある場合、フォームを初期化
   useEffect(() => {
     if (referenceSurveyId && referenceSurveyTitle) {
-      const dummyData = generateDummyData(referenceSurveyId, referenceSurveyTitle);
+      const dummyData = generateDummyData(
+        referenceSurveyId,
+        referenceSurveyTitle,
+      );
       reset(dummyData);
     }
   }, [referenceSurveyId, referenceSurveyTitle, reset]);
@@ -246,19 +259,29 @@ const SurveyNewContent = () => {
             <div className="w-full bg-[#E8F4F8] border border-[#138FB5] rounded-lg p-4">
               <div className="flex items-center gap-2 mb-3">
                 <CheckCircle2 className="h-5 w-5 text-[#138FB5]" />
-                <h3 className="text-sm font-semibold text-[#0f7a9e]">アシスタントからの設定情報</h3>
+                <h3 className="text-sm font-semibold text-[#0f7a9e]">
+                  アシスタントからの設定情報
+                </h3>
               </div>
               <div className="space-y-2 text-sm">
                 {referenceSurveyTitle && (
                   <div className="flex items-start gap-2">
-                    <span className="text-[#9E9E9E] min-w-[80px]">参考調査票:</span>
-                    <span className="text-[#202020] font-medium">{referenceSurveyTitle}</span>
+                    <span className="text-[#9E9E9E] min-w-[80px]">
+                      参考調査票:
+                    </span>
+                    <span className="text-[#202020] font-medium">
+                      {referenceSurveyTitle}
+                    </span>
                   </div>
                 )}
                 {ruleModelName && (
                   <div className="flex items-start gap-2">
-                    <span className="text-[#9E9E9E] min-w-[80px]">適用ルール:</span>
-                    <span className="text-[#202020] font-medium">{ruleModelName}</span>
+                    <span className="text-[#9E9E9E] min-w-[80px]">
+                      適用ルール:
+                    </span>
+                    <span className="text-[#202020] font-medium">
+                      {ruleModelName}
+                    </span>
                   </div>
                 )}
                 <div className="mt-3 pt-3 border-t border-[#138FB5]/20">

@@ -30,10 +30,10 @@ export type Section = {
 
 type SurveySectionCardProps = {
   section: Section;
-  control: Control<any>;
-  watch: (name: string) => any;
-  setValue: (name: string, value: any) => void;
-  getValues: (name?: string) => any;
+  control: Control<Record<string, unknown>>;
+  watch: (name: string) => unknown;
+  setValue: (name: string, value: unknown) => void;
+  getValues: (name?: string) => unknown;
 };
 
 export const SurveySectionCard = ({

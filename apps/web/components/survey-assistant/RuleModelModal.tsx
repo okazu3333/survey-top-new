@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { X, CheckCircle, Plus } from 'lucide-react';
+import { CheckCircle, Plus, X } from "lucide-react";
+import React, { useState } from "react";
 
 interface Survey {
   id: string;
@@ -21,33 +21,43 @@ interface RuleModelModalProps {
 
 const defaultRuleModels = [
   {
-    id: 'a-company',
-    name: 'A社ルール',
-    description: '一般的な調査設計ルールを適用',
-    features: ['基本的な質問構成', '標準的な回答選択肢', '一般的な調査フロー'],
-    recommended: false
+    id: "a-company",
+    name: "A社ルール",
+    description: "一般的な調査設計ルールを適用",
+    features: ["基本的な質問構成", "標準的な回答選択肢", "一般的な調査フロー"],
+    recommended: false,
   },
   {
-    id: 'b-company',
-    name: 'B社ルール',
-    description: '詳細な分析と最適化を含む設計',
-    features: ['高度な質問ロジック', 'カスタム回答形式', '詳細な分岐設定'],
-    recommended: true
+    id: "b-company",
+    name: "B社ルール",
+    description: "詳細な分析と最適化を含む設計",
+    features: ["高度な質問ロジック", "カスタム回答形式", "詳細な分岐設定"],
+    recommended: true,
   },
   {
-    id: 'c-company',
-    name: 'C社ルール',
-    description: '企業固有のルールを設定',
-    features: ['企業独自のガイドライン', 'ブランド固有の質問形式', '特殊な調査要件'],
-    recommended: false
-  }
+    id: "c-company",
+    name: "C社ルール",
+    description: "企業固有のルールを設定",
+    features: [
+      "企業独自のガイドライン",
+      "ブランド固有の質問形式",
+      "特殊な調査要件",
+    ],
+    recommended: false,
+  },
 ];
 
-function RuleModelModal({ isOpen, onClose, onSelect, onCreateModel, survey }: RuleModelModalProps) {
-  const [selectedModel, setSelectedModel] = useState<string>('b-company');
+function RuleModelModal({
+  isOpen,
+  onClose,
+  onSelect,
+  onCreateModel,
+  survey,
+}: RuleModelModalProps) {
+  const [selectedModel, setSelectedModel] = useState<string>("b-company");
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [newModelName, setNewModelName] = useState('');
-  const [newModelDescription, setNewModelDescription] = useState('');
+  const [newModelName, setNewModelName] = useState("");
+  const [newModelDescription, setNewModelDescription] = useState("");
 
   if (!isOpen) return null;
 
@@ -58,8 +68,8 @@ function RuleModelModal({ isOpen, onClose, onSelect, onCreateModel, survey }: Ru
   const handleCreateModel = () => {
     if (newModelName.trim() && newModelDescription.trim()) {
       onCreateModel(newModelName, newModelDescription);
-      setNewModelName('');
-      setNewModelDescription('');
+      setNewModelName("");
+      setNewModelDescription("");
       setShowCreateForm(false);
     }
   };
@@ -70,7 +80,9 @@ function RuleModelModal({ isOpen, onClose, onSelect, onCreateModel, survey }: Ru
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">ルールモデルを選択</h2>
+            <h2 className="text-xl font-semibold text-gray-900">
+              ルールモデルを選択
+            </h2>
             {survey && (
               <p className="text-sm text-gray-600 mt-1">
                 参考調査票: {survey.title}
@@ -96,17 +108,19 @@ function RuleModelModal({ isOpen, onClose, onSelect, onCreateModel, survey }: Ru
                     onClick={() => setSelectedModel(model.id)}
                     className={`p-4 border rounded-lg cursor-pointer transition-all duration-200 ${
                       selectedModel === model.id
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-200 hover:border-gray-300"
                     }`}
                   >
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                          selectedModel === model.id
-                            ? 'border-blue-500 bg-blue-500'
-                            : 'border-gray-300'
-                        }`}>
+                        <div
+                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                            selectedModel === model.id
+                              ? "border-blue-500 bg-blue-500"
+                              : "border-gray-300"
+                          }`}
+                        >
                           {selectedModel === model.id && (
                             <CheckCircle className="w-3 h-3 text-white" />
                           )}
@@ -120,11 +134,13 @@ function RuleModelModal({ isOpen, onClose, onSelect, onCreateModel, survey }: Ru
                               </span>
                             )}
                           </h3>
-                          <p className="text-sm text-gray-600 mt-1">{model.description}</p>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {model.description}
+                          </p>
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="ml-8">
                       <div className="flex flex-wrap gap-2">
                         {model.features.map((feature, index) => (
@@ -153,8 +169,10 @@ function RuleModelModal({ isOpen, onClose, onSelect, onCreateModel, survey }: Ru
             </>
           ) : (
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900">新しいルールモデルを作成</h3>
-              
+              <h3 className="text-lg font-medium text-gray-900">
+                新しいルールモデルを作成
+              </h3>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   モデル名
@@ -227,4 +245,4 @@ function RuleModelModal({ isOpen, onClose, onSelect, onCreateModel, survey }: Ru
   );
 }
 
-export default RuleModelModal; 
+export default RuleModelModal;

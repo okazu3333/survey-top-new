@@ -120,7 +120,8 @@ const ReviewSidebar = ({ userType = "reviewee" }: ReviewSidebarProps) => {
         createdBy: "レビュアーC",
         createdAt: new Date().toISOString(),
         isCompleted: false,
-        message: "分岐条件が対象外の回答者にも当たっていないか確認をお願いします。",
+        message:
+          "分岐条件が対象外の回答者にも当たっていないか確認をお願いします。",
         reviews: [
           {
             id: 2004,
@@ -417,7 +418,9 @@ const ReviewSidebar = ({ userType = "reviewee" }: ReviewSidebarProps) => {
                         : "bg-white hover:bg-[#E7ECF0]",
                     )}
                     onClick={() => {
-                      const thread = (effectiveThreads ?? []).find((t: { id: number }) => t.id === item.id);
+                      const thread = (effectiveThreads ?? []).find(
+                        (t: { id: number }) => t.id === item.id,
+                      );
                       if (thread) setSelectedThread(thread);
                     }}
                     onDoubleClick={() => handleItemDoubleClick(item)}
@@ -463,9 +466,13 @@ const ReviewSidebar = ({ userType = "reviewee" }: ReviewSidebarProps) => {
                             : "text-[#333333]",
                         )}
                       >
-                        {selectedReviewType === "ai" ? item.type : item.reviewerName}
+                        {selectedReviewType === "ai"
+                          ? item.type
+                          : item.reviewerName}
                       </span>
-                      <span className="text-xs text-[#9DA0A7]">{item.time}</span>
+                      <span className="text-xs text-[#9DA0A7]">
+                        {item.time}
+                      </span>
                     </div>
                     <p
                       className={cn(
@@ -478,7 +485,9 @@ const ReviewSidebar = ({ userType = "reviewee" }: ReviewSidebarProps) => {
                       {item.comment}
                     </p>
                     {(item?.replies ?? 0) > 0 && (
-                      <p className="text-xs text-[#9DA0A7] mt-2">{item.replies}件の返信</p>
+                      <p className="text-xs text-[#9DA0A7] mt-2">
+                        {item.replies}件の返信
+                      </p>
                     )}
                   </div>
                 ))

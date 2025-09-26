@@ -10,9 +10,9 @@ const nextConfig: NextConfig = {
   transpilePackages: ["@survey-poc/api"],
   turbopack: {
     rules: {
-      '*.svg': {
-        loaders: ['@svgr/webpack'],
-        as: '*.js',
+      "*.svg": {
+        loaders: ["@svgr/webpack"],
+        as: "*.js",
       },
     },
   },

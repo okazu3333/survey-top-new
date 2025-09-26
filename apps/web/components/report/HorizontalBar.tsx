@@ -1,18 +1,25 @@
 "use client";
 
 import {
+  BarElement,
+  CategoryScale,
+  type ChartData,
   Chart as ChartJS,
+  Legend,
+  LinearScale,
+  Title,
+  Tooltip,
+} from "chart.js";
+import { Bar } from "react-chartjs-2";
+
+ChartJS.register(
   BarElement,
   CategoryScale,
   LinearScale,
   Legend,
   Tooltip,
   Title,
-  type ChartData,
-} from "chart.js";
-import { Bar } from "react-chartjs-2";
-
-ChartJS.register(BarElement, CategoryScale, LinearScale, Legend, Tooltip, Title);
+);
 
 export type HorizontalBarProps = {
   labels: string[];
@@ -21,7 +28,7 @@ export type HorizontalBarProps = {
 };
 
 export function HorizontalBar({ labels, counts, title }: HorizontalBarProps) {
-  const data: ChartData<'bar'> = {
+  const data: ChartData<"bar"> = {
     labels: labels,
     datasets: [
       {

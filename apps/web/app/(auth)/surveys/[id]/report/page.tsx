@@ -1,20 +1,22 @@
 "use client";
 
-import { Download, ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Download } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useState } from "react";
+import { HorizontalBar } from "@/components/report/HorizontalBar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { api } from "@/lib/trpc/react";
-import { HorizontalBar } from "@/components/report/HorizontalBar";
 
 export default function ReportPage() {
   const params = useParams();
   const surveyId = Number(params.id);
 
   const { data: survey } = api.survey.getById.useQuery({ id: surveyId });
-  const { data: sections, isLoading } = api.question.listBySurvey.useQuery({ surveyId });
+  const { data: sections, isLoading } = api.question.listBySurvey.useQuery({
+    surveyId,
+  });
 
   const handleDownloadRawData = () => {
     const csv = generateRawDataCSV();
@@ -27,7 +29,13 @@ export default function ReportPage() {
   };
 
   const generateRawDataCSV = () => {
-    const headers = ["回答ID", "回答日時", "設問コード", "設問内容", "回答内容"];
+    const headers = [
+      "回答ID",
+      "回答日時",
+      "設問コード",
+      "設問内容",
+      "回答内容",
+    ];
     const rows = [
       ["1", "2024-01-15 10:30:00", "SC1", "年齢を教えてください", "20代"],
       ["1", "2024-01-15 10:30:00", "Q1", "満足度を教えてください", "満足"],
@@ -80,7 +88,7 @@ export default function ReportPage() {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto" />
           <p className="mt-4 text-gray-600">レポートを読み込み中...</p>
         </div>
       </div>
@@ -93,7 +101,9 @@ export default function ReportPage() {
         {/* ヘッダー（タイトル + 右寄せダウンロード） */}
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">回答レポート</h1>
+            <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">
+              回答レポート
+            </h1>
             <p className="mt-1 text-base text-gray-600">{survey?.title}</p>
           </div>
           <div className="flex gap-2 self-end sm:self-auto">
@@ -112,19 +122,31 @@ export default function ReportPage() {
         <div className="space-y-6">
           {(sections ?? []).map((sec: any) => (
             <div key={sec.id}>
-              <h2 className="text-lg font-bold text-gray-800 mb-3">{sec.title || (sec.phase === "SCREENING" ? "スクリーニング" : "本調査")}</h2>
+              <h2 className="text-lg font-bold text-gray-800 mb-3">
+                {sec.title ||
+                  (sec.phase === "SCREENING" ? "スクリーニング" : "本調査")}
+              </h2>
               <div className="space-y-4">
                 {sec.questions.map((q: any) => (
                   <Card key={q.id} className="shadow-sm border-gray-200">
                     <CardHeader className="py-3">
                       <CardTitle className="text-base font-semibold flex items-center justify-between gap-4">
                         <div className="truncate">
-                          <span className="text-[#138FB5] mr-2 whitespace-nowrap">{q.code}</span>
-                          <span className="truncate align-middle">{q.title}</span>
+                          <span className="text-[#138FB5] mr-2 whitespace-nowrap">
+                            {q.code}
+                          </span>
+                          <span className="truncate align-middle">
+                            {q.title}
+                          </span>
                         </div>
                         {(q.type === "SA" || q.type === "MA") && (
                           <span className="text-sm text-gray-500 whitespace-nowrap">
-                            合計: {buildDummyCounts(q.options?.length ?? 0).reduce((a,b)=>a+b,0)} 件
+                            合計:{" "}
+                            {buildDummyCounts(q.options?.length ?? 0).reduce(
+                              (a, b) => a + b,
+                              0,
+                            )}{" "}
+                            件
                           </span>
                         )}
                       </CardTitle>
@@ -149,7 +171,7 @@ export default function ReportPage() {
         </div>
       </div>
 
-      <style jsx>{``}</style>
+      <style jsx>{""}</style>
     </div>
   );
 }
@@ -163,15 +185,29 @@ function FreeTextExamples() {
   ];
   return (
     <div className="space-y-2">
-      <div className="text-sm text-gray-600">自由記述（解答例を{open ? "折りたたむ" : "表示"}）</div>
-      <Button variant="outline" size="sm" onClick={() => setOpen((v) => !v)} className="gap-1">
-        {open ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+      <div className="text-sm text-gray-600">
+        自由記述（解答例を{open ? "折りたたむ" : "表示"}）
+      </div>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setOpen((v) => !v)}
+        className="gap-1"
+      >
+        {open ? (
+          <ChevronUp className="w-4 h-4" />
+        ) : (
+          <ChevronDown className="w-4 h-4" />
+        )}
         {open ? "解答例を折りたたむ" : "解答例を表示"}
       </Button>
       {open && (
         <ul className="mt-2 space-y-2">
           {examples.map((ex, i) => (
-            <li key={i} className="text-sm text-gray-800 bg-gray-50 border border-gray-200 rounded p-2">
+            <li
+              key={i}
+              className="text-sm text-gray-800 bg-gray-50 border border-gray-200 rounded p-2"
+            >
               {ex}
             </li>
           ))}

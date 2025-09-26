@@ -6,7 +6,6 @@ import { useState } from "react";
 import { RespondentAttributesDialog } from "@/components/respondent-attributes-dialog";
 import { ReviewUrlDialog } from "@/components/review-url-dialog";
 
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -321,8 +320,6 @@ export default function SurveysPage() {
     title: string;
   } | null>(null);
 
-
-
   // Use static mock data
   const allProjects = mockProjects;
 
@@ -331,7 +328,6 @@ export default function SurveysPage() {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentProjects = allProjects.slice(startIndex, endIndex);
-
 
   const handleRowClick = (numericId: number, event: React.MouseEvent) => {
     const target = event.target as HTMLElement;
@@ -345,15 +341,13 @@ export default function SurveysPage() {
     setCurrentPage(page);
   };
 
-
-
   return (
     <div className="min-h-screen bg-gray-100">
       <main className="container mx-auto px-4 py-6">
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-2xl font-bold">調査一覧</h1>
-          <Button 
-            onClick={() => router.push('/surveys/assistant')}
+          <Button
+            onClick={() => router.push("/surveys/assistant")}
             className="bg-[#138fb5] hover:bg-[#0f7a9e]"
           >
             <Plus className="w-4 h-4 mr-1" />
@@ -463,7 +457,9 @@ export default function SurveysPage() {
                             size="sm"
                             onClick={(e) => {
                               e.stopPropagation();
-                              router.push(`/surveys/${project.numericId}/report`);
+                              router.push(
+                                `/surveys/${project.numericId}/report`,
+                              );
                             }}
                             title="レポートページを開く"
                           >
@@ -563,8 +559,6 @@ export default function SurveysPage() {
           projectTitle={selectedProject.title}
         />
       )}
-
-
     </div>
   );
 }

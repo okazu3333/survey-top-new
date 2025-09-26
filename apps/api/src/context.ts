@@ -1,5 +1,5 @@
-import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import { BigQuery } from "@google-cloud/bigquery";
+import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 
 const globalForBigQuery = global as unknown as { bigquery?: BigQuery };
 
@@ -7,7 +7,7 @@ function getBigQuery(): BigQuery {
   if (!globalForBigQuery.bigquery) {
     const projectId = process.env.BQ_PROJECT_ID || "viewpers";
     const location = process.env.BQ_LOCATION || "US";
-    
+
     globalForBigQuery.bigquery = new BigQuery({
       projectId,
       location,

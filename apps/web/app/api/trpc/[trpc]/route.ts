@@ -1,7 +1,7 @@
 import { appRouter } from "@survey-poc/api/src/router";
-import { getPrisma } from "@/lib/db";
 import type { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
+import { getPrisma } from "@/lib/db";
 
 const createContext = async (opts: FetchCreateContextFnOptions) => {
   return {

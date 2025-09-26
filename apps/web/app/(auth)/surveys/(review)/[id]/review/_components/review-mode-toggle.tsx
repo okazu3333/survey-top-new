@@ -101,9 +101,7 @@ export const ReviewModeToggle = ({
         </div>
       </div>
 
-      {type !== "reviewer" && (
-        <div className="flex items-center gap-2" />
-      )}
+      {type !== "reviewer" && <div className="flex items-center gap-2" />}
 
       <ReviewUrlDialog
         open={showReviewUrlDialog}

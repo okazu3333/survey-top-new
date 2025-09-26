@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Spreadsheet, { type Matrix } from "react-spreadsheet";
-import { api } from "@/lib/trpc/react";
 import { useChatContext } from "@/app/(auth)/surveys/(chat)/chat-context";
+import { api } from "@/lib/trpc/react";
 
 type SpreadsheetData = Matrix<CellData>;
 
@@ -309,7 +309,9 @@ export const SurveyItems = ({ className = "", surveyId }: SurveyItemsProps) => {
   return (
     <div className={`w-full h-full ${className}`}>
       <div className="flex-1 overflow-auto">
-        <div className={`min-w-fit survey-items-spreadsheet ${isChatCollapsed ? "wide" : ""}`}>
+        <div
+          className={`min-w-fit survey-items-spreadsheet ${isChatCollapsed ? "wide" : ""}`}
+        >
           <Spreadsheet
             data={data}
             onChange={handleDataChange}

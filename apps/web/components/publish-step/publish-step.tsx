@@ -2,8 +2,8 @@
 
 import { CircleCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
 import { useChatContext } from "@/app/(auth)/surveys/(chat)/chat-context";
+import { cn } from "@/lib/utils";
 
 export type StepStatus = "complete" | "current" | "next";
 

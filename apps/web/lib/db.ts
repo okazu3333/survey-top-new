@@ -3,7 +3,7 @@ import { BigQuery } from "@google-cloud/bigquery";
 function createBigQueryClient(): BigQuery {
   const projectId = process.env.BQ_PROJECT_ID || "viewpers";
   const location = process.env.BQ_LOCATION || "US";
-  
+
   return new BigQuery({
     projectId,
     location,
@@ -21,4 +21,4 @@ export function getBigQuery(): BigQuery {
   return globalForBigQuery.bigquery;
 }
 
-export const db = getBigQuery(); 
+export const db = getBigQuery();

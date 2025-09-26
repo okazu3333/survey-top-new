@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  FileText,
-  MessageSquare,
-  Plus,
-  Settings,
-  Share2,
-} from "lucide-react";
+import { FileText, MessageSquare, Plus, Settings, Share2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { RespondentAttributesDialog } from "@/components/respondent-attributes-dialog";
@@ -176,7 +170,7 @@ export const ProjectsSection = () => {
               </Button>
             </div>
             <Button
-              onClick={() => router.push('/surveys/assistant')}
+              onClick={() => router.push("/surveys/assistant")}
               className="bg-[#138fb5] hover:bg-[#0f7a9e]"
             >
               <Plus className="w-4 h-4 mr-1" />
@@ -201,10 +195,18 @@ export const ProjectsSection = () => {
                 <TableHead className="text-white">更新日時</TableHead>
                 <TableHead className="text-white">実査日時</TableHead>
                 <TableHead className="text-white">作成者</TableHead>
-                <TableHead className="text-white text-center whitespace-nowrap w-24">レビューリンク</TableHead>
-                <TableHead className="text-white text-center whitespace-nowrap w-24">回答画面</TableHead>
-                <TableHead className="text-white text-center whitespace-nowrap w-24">配信</TableHead>
-                <TableHead className="text-white text-center whitespace-nowrap w-24">レポート</TableHead>
+                <TableHead className="text-white text-center whitespace-nowrap w-24">
+                  レビューリンク
+                </TableHead>
+                <TableHead className="text-white text-center whitespace-nowrap w-24">
+                  回答画面
+                </TableHead>
+                <TableHead className="text-white text-center whitespace-nowrap w-24">
+                  配信
+                </TableHead>
+                <TableHead className="text-white text-center whitespace-nowrap w-24">
+                  レポート
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -214,7 +216,9 @@ export const ProjectsSection = () => {
                   <TableRow
                     key={project.id}
                     className={`cursor-pointer ${
-                      isSelected ? "bg-yellow-50 hover:bg-yellow-100" : "bg-white hover:bg-gray-50"
+                      isSelected
+                        ? "bg-yellow-50 hover:bg-yellow-100"
+                        : "bg-white hover:bg-gray-50"
                     }`}
                     onClick={(e) => handleRowClick(project.numericId, e)}
                   >
@@ -237,8 +241,12 @@ export const ProjectsSection = () => {
                         {project.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-sm text-gray-600">{project.updatedDate}</TableCell>
-                    <TableCell className="text-sm text-gray-600">{project.createdDate}</TableCell>
+                    <TableCell className="text-sm text-gray-600">
+                      {project.updatedDate}
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-600">
+                      {project.createdDate}
+                    </TableCell>
                     <TableCell>{project.creator}</TableCell>
                     <TableCell className="text-center w-24">
                       <Button
@@ -259,7 +267,10 @@ export const ProjectsSection = () => {
                         size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setSelectedProject({ id: project.id, title: project.title });
+                          setSelectedProject({
+                            id: project.id,
+                            title: project.title,
+                          });
                           setRespondentDialogOpen(true);
                         }}
                       >
@@ -299,7 +310,11 @@ export const ProjectsSection = () => {
           </Table>
         </div>
       </CardContent>
-      <ReviewUrlDialog open={reviewDialogOpen} onOpenChange={setReviewDialogOpen} surveyId={selectedSurveyId} />
+      <ReviewUrlDialog
+        open={reviewDialogOpen}
+        onOpenChange={setReviewDialogOpen}
+        surveyId={selectedSurveyId}
+      />
       {selectedProject && (
         <RespondentAttributesDialog
           open={respondentDialogOpen}

@@ -171,12 +171,19 @@ export const threadRouter = router({
     .mutation(async ({ input, ctx }) => {
       const questions = await ctx.db.question.findMany({
         where: { section: { surveyId: input.surveyId } },
-        select: { id: true, code: true, title: true, section: { select: { phase: true, title: true } } },
+        select: {
+          id: true,
+          code: true,
+          title: true,
+          section: { select: { phase: true, title: true } },
+        },
         orderBy: [{ section: { phase: "asc" } }, { order: "asc" }],
       });
 
       for (const q of questions) {
-        const existing = await ctx.db.thread.findFirst({ where: { questionId: q.id } });
+        const existing = await ctx.db.thread.findFirst({
+          where: { questionId: q.id },
+        });
         if (existing) continue;
 
         // AIレビュー
@@ -188,7 +195,8 @@ export const threadRouter = router({
             type: "ai",
             createdBy: "AIレビュー",
             message:
-              q.section.title.includes("ブランド") || q.title.includes("ブランド")
+              q.section.title.includes("ブランド") ||
+              q.title.includes("ブランド")
                 ? "ブランド関連設問：表現の一貫性を確認してください。"
                 : q.section.title.includes("購買") || q.title.includes("購入")
                   ? "購入要因の選択肢に抜け漏れがないか確認しました。"
@@ -211,18 +219,18 @@ export const threadRouter = router({
             y: 30,
             type: "team",
             createdBy: "レビュアーA",
-            message:
-              q.section.title.includes("利用意向")
-                ? "設問の前提（利用経験の有無）を明記しましょう。"
-                : q.section.title.includes("利用状況")
-                  ? "最近の期間を指定（直近3ヶ月など）した方が回答が安定します。"
-                  : "回答者が解釈しやすいようラベルの具体度を合わせてください。",
+            message: q.section.title.includes("利用意向")
+              ? "設問の前提（利用経験の有無）を明記しましょう。"
+              : q.section.title.includes("利用状況")
+                ? "最近の期間を指定（直近3ヶ月など）した方が回答が安定します。"
+                : "回答者が解釈しやすいようラベルの具体度を合わせてください。",
           },
         });
         await ctx.db.review.create({
           data: {
             threadId: team.id,
-            message: "コメントありがとうございます。修正案を次回ドラフトに反映します。",
+            message:
+              "コメントありがとうございます。修正案を次回ドラフトに反映します。",
             createdBy: "作成者",
           },
         });

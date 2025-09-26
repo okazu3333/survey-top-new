@@ -1,6 +1,6 @@
-# Survey PoC - 調査票自動化システム
+# Survey Top New - 調査票自動化システム
 
-AI調査アシスタント・調査票ライブラリを活用した現代的な調査プラットフォーム
+BigQuery連携によるAI調査アシスタント・調査票ライブラリを活用した現代的な調査プラットフォーム
 
 ## 🌟 主な機能
 
@@ -14,12 +14,12 @@ AI調査アシスタント・調査票ライブラリを活用した現代的な
 
 ## 🛠 技術スタック
 
-- **フロントエンド**: Next.js 15 (App Router), React 18, TypeScript, Tailwind CSS
-- **バックエンド**: tRPC, Prisma ORM
-- **データベース**: SQLite
-- **パッケージマネージャー**: Bun
-- **モノレポ**: Turborepo
+- **フロントエンド**: Next.js 15.3.4 (App Router), React 19, TypeScript, Tailwind CSS
+- **バックエンド**: tRPC, Express.js
+- **データベース**: Google BigQuery
+- **パッケージマネージャー**: Bun 1.2.x
 - **UI コンポーネント**: shadcn/ui, Lucide React
+- **開発ツール**: Biome (Linting/Formatting), Husky (Git Hooks)
 - **デプロイ**: Google Cloud Run (Docker)
 
 ## 🚀 セットアップ
@@ -43,17 +43,19 @@ cd survey-top-new
 bun install
 ```
 
-3. **データベースのセットアップ**:
-```bash
-bun run db:reset
-```
-
-4. **開発サーバーの起動**:
+3. **開発サーバーの起動**:
 ```bash
 bun dev
 ```
 
-アプリケーションは `http://localhost:3000` で利用できます。
+アプリケーションは `http://localhost:3002` で利用できます（ポート3000が使用中の場合）。
+
+### 🗄️ データベース
+
+本プロジェクトはGoogle BigQueryを使用しています：
+- **プロジェクト**: `viewpers`
+- **データセット**: `surveybridge_db`
+- **ロケーション**: US
 
 ### 🔐 認証情報
 
@@ -65,17 +67,20 @@ bun dev
 ```
 ├── apps/
 │   ├── web/                    # Next.js フロントエンドアプリケーション
-│   │   ├── app/               # App Router (Next.js 13+)
+│   │   ├── app/               # App Router (Next.js 15+)
 │   │   ├── components/        # 再利用可能なコンポーネント
-│   │   └── lib/              # ユーティリティとライブラリ
-│   └── api/                   # tRPC API ルート
-├── packages/
-│   └── database/              # Prisma データベースパッケージ
-├── docs/                      # ドキュメント
+│   │   ├── lib/              # ユーティリティとライブラリ
+│   │   └── hooks/            # カスタムフック
+│   └── api/                   # tRPC API サーバー
+├── docs/                      # 構造化されたドキュメント
+│   ├── api/                  # API仕様書
+│   ├── architecture/         # アーキテクチャドキュメント
+│   ├── deployment/           # デプロイメント関連
+│   └── development/          # 開発環境設定
 ├── scripts/                   # ビルド・デプロイスクリプト
 ├── Dockerfile                 # Cloud Run デプロイ用
 ├── deploy-cloudrun.sh         # 自動デプロイスクリプト
-└── DEPLOYMENT.md              # デプロイ手順
+└── 設定ファイル群
 ```
 
 ## 🎯 主要機能の使い方
@@ -103,16 +108,16 @@ bun dev
 - `bun dev` - 開発サーバー起動
 - `bun build` - 本番ビルド
 - `bun start` - 本番サーバー起動
-- `bun lint` - ESLint 実行
-- `bun format` - Prettier フォーマット
+- `bun lint` - Biome リント実行（自動修正付き）
+- `bun format` - Biome フォーマット実行
 - `bun type-check` - TypeScript 型チェック
-- `bun db:reset` - データベースリセット（シードデータ含む）
+- `npx storybook dev -p 6006` - Storybook 開発サーバー
 
 ## 🌐 デプロイ
 
 ### Google Cloud Run
 
-詳細な手順は [DEPLOYMENT.md](./DEPLOYMENT.md) を参照してください。
+詳細な手順は [docs/deployment/DEPLOYMENT.md](./docs/deployment/DEPLOYMENT.md) を参照してください。
 
 **クイックデプロイ**:
 ```bash
@@ -128,6 +133,15 @@ vim deploy-cloudrun.sh  # PROJECT_ID を変更
 - **メモリ**: 2GB
 - **CPU**: 2コア
 - **最大インスタンス**: 10
+
+## 📚 ドキュメント
+
+詳細なドキュメントは [docs/](./docs/) ディレクトリにあります：
+
+- [📖 ドキュメント一覧](./docs/README.md)
+- [🏗️ アーキテクチャ概要](./docs/architecture/OVERVIEW.md)
+- [🔧 開発環境セットアップ](./docs/development/SETUP.md)
+- [📡 API仕様書](./docs/api/README.md)
 
 ## 🔧 開発・カスタマイズ
 
