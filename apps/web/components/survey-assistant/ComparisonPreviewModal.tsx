@@ -220,14 +220,12 @@ export default function ComparisonPreviewModal({
               }
             </p>
           </div>
-          {onProceedToDesign && (
-            <button
-              onClick={onProceedToDesign}
-              className="px-4 py-2 bg-[#138FB5] text-white rounded-lg hover:bg-[#0f7a9e] font-medium transition-colors"
-            >
-              このまま調査設計へ進む
-            </button>
-          )}
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <X className="h-5 w-5 text-[#9E9E9E]" />
+          </button>
         </div>
 
         {/* Content */}
@@ -252,7 +250,7 @@ export default function ComparisonPreviewModal({
                         onClick={onCreateFromUpload}
                         className="px-3 py-1 bg-[#FF6B6B] text-white text-sm rounded hover:bg-[#FF5252] transition-colors"
                       >
-                        ベースで作成
+                        これにする
                       </button>
                     )}
                   </div>
@@ -394,7 +392,7 @@ export default function ComparisonPreviewModal({
                     onClick={onCreateFromRecommended}
                     className="px-3 py-1 bg-[#138FB5] text-white text-sm rounded hover:bg-[#0f7a9e] transition-colors"
                   >
-                    ベースで作成
+                    これにする
                   </button>
                 )}
               </div>
@@ -478,34 +476,16 @@ export default function ComparisonPreviewModal({
         </div>
 
         {/* Footer */}
-        <div className="flex justify-between items-center p-6 border-t border-gray-200">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-[#666666] hover:text-[#202020] transition-colors"
-          >
-            閉じる
-          </button>
-          <div className="flex gap-3">
+        {onProceedToDesign && (
+          <div className="p-6 border-t border-gray-200 text-center">
             <button
-              onClick={() => {
-                // アップロードファイルベースで作成
-                onClose();
-              }}
-              className="px-6 py-2 border border-[#FF6B6B] text-[#FF6B6B] rounded-lg hover:bg-[#FFF5F5] transition-colors"
+              onClick={onProceedToDesign}
+              className="px-6 py-3 bg-[#138FB5] text-white rounded-lg hover:bg-[#0f7a9e] font-medium transition-colors"
             >
-              アップロードファイルベースで作成
-            </button>
-            <button
-              onClick={() => {
-                // レコメンド調査票ベースで作成
-                onClose();
-              }}
-              className="px-6 py-2 bg-[#138FB5] text-white rounded-lg hover:bg-[#0f7a9e] transition-colors"
-            >
-              レコメンド調査票ベースで作成
+              このまま調査設計へ進む
             </button>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
