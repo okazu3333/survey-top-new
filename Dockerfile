@@ -7,7 +7,6 @@ FROM base AS install
 COPY package.json bun.lockb ./
 COPY apps/web/package.json ./apps/web/
 COPY apps/api/package.json ./apps/api/
-COPY packages/database/package.json ./packages/database/
 RUN bun install --frozen-lockfile
 
 # Copy source code

@@ -29,7 +29,13 @@ gcloud run deploy ${SERVICE_NAME} \
   --cpu 2 \
   --max-instances 10 \
   --set-env-vars NODE_ENV=production \
-  --set-env-vars DATABASE_URL="file:./packages/database/dev.db" \
+  --set-env-vars DB_PROVIDER=bigquery \
+  --set-env-vars NEXT_PUBLIC_DB_PROVIDER=bigquery \
+  --set-env-vars BQ_PROJECT_ID=viewpers \
+  --set-env-vars BQ_DATASET=surveybridge_db \
+  --set-env-vars BQ_LOCATION=US \
+  --set-env-vars READONLY=false \
+  --set-env-vars NEXT_PUBLIC_READONLY=false \
   --set-env-vars BASIC_AUTH_USER=cmgadmin \
   --set-env-vars BASIC_AUTH_PASSWORD=crossadmin
 

@@ -52,7 +52,13 @@ jobs:
           image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.SERVICE }}:${{ github.sha }}
           env_vars: |
             NODE_ENV=production
-            DATABASE_URL=file:./packages/database/dev.db
+            DB_PROVIDER=bigquery
+            NEXT_PUBLIC_DB_PROVIDER=bigquery
+            BQ_PROJECT_ID=viewpers
+            BQ_DATASET=surveybridge_db
+            BQ_LOCATION=US
+            READONLY=false
+            NEXT_PUBLIC_READONLY=false
             BASIC_AUTH_USER=cmgadmin
             BASIC_AUTH_PASSWORD=crossadmin
 
