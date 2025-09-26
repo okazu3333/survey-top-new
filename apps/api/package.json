@@ -6,6 +6,7 @@
   "exports": {
     "./src/router": "./src/router/index.ts",
     "./src/router/*": "./src/router/*.ts",
+    "./src/bq": "./src/bq.ts",
     "./client": "./src/index.client.ts"
   },
   "scripts": {

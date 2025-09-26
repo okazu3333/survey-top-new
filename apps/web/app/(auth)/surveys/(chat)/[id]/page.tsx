@@ -8,13 +8,13 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { /* useEffect, */ useState } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
+// import { toast } from "sonner"; // Temporarily disabled
 import { SurveyCardHeader } from "@/components/survey-card-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { api } from "@/lib/trpc/react";
+// import { api } from "@/lib/trpc/react"; // Temporarily disabled
 import { SurveyForm, type SurveyFormData } from "../_components/survey-form";
 import { useChatContext } from "../chat-context";
 import { PublishAvailableConfirmDialog } from "../new/_components/publish-available-confirm-dialog";
@@ -32,36 +32,45 @@ const Page = () => {
     newSurveyAiResponses,
   } = useChatContext();
 
-  const { data: survey, isLoading } = api.survey.getById.useQuery({
-    id: surveyId,
-  });
+  // Temporarily disabled during BigQuery migration
+  // const { data: survey, isLoading } = api.survey.getById.useQuery({
+  //   id: surveyId,
+  // });
+  const survey = null;
+  const isLoading = false;
 
-  const updateSurvey = api.survey.update.useMutation({
-    onSuccess: () => {
-      toast.success("調査が更新されました");
-      router.push(`/surveys/${surveyIdString}/sections`);
-    },
-    onError: (error) => {
-      toast.error(`更新に失敗しました: ${error.message}`);
-    },
-  });
+  // const updateSurvey = api.survey.update.useMutation({
+  //   onSuccess: () => {
+  //     toast.success("調査が更新されました");
+  //     router.push(`/surveys/${surveyIdString}/sections`);
+  //   },
+  //   onError: (error) => {
+  //     toast.error(`更新に失敗しました: ${error.message}`);
+  //   },
+  // });
+  const updateSurvey = {
+    mutate: () => {},
+    mutateAsync: async (_data: any) => {},
+    isPending: false,
+  };
 
   const form = useForm<SurveyFormData>();
-  const { handleSubmit, reset, watch, setValue } = form;
+  const { handleSubmit, /* reset, */ watch, setValue } = form;
   const targetCondition = watch("targetCondition") || "";
 
-  useEffect(() => {
-    if (survey) {
-      reset({
-        title: survey.title || "",
-        purpose: survey.purpose || "",
-        targetCondition: survey.targetCondition || "",
-        analysisCondition: survey.analysisCondition || "",
-        researchMethod: survey.researchMethod || "",
-        researchScale: survey.researchScale || "",
-      });
-    }
-  }, [survey, reset]);
+  // Temporarily disabled during BigQuery migration
+  // useEffect(() => {
+  //   if (survey) {
+  //     reset({
+  //       title: survey.title || "",
+  //       purpose: survey.purpose || "",
+  //       targetCondition: survey.targetCondition || "",
+  //       analysisCondition: survey.analysisCondition || "",
+  //       researchMethod: survey.researchMethod || "",
+  //       researchScale: survey.researchScale || "",
+  //     });
+  //   }
+  // }, [survey, reset]);
 
   // Check if targetCondition contains residence info (e.g., "在住")
   const hasResidenceCondition = targetCondition.includes("在住");
@@ -167,7 +176,7 @@ const Page = () => {
     <>
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col w-full">
         <SurveyCardHeader
-          workingTitle={`${survey.title || "調査の編集"}`}
+          workingTitle="調査の編集"
           currentStep={0}
           surveyId={surveyId}
         />

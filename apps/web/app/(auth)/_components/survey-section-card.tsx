@@ -170,6 +170,7 @@ export const SurveySectionCard = ({
                         <Input
                           {...field}
                           type="number"
+                          value={field.value as string}
                           className="relative w-[104px] h-6 rounded border border-solid border-[#dcdcdc]"
                         />
                       )}
@@ -199,6 +200,7 @@ export const SurveySectionCard = ({
                       render={({ field }) => (
                         <Input
                           {...field}
+                          value={field.value as string}
                           placeholder={question.placeholder}
                           className="flex w-[200px] items-center justify-center gap-2.5 relative rounded border border-solid border-[#dcdcdc] px-3 py-1"
                         />

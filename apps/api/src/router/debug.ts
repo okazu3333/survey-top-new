@@ -138,13 +138,16 @@ export const debugRouter = router({
       }
 
       try {
-        // Execute raw query using Prisma's $queryRawUnsafe
-        const result = await ctx.db.$queryRawUnsafe(input.query);
+        // Execute raw query using BigQuery
+        const [rows] = await ctx.db.query({
+          query: input.query,
+          location: process.env.BQ_LOCATION || "US",
+        });
 
         return {
           success: true,
-          result,
-          rowCount: Array.isArray(result) ? result.length : 0,
+          result: rows,
+          rowCount: Array.isArray(rows) ? rows.length : 0,
         };
       } catch (error) {
         return {
