@@ -2,23 +2,22 @@
 FROM oven/bun:1 as base
 WORKDIR /usr/src/app
 
-# Install dependencies in a clean layer
+# Install dependencies
 FROM base AS install
 COPY package.json bun.lockb ./
 COPY apps/web/package.json ./apps/web/
 COPY apps/api/package.json ./apps/api/
 RUN bun install --frozen-lockfile
 
-# Copy source code
+# Copy source code and build
 COPY . .
-
-# Build the monorepo (web app imports @survey-poc/api)
 ENV NODE_ENV=production
 RUN bun run build
 
 # Create non-root user for security
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
+RUN chown -R nextjs:nodejs /usr/src/app
 
 USER nextjs
 
