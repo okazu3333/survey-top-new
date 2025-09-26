@@ -6,6 +6,8 @@ import type React from "react";
 import { useState } from "react";
 import RuleModelModal from "@/components/survey-assistant/RuleModelModal";
 import SurveyLibrary from "@/components/survey-assistant/SurveyLibrary";
+import SurveyPreviewModal from "@/components/survey-assistant/SurveyPreviewModal";
+import ComparisonPreviewModal from "@/components/survey-assistant/ComparisonPreviewModal";
 
 interface Survey {
   id: string;
@@ -31,6 +33,9 @@ export default function SurveyAssistantPage() {
     string | null
   >(null);
   const [searchKeywords, setSearchKeywords] = useState<string[]>([]);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [previewSurvey, setPreviewSurvey] = useState<Survey | null>(null);
+  const [showComparisonModal, setShowComparisonModal] = useState(false);
 
   // Extract keywords from message for survey filtering
   const extractKeywordsFromMessage = (message: string): string[] => {
@@ -186,6 +191,17 @@ export default function SurveyAssistantPage() {
     setSearchKeywords([]);
   };
 
+  const handlePreviewSurvey = (survey: Survey) => {
+    setPreviewSurvey(survey);
+    setShowPreviewModal(true);
+  };
+
+  const handleShowComparison = () => {
+    if (attachedFiles.length > 0) {
+      setShowComparisonModal(true);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#F9F9F9]">
       {/* Main Content */}
@@ -261,11 +277,24 @@ export default function SurveyAssistantPage() {
           </div>
         </div>
 
+        {/* Comparison Button */}
+        {attachedFiles.length > 0 && (
+          <div className="text-center">
+            <button
+              onClick={handleShowComparison}
+              className="px-6 py-3 bg-[#FF6B6B] text-white rounded-lg hover:bg-[#FF5252] font-medium transition-colors shadow-sm"
+            >
+              アップロードファイルとライブラリを比較
+            </button>
+          </div>
+        )}
+
         {/* Survey Library */}
         <SurveyLibrary
           onSelectSurvey={handleSurveySelect}
           searchKeywords={searchKeywords}
           onClearSearch={handleClearSearch}
+          onPreviewSurvey={handlePreviewSurvey}
         />
 
         {/* Settings Display */}
@@ -308,6 +337,26 @@ export default function SurveyAssistantPage() {
           onCreateModel={(modelName, description) => {
             console.log("新しいルールモデルを作成:", modelName, description);
           }}
+        />
+      )}
+
+      {showPreviewModal && (
+        <SurveyPreviewModal
+          isOpen={showPreviewModal}
+          survey={previewSurvey}
+          onClose={() => {
+            setShowPreviewModal(false);
+            setPreviewSurvey(null);
+          }}
+        />
+      )}
+
+      {showComparisonModal && (
+        <ComparisonPreviewModal
+          isOpen={showComparisonModal}
+          uploadedFiles={attachedFiles}
+          recommendedSurvey={referenceSurvey}
+          onClose={() => setShowComparisonModal(false)}
         />
       )}
     </div>

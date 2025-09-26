@@ -16,12 +16,14 @@ interface SurveyLibraryProps {
   onSelectSurvey: (survey: Survey) => void;
   searchKeywords?: string[];
   onClearSearch?: () => void;
+  onPreviewSurvey?: (survey: Survey) => void;
 }
 
 export default function SurveyLibrary({
   onSelectSurvey,
   searchKeywords = [],
   onClearSearch,
+  onPreviewSurvey,
 }: SurveyLibraryProps) {
   const [showAll, setShowAll] = useState(false);
   const [selectedSurveyId, setSelectedSurveyId] = useState<string | null>(null);
@@ -240,9 +242,10 @@ export default function SurveyLibrary({
 
   const handlePreview = useCallback((survey: Survey, e: React.MouseEvent) => {
     e.stopPropagation();
-    const previewUrl = `/surveys/preview/${survey.id}`;
-    window.open(previewUrl, "_blank");
-  }, []);
+    if (onPreviewSurvey) {
+      onPreviewSurvey(survey);
+    }
+  }, [onPreviewSurvey]);
 
   const handleMore = useCallback((survey: Survey, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -327,7 +330,7 @@ export default function SurveyLibrary({
                   <button
                     onClick={(e) => handlePreview(survey, e)}
                     className="p-1 text-[#9E9E9E] hover:text-[#202020] hover:bg-[#F9F9F9] rounded transition-colors"
-                    title="プレビューを新しいタブで開く"
+                    title="プレビューを表示"
                   >
                     <Eye className="h-4 w-4" />
                   </button>
