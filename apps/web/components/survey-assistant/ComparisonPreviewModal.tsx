@@ -18,6 +18,7 @@ interface ComparisonPreviewModalProps {
   uploadedFiles: File[];
   recommendedSurvey: Survey | null;
   onClose: () => void;
+  isRecommendedComparison?: boolean;
 }
 
 export default function ComparisonPreviewModal({
@@ -25,6 +26,7 @@ export default function ComparisonPreviewModal({
   uploadedFiles,
   recommendedSurvey,
   onClose,
+  isRecommendedComparison = false,
 }: ComparisonPreviewModalProps) {
   if (!isOpen) return null;
 
@@ -96,10 +98,13 @@ export default function ComparisonPreviewModal({
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div>
             <h2 className="text-xl font-semibold text-[#202020]">
-              調査票比較プレビュー
+              {isRecommendedComparison ? "AIレコメンド調査票との比較" : "調査票比較プレビュー"}
             </h2>
             <p className="text-sm text-[#9E9E9E] mt-1">
-              アップロードファイルとレコメンド調査票の比較
+              {isRecommendedComparison 
+                ? "AIが推奨する調査票との詳細比較" 
+                : "アップロードファイルとレコメンド調査票の比較"
+              }
             </p>
           </div>
           <button

@@ -38,6 +38,7 @@ export default function SurveyAssistantPage() {
   const [showComparisonModal, setShowComparisonModal] = useState(false);
   const [recommendedSurveys, setRecommendedSurveys] = useState<Survey[]>([]);
   const [hasProcessedMessage, setHasProcessedMessage] = useState(false);
+  const [isRecommendedComparison, setIsRecommendedComparison] = useState(false);
 
   // Extract keywords from message for survey filtering
   const extractKeywordsFromMessage = (message: string): string[] => {
@@ -266,12 +267,14 @@ export default function SurveyAssistantPage() {
 
   const handleCompareSurvey = (survey: Survey) => {
     setReferenceSurvey(survey);
+    setIsRecommendedComparison(recommendedSurveys.some(s => s.id === survey.id));
     setShowComparisonModal(true);
   };
 
   const handleCompareWithTopRecommendation = () => {
     if (recommendedSurveys.length > 0) {
       setReferenceSurvey(recommendedSurveys[0]);
+      setIsRecommendedComparison(true);
       setShowComparisonModal(true);
     }
   };
@@ -494,7 +497,11 @@ export default function SurveyAssistantPage() {
           isOpen={showComparisonModal}
           uploadedFiles={attachedFiles}
           recommendedSurvey={referenceSurvey}
-          onClose={() => setShowComparisonModal(false)}
+          onClose={() => {
+            setShowComparisonModal(false);
+            setIsRecommendedComparison(false);
+          }}
+          isRecommendedComparison={isRecommendedComparison}
         />
       )}
     </div>

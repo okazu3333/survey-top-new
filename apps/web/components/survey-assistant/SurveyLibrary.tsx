@@ -352,11 +352,11 @@ export default function SurveyLibrary({
                   >
                     <Eye className="h-4 w-4" />
                   </button>
-                  {hasUploadedFiles && (
+                  {(hasUploadedFiles || recommendedSurveyIds.includes(survey.id)) && (
                     <button
                       onClick={(e) => handleCompare(survey, e)}
                       className="p-1 text-[#FF6B6B] hover:text-[#FF5252] hover:bg-[#FFF5F5] rounded transition-colors"
-                      title="アップロードファイルと比較"
+                      title={hasUploadedFiles ? "アップロードファイルと比較" : "この調査票と比較"}
                     >
                       <GitCompare className="h-4 w-4" />
                     </button>
