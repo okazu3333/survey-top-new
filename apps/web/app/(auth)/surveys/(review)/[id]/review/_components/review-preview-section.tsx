@@ -120,9 +120,10 @@ export const ReviewPreviewSection = ({
   // Fetch survey overview
   console.log("Calling survey.getById with:", { id: surveyId });
   // const { data: survey } = api.survey.getById.useQuery(
-    { id: surveyId },
-    { enabled: !isNaN(surveyId) && surveyId > 0 },
-  );
+  //   { id: surveyId },
+  //   { enabled: !isNaN(surveyId) && surveyId > 0 },
+  // );
+  const survey = null;
 
   // Review share settings (URL, password, expiry)
   const [isEditingShare] = useState(false);

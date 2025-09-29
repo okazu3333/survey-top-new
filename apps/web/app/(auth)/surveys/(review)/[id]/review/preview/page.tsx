@@ -11,8 +11,10 @@ const Page = () => {
   const surveyId = Number(params.id);
 
   // const { data: survey, isLoading } = api.survey.getById.useQuery({
-    id: surveyId,
-  });
+  //   id: surveyId,
+  // });
+  const survey = null;
+  const isLoading = false;
 
   if (isLoading) {
     return (

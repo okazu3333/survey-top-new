@@ -587,9 +587,10 @@ export const ScreeningSurvey = ({
   surveyId,
 }: ScreeningSurveyProps) => {
   // const { data: survey } = api.survey.getByIdWithRelations.useQuery(
-    { id: surveyId ?? 0 },
-    { enabled: !!surveyId },
-  );
+  //   { id: surveyId ?? 0 },
+  //   { enabled: !!surveyId },
+  // );
+  const survey = null;
 
   const [data, setData] = useState<CellValue[][]>(() => createInitialData());
   const [selectedCell, _setSelectedCell] = useState({ row: -1, col: -1 });

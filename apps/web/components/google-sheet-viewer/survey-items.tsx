@@ -281,9 +281,10 @@ type SurveyItemsProps = {
 
 export const SurveyItems = ({ className = "", surveyId }: SurveyItemsProps) => {
   // const { data: survey } = api.survey.getByIdWithRelations.useQuery(
-    { id: surveyId ?? 0 },
-    { enabled: !!surveyId },
-  );
+  //   { id: surveyId ?? 0 },
+  //   { enabled: !!surveyId },
+  // );
+  const survey = null;
 
   const [data, setData] = useState<SpreadsheetData>(() =>
     createSurveyItemsData(),

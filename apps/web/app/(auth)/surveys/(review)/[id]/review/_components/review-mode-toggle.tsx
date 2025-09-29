@@ -56,8 +56,9 @@ export const ReviewModeToggle = ({
 
   // Fetch survey data to get the title
   // const { data: survey } = api.survey.getById.useQuery({
-    id: surveyId,
-  });
+  //   id: surveyId,
+  // });
+  const survey = null;
 
   const modes =
     type === "reviewer"

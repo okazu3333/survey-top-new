@@ -7,14 +7,14 @@ import {
   ExternalLink,
   TriangleAlert,
 } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { /* useRouter, */ useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { SurveyCardHeader } from "@/components/survey-card-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { api } from "@/lib/trpc/react";
+// import { api } from "@/lib/trpc/react"; // Temporarily disabled
 import {
   SurveyForm,
   type SurveyFormData,
@@ -25,7 +25,7 @@ import { PublishAvailableConfirmDialog } from "./_components/publish-available-c
 
 const SurveyNewContent = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const router = useRouter();
+  // const router = useRouter(); // Temporarily disabled
   const searchParams = useSearchParams();
   const {
     importedSurveyData,
