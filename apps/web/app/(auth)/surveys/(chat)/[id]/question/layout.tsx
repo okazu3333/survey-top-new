@@ -13,7 +13,7 @@ const QuestionLayout = ({ children }: QuestionLayoutProps) => {
   const surveyId = Number(params.id);
 
   // Temporarily disabled during BigQuery migration
-  // const { data: survey } = api.survey.getById.useQuery({
+  // // const { data: survey } = api.survey.getById.useQuery({
   //   id: surveyId,
   // });
 

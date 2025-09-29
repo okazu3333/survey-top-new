@@ -13,7 +13,7 @@ export default function ReportPage() {
   const params = useParams();
   const surveyId = Number(params.id);
 
-  const { data: survey } = api.survey.getById.useQuery({ id: surveyId });
+  // const { data: survey } = api.survey.getById.useQuery({ id: surveyId });
   const { data: sections, isLoading } = api.question.listBySurvey.useQuery({
     surveyId,
   });

@@ -4,11 +4,11 @@ import { ChevronRight, HelpCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
+// import { toast } from "sonner"; // Temporarily disabled
 import { SurveyCardHeader } from "@/components/survey-card-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { api } from "@/lib/trpc/react";
+// import { api } from "@/lib/trpc/react"; // Temporarily disabled
 
 type SectionFormData = {
   fixedScreeningQuestions: string[];
@@ -34,34 +34,51 @@ const Page = ({ params }: Props) => {
 
   const { handleSubmit } = useForm<SectionFormData>();
 
-  // 既存のセクションを取得
-  const { data: sections, isLoading } = api.section.list.useQuery({
-    surveyId,
-  });
+  // Temporarily disabled during BigQuery migration
+  // const { data: sections, isLoading } = api.section.list.useQuery({
+  //   surveyId,
+  // });
+  const sections: any[] = [];
+  const isLoading = false;
 
-  // 調査情報を取得
-  const { data: survey } = api.survey.getById.useQuery({
-    id: surveyId,
-  });
+  // Temporarily disabled during BigQuery migration
+  // // const { data: survey } = api.survey.getById.useQuery({
+  //   id: surveyId,
+  // });
+  const survey = null;
 
-  // 各セクションの質問を取得
-  const { data: questionsData } = api.question.listBySurvey.useQuery({
-    surveyId,
-  });
+  // const { data: questionsData } = api.question.listBySurvey.useQuery({
+  //   surveyId,
+  // });
+  const questionsData: any[] = [];
 
-  // セクション同期のmutation
-  const syncSections = api.section.sync.useMutation({
-    onSuccess: () => {
-      toast.success("セクションが更新されました");
-      router.push(`/surveys/${id}/question/preview`);
-    },
-    onError: (error) => {
-      toast.error(`更新に失敗しました: ${error.message}`);
-    },
-  });
+  // const syncSections = api.section.sync.useMutation({
+  //   onSuccess: () => {
+  //     toast.success("セクションが更新されました");
+  //     router.push(`/surveys/${id}/question/preview`);
+  const syncSections = {
+    mutate: (_data: any) => {},
+    mutateAsync: async (_data: any) => {},
+    isPending: false,
+  };
+  
+  // Temporarily disabled sync logic
+  // onSuccess: () => {
+  //   toast.success("セクションが更新されました");
+  //   router.push(`/surveys/${id}/question/preview`);
+  // },
+  // onError: (error) => {
+  //   toast.error(`更新に失敗しました: ${error.message}`);
+  // },
+  // });
 
   // 自動同期用（リダイレクトなし）
-  const autoSyncSections = api.section.sync.useMutation({});
+  // const autoSyncSections = api.section.sync.useMutation({});
+  const autoSyncSections = {
+    mutate: (_data: any) => {},
+    mutateAsync: async (_data: any) => {},
+    isPending: false,
+  };
 
   // 既存のセクションデータをフォームに反映
   useEffect(() => {
@@ -109,7 +126,11 @@ const Page = ({ params }: Props) => {
   }, [survey, sections, surveyId, autoSyncSections]);
 
   // 質問が無ければダミー設問を生成
-  const seedMutation = api.question.seedForSurvey.useMutation({});
+  // const seedMutation = api.question.seedForSurvey.useMutation({});
+  const seedMutation = {
+    mutate: (_data: any) => {},
+    isPending: false,
+  };
   useEffect(() => {
     if (questionsData && questionsData.length > 0) {
       const total = questionsData.reduce(
@@ -253,7 +274,7 @@ const Page = ({ params }: Props) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col w-full">
       <SurveyCardHeader
-        workingTitle={survey?.title || "セクションの設定"}
+        workingTitle="セクションの設定"
         currentStep={1}
         surveyId={surveyId}
       />

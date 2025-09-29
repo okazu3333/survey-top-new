@@ -586,7 +586,7 @@ export const ScreeningSurvey = ({
   className = "",
   surveyId,
 }: ScreeningSurveyProps) => {
-  const { data: survey } = api.survey.getByIdWithRelations.useQuery(
+  // const { data: survey } = api.survey.getByIdWithRelations.useQuery(
     { id: surveyId ?? 0 },
     { enabled: !!surveyId },
   );

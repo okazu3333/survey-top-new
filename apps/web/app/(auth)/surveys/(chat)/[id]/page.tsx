@@ -33,7 +33,7 @@ const Page = () => {
   } = useChatContext();
 
   // Temporarily disabled during BigQuery migration
-  // const { data: survey, isLoading } = api.survey.getById.useQuery({
+  // // const { data: survey, isLoading } = api.survey.getById.useQuery({
   //   id: surveyId,
   // });
   const survey = null;

@@ -119,7 +119,7 @@ export const ReviewPreviewSection = ({
 
   // Fetch survey overview
   console.log("Calling survey.getById with:", { id: surveyId });
-  const { data: survey } = api.survey.getById.useQuery(
+  // const { data: survey } = api.survey.getById.useQuery(
     { id: surveyId },
     { enabled: !isNaN(surveyId) && surveyId > 0 },
   );

@@ -280,7 +280,7 @@ type SurveyItemsProps = {
 };
 
 export const SurveyItems = ({ className = "", surveyId }: SurveyItemsProps) => {
-  const { data: survey } = api.survey.getByIdWithRelations.useQuery(
+  // const { data: survey } = api.survey.getByIdWithRelations.useQuery(
     { id: surveyId ?? 0 },
     { enabled: !!surveyId },
   );

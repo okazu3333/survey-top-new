@@ -7,7 +7,7 @@ import { QuestionForm, type QuestionType } from "@/components/question-form";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { api } from "@/lib/trpc/react";
+// import { api } from "@/lib/trpc/react"; // Temporarily disabled
 
 type TabType = "all" | "screening" | "main";
 
@@ -62,27 +62,37 @@ export const SurveyPreviewSection = () => {
   const [activeTab, setActiveTab] = useState<TabType>("all");
   const [formValues, setFormValues] = useState<FormData>({});
 
-  // Fetch questions from tRPC
-  const {
-    data: sections,
-    isLoading,
-    refetch,
-  } = api.question.listBySurvey.useQuery(
-    { surveyId },
-    { enabled: !isNaN(surveyId) && surveyId > 0 },
-  );
+  // Temporarily disabled during BigQuery migration
+  // const {
+  //   data: sections,
+  //   isLoading,
+  //   refetch,
+  // } = api.question.listBySurvey.useQuery(
+  //   { surveyId },
+  //   { enabled: !isNaN(surveyId) && surveyId > 0 },
+  // );
+  const sections: any[] = [];
+  const isLoading = false;
+  const refetch = () => {};
 
   // Seed dummy questions when none exist
-  const seedMutation = api.question.seedForSurvey.useMutation({
-    onSuccess: async () => {
-      refetch();
-      try {
-        await seedThreadsMutation.mutateAsync({ surveyId });
-      } catch {}
-    },
-  });
+  // const seedMutation = api.question.seedForSurvey.useMutation({
+  //   onSuccess: async () => {
+  //     refetch();
+  //     try {
+  //       await seedThreadsMutation.mutateAsync({ surveyId });
+  //     } catch {}
+  //   },
+  // });
+  const seedMutation = {
+    mutate: (_data: any) => {},
+    isPending: false,
+  };
 
-  const seedThreadsMutation = api.thread.seedForSurvey.useMutation();
+  // const seedThreadsMutation = api.thread.seedForSurvey.useMutation();
+  // const seedThreadsMutation = {
+  //   mutateAsync: async () => {},
+  // };
 
   useEffect(() => {
     if (!isLoading && sections && sections.length > 0) {

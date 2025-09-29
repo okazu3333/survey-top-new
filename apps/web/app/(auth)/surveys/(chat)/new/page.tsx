@@ -148,15 +148,22 @@ const SurveyNewContent = () => {
   // Both conditions are satisfied
   const isDistributionOptimal = hasResidenceCondition && hasAgeCondition;
 
-  const createSurvey = api.survey.create.useMutation({
-    onSuccess: (data) => {
-      toast.success("調査が作成されました");
-      router.push(`/surveys/${data.id}/sections`);
-    },
-    onError: (error) => {
-      toast.error(`エラーが発生しました: ${error.message}`);
-    },
-  });
+  // const createSurvey = api.survey.create.useMutation({
+  const createSurvey = {
+    mutate: (_data: any) => {},
+    mutateAsync: async (_data: any) => ({ id: 1 }),
+    isPending: false,
+  };
+  // Temporarily disabled during BigQuery migration
+  // const createSurvey = api.survey.create.useMutation({
+  //   onSuccess: (data) => {
+  //     toast.success("調査が作成されました");
+  //     router.push(`/surveys/${data.id}/sections`);
+  //   },
+  //   onError: (error) => {
+  //     toast.error(`エラーが発生しました: ${error.message}`);
+  //   },
+  // });
 
   const onSubmit = async (data: SurveyFormData) => {
     const payload = {

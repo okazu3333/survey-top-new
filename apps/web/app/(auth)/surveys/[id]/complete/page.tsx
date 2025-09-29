@@ -12,7 +12,7 @@ const CompletePage = () => {
   const params = useParams();
   const surveyId = Number(params.id);
 
-  const { data: survey, isLoading } = api.survey.getById.useQuery({
+  // const { data: survey, isLoading } = api.survey.getById.useQuery({
     id: surveyId,
   });
 

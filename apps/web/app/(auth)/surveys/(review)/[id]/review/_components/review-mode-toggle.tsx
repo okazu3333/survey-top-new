@@ -55,7 +55,7 @@ export const ReviewModeToggle = ({
   const [showRespondentDialog, setShowRespondentDialog] = useState(false);
 
   // Fetch survey data to get the title
-  const { data: survey } = api.survey.getById.useQuery({
+  // const { data: survey } = api.survey.getById.useQuery({
     id: surveyId,
   });
 

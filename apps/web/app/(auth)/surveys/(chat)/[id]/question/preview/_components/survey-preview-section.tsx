@@ -310,7 +310,7 @@ export const SurveyPreviewSection = () => {
               <SurveySectionCard
                 key={section.id}
                 section={section}
-                control={control}
+                control={control as any}
                 watch={watch as (name: string) => any}
                 setValue={setValue as (name: string, value: any) => void}
                 getValues={getValues as (name?: string) => any}
