@@ -2,7 +2,7 @@
 
 import { Copy, MessageCircle } from "lucide-react";
 import { useParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Comment } from "@/app/(auth)/surveys/(review)/[id]/review/_components/comment";
@@ -135,12 +135,13 @@ export const ReviewPreviewSection = ({
   //   { enabled: !isNaN(surveyId) && surveyId > 0 },
   // );
   
-  // Mock reviewAccess data
-  const reviewAccess = {
+  // Mock reviewAccess data (useMemo to prevent infinite loop)
+  const reviewAccess = useMemo(() => ({
     password: "review123",
     expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
     isExpired: false,
-  };
+  }), []); // Empty dependency array - only create once
+  
   // Share mutation disabled in preview; inputs are read-only
   // const { mutate: upsertReviewAccess, isPending: isSavingShare } =
   //   api.reviewAccess.upsert.useMutation({
