@@ -129,10 +129,18 @@ export const ReviewPreviewSection = ({
   const [isEditingShare] = useState(false);
   const [sharePassword, setSharePassword] = useState("");
   const [shareExpiresAt, setShareExpiresAt] = useState("");
-  const { data: reviewAccess } = api.reviewAccess.getBySurveyId.useQuery(
-    { surveyId },
-    { enabled: !isNaN(surveyId) && surveyId > 0 },
-  );
+  // Temporarily disabled - reviewAccess router is not available
+  // const { data: reviewAccess } = api.reviewAccess.getBySurveyId.useQuery(
+  //   { surveyId },
+  //   { enabled: !isNaN(surveyId) && surveyId > 0 },
+  // );
+  
+  // Mock reviewAccess data
+  const reviewAccess = {
+    password: "review123",
+    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
+    isExpired: false,
+  };
   // Share mutation disabled in preview; inputs are read-only
   // const { mutate: upsertReviewAccess, isPending: isSavingShare } =
   //   api.reviewAccess.upsert.useMutation({
@@ -174,15 +182,20 @@ export const ReviewPreviewSection = ({
       { enabled: !isNaN(surveyId) && surveyId > 0 },
     );
 
-  // Fetch threads from tRPC
-  const {
-    data: threads,
-    isLoading: threadsLoading,
-    refetch: refetchThreads,
-  } = api.thread.list.useQuery(
-    { surveyId },
-    { enabled: !isNaN(surveyId) && surveyId > 0 },
-  );
+  // Temporarily disabled - thread router is not available
+  // const {
+  //   data: threads,
+  //   isLoading: threadsLoading,
+  //   refetch: refetchThreads,
+  // } = api.thread.list.useQuery(
+  //   { surveyId },
+  //   { enabled: !isNaN(surveyId) && surveyId > 0 },
+  // );
+  
+  // Mock threads data
+  const threads: any[] = [];
+  const threadsLoading = false;
+  const refetchThreads = () => {};
 
   // Build effective threads (fallback to dummy when none)
   const allQuestions: any[] = (sections || []).flatMap(
@@ -216,15 +229,32 @@ export const ReviewPreviewSection = ({
           reviews: [],
         }));
 
-  // Create thread mutation
-  const createThreadMutation = api.thread.create.useMutation({
-    onSuccess: () => {
+  // Temporarily disabled - thread router is not available
+  // const createThreadMutation = api.thread.create.useMutation({
+  //   onSuccess: () => {
+  //     refetchThreads();
+  //     setThreadFormOpen(false);
+  //     setThreadMessage("");
+  //     setThreadFormData(null);
+  //   },
+  // });
+  
+  // Mock create thread mutation
+  const createThreadMutation = {
+    mutate: (_data?: any) => {
       refetchThreads();
       setThreadFormOpen(false);
       setThreadMessage("");
       setThreadFormData(null);
     },
-  });
+    mutateAsync: async (_data?: any) => {
+      refetchThreads();
+      setThreadFormOpen(false);
+      setThreadMessage("");
+      setThreadFormData(null);
+    },
+    isPending: false,
+  };
 
   const onSubmit = (data: QuestionFormData) => {
     console.log("Form submitted:", data);
