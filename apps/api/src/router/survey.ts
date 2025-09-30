@@ -3,110 +3,89 @@ import { publicProcedure, router } from "../trpc";
 
 export const surveyRouter = router({
   list: publicProcedure.query(async ({ ctx }) => {
-    const surveys = await ctx.db.survey.findMany({
-      orderBy: { createdAt: "desc" },
-      include: {
-        sections: {
-          include: {
-            questions: {
-              include: {
-                options: true,
-              },
-            },
-          },
-        },
-      },
+    // BigQuery implementation
+    const [rows] = await ctx.db.query({
+      query: `
+        SELECT id, title, purpose, targetCondition, analysisCondition, 
+               researchMethod, researchScale, createdAt, updatedAt
+        FROM \`viewpers.surveybridge_db.Survey\`
+        ORDER BY createdAt DESC
+      `,
+      location: process.env.BQ_LOCATION || "US",
     });
-    return surveys;
+    return rows;
   }),
 
   getById: publicProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ input, ctx }) => {
-      const survey = await ctx.db.survey.findUnique({
-        where: { id: input.id },
+      // BigQuery implementation
+      const [rows] = await ctx.db.query({
+        query: `
+          SELECT id, title, purpose, targetCondition, analysisCondition, 
+                 researchMethod, researchScale, createdAt, updatedAt
+          FROM \`viewpers.surveybridge_db.Survey\`
+          WHERE id = ${input.id}
+        `,
+        location: process.env.BQ_LOCATION || "US",
       });
+      
+      if (rows.length === 0) return null;
+      
+      // Ensure proper data types for BigQuery results
+      const survey = {
+        ...rows[0],
+        id: Number(rows[0].id),
+        title: String(rows[0].title || ''),
+        purpose: String(rows[0].purpose || ''),
+        targetCondition: String(rows[0].targetCondition || ''),
+        analysisCondition: String(rows[0].analysisCondition || ''),
+        researchMethod: String(rows[0].researchMethod || ''),
+        researchScale: String(rows[0].researchScale || ''),
+      };
+      
+      console.log("Survey.getById processed result:", survey);
       return survey;
     }),
 
   getByIdWithRelations: publicProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ input, ctx }) => {
-      const survey = await ctx.db.survey.findUnique({
-        where: { id: input.id },
-        include: {
-          sections: {
-            include: {
-              questions: {
-                include: {
-                  options: true,
-                },
-              },
-            },
-          },
-        },
+      // BigQuery implementation - simplified version
+      // For now, return the same as getById since relations are complex
+      const [rows] = await ctx.db.query({
+        query: `
+          SELECT id, title, purpose, targetCondition, analysisCondition, 
+                 researchMethod, researchScale, createdAt, updatedAt
+          FROM \`viewpers.surveybridge_db.Survey\`
+          WHERE id = ${input.id}
+        `,
+        location: process.env.BQ_LOCATION || "US",
       });
+      
+      if (rows.length === 0) return null;
+      
+      const survey = {
+        ...rows[0],
+        id: Number(rows[0].id),
+        title: String(rows[0].title || ''),
+        purpose: String(rows[0].purpose || ''),
+        targetCondition: String(rows[0].targetCondition || ''),
+        analysisCondition: String(rows[0].analysisCondition || ''),
+        researchMethod: String(rows[0].researchMethod || ''),
+        researchScale: String(rows[0].researchScale || ''),
+        sections: [], // TODO: Implement sections relation
+      };
+      
       return survey;
     }),
 
-  create: publicProcedure
-    .input(
-      z.object({
-        title: z.string().min(1, "タイトルは必須です"),
-        purpose: z.string().optional(),
-        targetCondition: z.string().optional(),
-        analysisCondition: z.string().optional(),
-        researchMethod: z.string().optional(),
-        researchScale: z.string().optional(),
-      }),
-    )
-    .mutation(async ({ input, ctx }) => {
-      console.log("survey.create input:", input);
-      try {
-        const survey = await ctx.db.survey.create({
-          data: {
-            title: input.title,
-            purpose: input.purpose,
-            targetCondition: input.targetCondition,
-            analysisCondition: input.analysisCondition,
-            researchMethod: input.researchMethod,
-            researchScale: input.researchScale,
-          },
-        });
-        return survey;
-      } catch (e) {
-        console.error("survey.create prisma error:", e);
-        throw e;
-      }
-    }),
+  // create: Disabled - Read-only mode, only reference existing BigQuery data
+  // create: publicProcedure...
 
-  update: publicProcedure
-    .input(
-      z.object({
-        id: z.number(),
-        title: z.string().min(1, "タイトルは必須です").optional(),
-        purpose: z.string().optional(),
-        targetCondition: z.string().optional(),
-        analysisCondition: z.string().optional(),
-        researchMethod: z.string().optional(),
-        researchScale: z.string().optional(),
-      }),
-    )
-    .mutation(async ({ input, ctx }) => {
-      const { id, ...data } = input;
-      const survey = await ctx.db.survey.update({
-        where: { id },
-        data,
-      });
-      return survey;
-    }),
+  // update: Disabled - Read-only mode, only reference existing BigQuery data
+  // update: publicProcedure...
 
-  delete: publicProcedure
-    .input(z.object({ id: z.number() }))
-    .mutation(async ({ input, ctx }) => {
-      const survey = await ctx.db.survey.delete({
-        where: { id: input.id },
-      });
-      return survey;
-    }),
+  // delete: Disabled - Read-only mode, only reference existing BigQuery data  
+  // delete: publicProcedure...
 });

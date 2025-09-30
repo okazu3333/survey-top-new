@@ -6,7 +6,7 @@
     "apps/web",
     "apps/api"
   ],
-  "packageManager": "bun@1.2.2",
+  "packageManager": "bun@1.2.18",
   "scripts": {
     "dev": "bun run --filter @survey-poc/web dev",
     "dev:web": "bun run --filter @survey-poc/web dev",

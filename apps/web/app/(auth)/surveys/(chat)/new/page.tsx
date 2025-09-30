@@ -7,14 +7,14 @@ import {
   ExternalLink,
   TriangleAlert,
 } from "lucide-react";
-import { /* useRouter, */ useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { api } from "@/lib/trpc/react";
 import { SurveyCardHeader } from "@/components/survey-card-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-// import { api } from "@/lib/trpc/react"; // Temporarily disabled
 import {
   SurveyForm,
   type SurveyFormData,
@@ -25,7 +25,7 @@ import { PublishAvailableConfirmDialog } from "./_components/publish-available-c
 
 const SurveyNewContent = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  // const router = useRouter(); // Temporarily disabled
+  const router = useRouter();
   const searchParams = useSearchParams();
   const {
     importedSurveyData,
@@ -148,10 +148,15 @@ const SurveyNewContent = () => {
   // Both conditions are satisfied
   const isDistributionOptimal = hasResidenceCondition && hasAgeCondition;
 
-  // const createSurvey = api.survey.create.useMutation({
+  // Read-only mode: Survey creation is disabled
   const createSurvey = {
-    mutate: (_data: any) => {},
-    mutateAsync: async (_data: any) => ({ id: 1 }),
+    mutate: () => {
+      toast.error("調査作成は無効化されています。既存の調査データのみ参照可能です。");
+    },
+    mutateAsync: async () => {
+      toast.error("調査作成は無効化されています。既存の調査データのみ参照可能です。");
+      throw new Error("Survey creation is disabled");
+    },
     isPending: false,
   };
   // Temporarily disabled during BigQuery migration

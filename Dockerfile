@@ -1,5 +1,5 @@
-# Use the official Bun image
-FROM oven/bun:1 as base
+# Use the official Bun image with fixed version
+FROM oven/bun:1.2.18 as base
 WORKDIR /usr/src/app
 
 # Install dependencies
@@ -7,7 +7,7 @@ FROM base AS install
 COPY package.json bun.lockb ./
 COPY apps/web/package.json ./apps/web/
 COPY apps/api/package.json ./apps/api/
-RUN bun install --frozen-lockfile
+RUN bun install
 
 # Copy source code and build
 COPY . .

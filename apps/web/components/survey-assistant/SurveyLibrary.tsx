@@ -1,4 +1,4 @@
-import { Calendar, Eye, FileText, MoreHorizontal, X } from "lucide-react";
+import { Calendar, Eye, FileText, HelpCircle, MoreHorizontal, X } from "lucide-react";
 import type React from "react";
 import { useCallback, useMemo, useState } from "react";
 
@@ -273,6 +273,13 @@ export default function SurveyLibrary({
             <h2 className="text-lg font-semibold text-[#202020]">
               調査票ライブラリ
             </h2>
+            <div className="relative group">
+              <HelpCircle className="w-5 h-5 text-gray-400 cursor-help" />
+              <div className="absolute left-1/2 transform -translate-x-1/2 bottom-full mb-2 px-3 py-2 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+                チャット欄に入力された要件よりレコメンドします
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+              </div>
+            </div>
             {searchKeywords.length > 0 && onClearSearch && (
               <button
                 onClick={onClearSearch}

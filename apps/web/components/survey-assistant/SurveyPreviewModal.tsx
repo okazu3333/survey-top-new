@@ -76,9 +76,6 @@ export default function SurveyPreviewModal({
             <h2 className="text-xl font-semibold text-[#202020]">
               {survey.title}
             </h2>
-            <p className="text-sm text-[#9E9E9E] mt-1">
-              {survey.client} • {survey.implementationDate}
-            </p>
           </div>
           <button
             onClick={onClose}

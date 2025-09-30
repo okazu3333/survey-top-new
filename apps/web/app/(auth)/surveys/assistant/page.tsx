@@ -7,7 +7,7 @@ import { useState } from "react";
 import RuleModelModal from "@/components/survey-assistant/RuleModelModal";
 import SurveyLibrary from "@/components/survey-assistant/SurveyLibrary";
 import SurveyPreviewModal from "@/components/survey-assistant/SurveyPreviewModal";
-import ComparisonPreviewModal from "@/components/survey-assistant/ComparisonPreviewModal";
+import SurveyBuilderModal from "@/components/survey-assistant/SurveyBuilderModal";
 
 interface Survey {
   id: string;
@@ -35,10 +35,10 @@ export default function SurveyAssistantPage() {
   const [searchKeywords, setSearchKeywords] = useState<string[]>([]);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [previewSurvey, setPreviewSurvey] = useState<Survey | null>(null);
-  const [showComparisonModal, setShowComparisonModal] = useState(false);
+  const [showSurveyBuilderModal, setShowSurveyBuilderModal] = useState(false);
+  const [selectedPastSurvey, setSelectedPastSurvey] = useState<Survey | null>(null);
   const [recommendedSurveys, setRecommendedSurveys] = useState<Survey[]>([]);
   const [hasProcessedMessage, setHasProcessedMessage] = useState(false);
-  const [isRecommendedComparison, setIsRecommendedComparison] = useState(false);
 
   // Extract keywords from message for survey filtering
   const extractKeywordsFromMessage = (message: string): string[] => {
@@ -240,31 +240,17 @@ export default function SurveyAssistantPage() {
   };
 
   const handleStartDesign = () => {
-    // 調査設計画面への遷移
-    console.log("調査設計を開始:", {
+    // Read-only mode: Navigate to existing survey overview page first
+    console.log("既存調査への遷移:", {
       referenceSurvey,
       selectedRuleModel,
       modelName: getRuleModelDisplayName(selectedRuleModel),
     });
 
-    // 選択した参考調査票とルールモデルの情報をURLパラメータで渡す
-    const params = new URLSearchParams();
-    if (referenceSurvey) {
-      params.set("referenceSurveyId", referenceSurvey.id);
-      params.set("referenceSurveyTitle", referenceSurvey.title);
-    }
-    if (selectedRuleModel) {
-      params.set("ruleModel", selectedRuleModel);
-      params.set(
-        "ruleModelName",
-        getRuleModelDisplayName(selectedRuleModel) || "",
-      );
-    }
-
-    const url = params.toString()
-      ? `/surveys/new?${params.toString()}`
-      : "/surveys/new";
-    router.push(url);
+    // Navigate to survey overview page (step 0: 概要の設定)
+    // Use survey ID 79 (latest survey with sections)
+    const surveyId = 79;
+    router.push(`/surveys/${surveyId}`);
   };
 
   const getRuleModelDisplayName = (modelId: string | null) => {
@@ -291,9 +277,29 @@ export default function SurveyAssistantPage() {
   };
 
   const handleCompareSurvey = (survey: Survey) => {
-    setReferenceSurvey(survey);
-    setIsRecommendedComparison(recommendedSurveys.some(s => s.id === survey.id));
-    setShowComparisonModal(true);
+    console.log("ベース調査票を選択:", survey);
+    // ベース調査票として選択されたものを設定
+    // 参考調査票は固定で別の調査票を使用
+    const pastSurvey = {
+      id: "1",
+      title: "消費者満足度調査 2024年版",
+      client: "A社",
+      purpose: "満足度調査",
+      implementationDate: "2024年3月",
+      tags: ["満足度", "NPS", "ブランド評価"],
+      description: "顧客満足度とNPSを測定する包括的な調査",
+    };
+    setSelectedPastSurvey(pastSurvey);
+    setReferenceSurvey(survey); // ベース調査票として使用
+    setShowSurveyBuilderModal(true);
+  };
+
+  const handleCreateSurveyFromBuilder = (questions: any[]) => {
+    console.log("新規調査票を作成:", questions);
+    // TODO: 選択された設問で新しい調査票を作成
+    // 読み取り専用モードでは実際の作成は行わず、既存調査に遷移
+    const surveyId = 79;
+    router.push(`/surveys/${surveyId}`);
   };
 
   const handleCompareWithTopRecommendation = () => {
@@ -311,7 +317,7 @@ export default function SurveyAssistantPage() {
         {/* Instruction Text */}
         <div className="text-center">
           <p className="text-[#9E9E9E] text-lg">
-            参考にしたい調査票をアップロードするか、テキストで入力ください
+            過去調査票をアップロードもしくは、調査要件をチャットボックスにご入力ください
           </p>
         </div>
 
@@ -515,31 +521,17 @@ export default function SurveyAssistantPage() {
         />
       )}
 
-      {showComparisonModal && (
-        <ComparisonPreviewModal
-          isOpen={showComparisonModal}
-          uploadedFiles={attachedFiles}
-          recommendedSurvey={referenceSurvey}
+      {showSurveyBuilderModal && (
+        <SurveyBuilderModal
+          isOpen={showSurveyBuilderModal}
+          pastSurvey={selectedPastSurvey}
+          baseSurvey={referenceSurvey}
           onClose={() => {
-            setShowComparisonModal(false);
-            setIsRecommendedComparison(false);
+            setShowSurveyBuilderModal(false);
+            setSelectedPastSurvey(null);
+            setReferenceSurvey(null);
           }}
-          isRecommendedComparison={isRecommendedComparison}
-          onFileUpload={(files) => {
-            setAttachedFiles((prev) => [...prev, ...files]);
-          }}
-          onCreateFromUpload={() => {
-            console.log("アップロードファイルベースで作成");
-            // TODO: 調査作成画面への遷移
-          }}
-          onCreateFromRecommended={() => {
-            console.log("レコメンド調査票ベースで作成");
-            // TODO: 調査作成画面への遷移
-          }}
-          onProceedToDesign={() => {
-            console.log("このまま調査設計へ進む");
-            // TODO: 調査設計画面への遷移
-          }}
+          onCreateSurvey={handleCreateSurveyFromBuilder}
         />
       )}
     </div>
