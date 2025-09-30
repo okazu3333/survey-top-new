@@ -125,3 +125,9 @@ Thumbs.db
 
 # Prisma
 packages/database/prisma/dev.db*
+
+# Disabled deployment scripts (GitHub direct integration only)
+*.disabled
+cloudbuild.yaml.disabled
+deploy-cloudrun.sh.disabled
+setup-gcp.sh.disabled

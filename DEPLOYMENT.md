@@ -2,124 +2,109 @@
 
 ## 🚀 デプロイ方法
 
-### 方法1: GitHub Actions (推奨)
+### GitHub直接連携（推奨・現在使用中）
 
-GitHubにプッシュするだけで自動デプロイされます。
+**このプロジェクトはCloud RunのGitHub直接連携機能を使用しています。**
 
-#### 前提条件
-1. GCPプロジェクトが作成されていること
-2. Google Cloud SDKがインストールされていること
+GitHubリポジトリに `git push` するだけで、自動的にCloud Runにデプロイされます。
 
-#### セットアップ手順
+#### 仕組み
+- Cloud RunがGitHubリポジトリを直接監視
+- `main` ブランチへのプッシュを検出
+- 自動的にDockerイメージをビルドしてデプロイ
+- サービス名: リポジトリ名から自動生成（例: `survey-top-new`）
 
-1. **GCP環境のセットアップ**
+#### デプロイ方法
 ```bash
-# プロジェクトIDを指定してセットアップスクリプトを実行
-./setup-gcp.sh YOUR_PROJECT_ID
-```
+# 変更をコミット
+git add .
+git commit -m "your changes"
 
-2. **GitHub Secretsの設定**
-GitHubリポジトリの Settings > Secrets and variables > Actions で以下を追加：
-- `GCP_PROJECT_ID`: あなたのGCPプロジェクトID
-- `GCP_SA_KEY`: `github-actions-key.json`の内容をコピー
-
-3. **自動デプロイ**
-```bash
+# mainブランチにプッシュ（自動デプロイが開始されます）
 git push origin main
 ```
-mainブランチにプッシュすると自動的にCloud Runにデプロイされます。
 
-### 方法2: 手動デプロイ
+#### デプロイ状況の確認
+1. [Google Cloud Console](https://console.cloud.google.com/)にアクセス
+2. Cloud Run > サービス を選択
+3. サービス名をクリックしてデプロイ履歴を確認
 
-#### 前提条件
-1. Google Cloud SDKがインストールされていること
-2. Dockerがインストールされていること
-3. GCPプロジェクトが作成されていること
+#### 環境変数の設定
+Cloud Runのサービス設定で以下の環境変数が設定されています：
+- `NODE_ENV=production`
+- `DB_PROVIDER=bigquery`
+- `NEXT_PUBLIC_DB_PROVIDER=bigquery`
+- `BQ_PROJECT_ID=viewpers`
+- `BQ_DATASET=surveybridge_db`
+- `BQ_LOCATION=US`
+- `READONLY=false`
+- `NEXT_PUBLIC_READONLY=false`
+- `BASIC_AUTH_USER=cmgadmin`
+- `BASIC_AUTH_PASSWORD=crossadmin`
 
-#### セットアップ手順
+---
 
-1. **Google Cloud SDKの認証**
+## 📝 その他のデプロイ方法（無効化済み）
+
+以下のデプロイ方法は現在無効化されています（ファイル名に `.disabled` が付いています）：
+
+### ~~方法1: GitHub Actions~~
+- ファイル: `.github/workflows/deploy.yml` (削除済み)
+- 理由: GitHub直接連携と重複するため削除
+
+### ~~方法2: Cloud Build~~
+- ファイル: `cloudbuild.yaml.disabled`
+- 理由: GitHub直接連携と重複するため無効化
+
+### ~~方法3: 手動デプロイスクリプト~~
+- ファイル: `deploy-cloudrun.sh.disabled`, `setup-gcp.sh.disabled`
+- 理由: 手動デプロイは不要なため無効化
+
+---
+
+## 🔧 トラブルシューティング
+
+### デプロイが失敗する場合
+
+1. **Cloud Runのログを確認**
 ```bash
-gcloud auth login
-gcloud config set project YOUR_PROJECT_ID
+gcloud logging read "resource.type=cloud_run_revision" --limit 50
 ```
 
-2. **必要なAPIの有効化**
+2. **ビルドログを確認**
+Google Cloud Console > Cloud Run > サービス > ログタブ
+
+3. **サービスの再デプロイ**
+Cloud Console上で「新しいリビジョンをデプロイ」ボタンをクリック
+
+### 複数のサービスが作成されている場合
+
+**問題**: `survey-top-new`, `survey-new-top`, `survey-poc` など複数のサービスが存在する
+
+**解決策**:
+1. 不要なサービスを削除
 ```bash
-gcloud services enable run.googleapis.com
-gcloud services enable artifactregistry.googleapis.com
-gcloud services enable cloudbuild.googleapis.com
-```
-
-3. **Docker認証の設定**
-```bash
-gcloud auth configure-docker asia-northeast1-docker.pkg.dev
-```
-
-4. **デプロイスクリプトの設定**
-`deploy-cloudrun.sh`ファイルの`PROJECT_ID`を実際のGCPプロジェクトIDに変更：
-
-```bash
-PROJECT_ID="your-actual-project-id"  # ここを変更
-```
-
-5. **デプロイの実行**
-```bash
-./deploy-cloudrun.sh
-```
-
-## 認証情報
-
-デプロイ後のアプリケーションには以下の認証情報でアクセスできます：
-
-- **ユーザー名**: `cmgadmin`
-- **パスワード**: `crossadmin`
-
-## 設定内容
-
-- **リージョン**: asia-northeast1 (東京)
-- **メモリ**: 2GB
-- **CPU**: 2コア
-- **最大インスタンス数**: 10
-- **ポート**: 3000
-
-## トラブルシューティング
-
-### ビルドエラーが発生した場合
-
-```bash
-# Dockerイメージを手動でビルド
-docker build -t survey-poc .
-
-# ローカルでテスト
-docker run -p 3000:3000 survey-poc
-```
-
-### デプロイ後にアクセスできない場合
-
-1. Cloud Runサービスの状態を確認：
-```bash
-gcloud run services list
-```
-
-2. ログを確認：
-```bash
-gcloud run services logs read survey-poc --region=asia-northeast1
-```
-
-### 環境変数の確認・更新
-
-```bash
-gcloud run services update survey-poc \
-  --region=asia-northeast1 \
-  --set-env-vars BASIC_AUTH_USER=cmgadmin \
-  --set-env-vars BASIC_AUTH_PASSWORD=crossadmin
-```
-
-## 削除方法
-
-サービスを削除する場合：
-
-```bash
+# 不要なサービスを削除（例）
+gcloud run services delete survey-new-top --region=asia-northeast1
 gcloud run services delete survey-poc --region=asia-northeast1
-``` 
+```
+
+2. 使用するサービスのみを残す（推奨: リポジトリ名と同じもの）
+
+### ローカルでDockerイメージをテスト
+
+```bash
+# イメージをビルド
+docker build -t survey-test .
+
+# ローカルで実行
+docker run -p 8080:8080 survey-test
+```
+
+---
+
+## 📚 参考リンク
+
+- [Cloud Run - GitHub からの継続的デプロイ](https://cloud.google.com/run/docs/continuous-deployment-with-cloud-build?hl=ja)
+- [Cloud Run ドキュメント](https://cloud.google.com/run/docs?hl=ja)
+- [Dockerfile ベストプラクティス](https://docs.docker.com/develop/dev-best-practices/)
