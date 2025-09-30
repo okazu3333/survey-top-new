@@ -296,17 +296,16 @@ export default function SurveyAssistantPage() {
 
   const handleCreateSurveyFromBuilder = (questions: any[]) => {
     console.log("新規調査票を作成:", questions);
-    // TODO: 選択された設問で新しい調査票を作成
-    // 読み取り専用モードでは実際の作成は行わず、既存調査に遷移
-    const surveyId = 79;
-    router.push(`/surveys/${surveyId}`);
+    // 調査票作成後、ルール設定モーダルを表示
+    // referenceSurveyを選択された調査票として設定
+    setSelectedSurvey(referenceSurvey);
+    setShowSurveyBuilderModal(false);
+    setShowRuleModal(true);
   };
 
   const handleCompareWithTopRecommendation = () => {
     if (recommendedSurveys.length > 0) {
-      setReferenceSurvey(recommendedSurveys[0]);
-      setIsRecommendedComparison(true);
-      setShowComparisonModal(true);
+      handleCompareSurvey(recommendedSurveys[0]);
     }
   };
 
