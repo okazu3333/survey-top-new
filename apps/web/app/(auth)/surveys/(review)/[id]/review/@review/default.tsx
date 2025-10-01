@@ -58,8 +58,8 @@ const ReviewSidebar = ({ userType = "reviewee" }: ReviewSidebarProps) => {
   //   },
   // );
   
-  // Mock data for threads
-  const threads: any[] = [];
+  // Mock data for threads (useMemo to prevent infinite loop)
+  const threads = useMemo(() => [] as any[], []);
   const isLoading = false;
 
   // Prefer real threads; if none, provide two dummy examples for visibility (memoized)
